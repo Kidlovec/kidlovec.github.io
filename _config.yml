@@ -56,15 +56,16 @@ plugins: [jekyll-paginate]
 # repo defaults to USERNAME.github.io
 # Branch defaults to "source" for USERNAME.github.io
 # or "master" otherwise
+# https://github.com/Kidlovec/kidlovec.github.io.git Kidlovec/kidlovec.github.io
 safe: false
 lsi: false
-username: jekyller
-repo: jasper
+username: Kidlovec
+repo: kidlovec.github.io
 branch: master
-relative_source: ../jasper/
-destination: ../jasper-pages/
-production_url:  https://jekyller.github.io/jasper/
-source_url:  https://github.com/jekyller/jasper/
+relative_source: ../kidlovec.github.io/
+destination: ../gh-pages/
+production_url:  https://kidlovec.github.io/
+source_url:  https://github.com/Kidlovec/kidlovec.github.io/
 
 exclude:
   - README.md
