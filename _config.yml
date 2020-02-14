@@ -64,7 +64,7 @@ repo: kidlovec.github.io
 branch: master
 relative_source: ../kidlovec.github.io/
 destination: ../gh-pages/
-production_url:  https://kidlovec.github.io/
+production_url:  https://kidlovec.github.io/blog
 source_url:  https://github.com/Kidlovec/kidlovec.github.io/
 
 exclude:
