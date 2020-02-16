@@ -22,7 +22,7 @@ kramdown:
     disable : true
 
 # Website info
-name: 'Finding The Way Home'
+name: 'Finding The Way Smarter'
 description: "做一个谦卑，忠诚的实践者，不要做一个严谨，深沉的思想家. The story begins here."
 
 short_url: 'kidlovec.github.io'
