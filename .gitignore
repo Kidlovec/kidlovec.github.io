@@ -9,7 +9,6 @@
 # webstorm
 .idea/
 
-.travis.yml
 
 # others
 *.swp
@@ -32,5 +31,4 @@ vendor
 Gemfile.lock
 node_modules
 
-.sass-cache/*
 
