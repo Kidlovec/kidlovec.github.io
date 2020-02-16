@@ -2,7 +2,7 @@ casper:
   username: casper
   name: Casper McFadden
   location: Maine, USA
-  url_full: http://kidlovec.github.io/blog
+  url_full: http://kidlovec.github.io/
   url: jekyller.github.io/jasper
   bio: A paranormal expert and his daughter bunk in an abandoned house populated by 3 mischievous ghosts and a friendly one, Casper.
   assets: assets/images/casper.png
@@ -10,7 +10,7 @@ lewis:
   username: lewis
   name: Lewis Carroll
   location: Cheshire, England
-  url_full: http://kidlovec.github.io/blog
+  url_full: http://kidlovec.github.io/
   url: jekyller.github.io/jasper
   bio: My real name is Charles Lutwidge Dodgson, but people call me Lewis. I'm an English writer, mathematician, logician, Anglican deacon and photographer. People know me best for writing about Alice.
   assets: assets/images/lewis.jpeg
@@ -18,7 +18,7 @@ abraham:
   username: abraham
   name: Abraham Lincoln
   location: Kentucky, USA
-  url_full: http://kidlovec.github.io/blog
+  url_full: http://kidlovec.github.io/
   url: jekyller.github.io/jasper
   bio: I was the 16th president of the USA until I was assassinated in April of 1963. I led the US through its Civil War - its bloodiest and greatest moral, constitutional and political crisis.
   assets: assets/images/abraham.jpg
@@ -26,7 +26,7 @@ edgar:
   username: edgar
   name: Edgar Rice Burroughs
   location: Chicago, Illinois
-  url_full: http://kidlovec.github.io/blog
+  url_full: http://kidlovec.github.io/
   url: jekyller.github.io/jasper
   bio: I'm an American novelist, best known for my work writing about a brave jungle hero called Tarzan and his muse, Jane.
   assets: assets/images/edgar.gif
@@ -34,7 +34,7 @@ kidlovec:
   username: kidlovec
   name: 浪心
   location: Shanghai, China
-  url_full: http://kidlovec.github.io/blog
+  url_full: http://kidlovec.github.io/
   url: kidlovec.github.io/blog
   bio: An Chinese coder. focus on java/spring/flink
   assets: assets/images/lang.xin.400x400.jpeg
@@ -42,7 +42,7 @@ martin:
   username: martin
   name: Martin Luther King
   location: Shanghai, Ching
-  url_full: http://kidlovec.github.io/blog
+  url_full: http://kidlovec.github.io/
   url: jekyller.github.io/jasper
   bio: An American pastor, activist, hum
   assets: assets/images/martin.jpg
