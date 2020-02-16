@@ -1,0 +1,13 @@
+<!-- _includes/base.html -->
+{% assign base_url = '../'
+%}{% assign depth = page.url | split: '/' | size | minus: 1
+%}{% if depth <= 1
+%}{% assign base_url = '../'
+%}{% elsif depth == 2
+%}{% assign base_url = '../../'
+%}{% elsif depth == 3
+%}{% assign base_url = '../../../'
+%}{% elsif depth == 4
+%}{% assign base_url = '../../../../'
+%}{% endif
+%}

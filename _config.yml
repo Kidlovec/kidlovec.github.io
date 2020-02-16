@@ -1,0 +1,89 @@
+# Jekyll configuration
+#markdown: redcarpet
+#highlighter: pygments
+markdown: kramdown
+highlighter:  Rouge
+paginate: 5
+language: 'en-uk'
+
+kramdown:
+  input: GFM
+  syntax_highlighter_opts:
+    default_lang: html
+    css_class: 'highlight'
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
+
+kramdown:
+  syntax_highlighter_opts:
+    disable : true
+
+# Website info
+name: 'Finding The Way Smarter'
+description: "做一个谦卑，忠诚的实践者，不要做一个严谨，深沉的思想家. The story begins here."
+
+source:               .
+destination:          _site
+
+short_url: 'kidlovec.github.io'
+ga_track_id: 'UA-117990631-1'            # Format: UA-xxxxxx-xx
+
+disqus: username
+# edit baseurl to simply '/' if using as your personal page (instead of a project page)
+
+url: "http://kidlovec.github.io" # the base hostname & protocol for your site
+baseurl: ""
+
+# Permalinks
+permalink: /:year-:month-:day-:title/
+# permalink: /author/:username
+# permalink: /tag/:tag
+
+# gems and other configs
+plugins: [jekyll-paginate]
+
+# Additional settings available on the front-matter
+# Site logo in the index.html (as in demo.ghost.io)
+# Author's page cover in _layouts/author.html
+# The same for page.html and tag.html layouts
+# Post's page cover as a per-post basis _posts/...
+# Disqus comments as a per-post basis
+# ...
+
+
+# Settings for builing master branch with travis-ci
+# with jekyll-travis
+
+# Settings for deploy rake task
+# Username and repo of Github repo, e.g.
+# https://github.com/USERNAME/REPO.git
+# username defaults to ENV['GIT_NAME'] used by Travis
+# repo defaults to USERNAME.github.io
+# Branch defaults to "source" for USERNAME.github.io
+# or "master" otherwise
+# https://github.com/Kidlovec/kidlovec.github.io.git Kidlovec/kidlovec.github.io
+safe: false
+lsi: false
+username: Kidlovec
+repo: kidlovec.github.io
+branch: master
+relative_source: kidlovec.github.io/
+production_url:  https://kidlovec.github.io/
+source_url:  https://github.com/Kidlovec/kidlovec.github.io/
+
+exclude:
+  - README.md
+  - Rakefile
+  - Gemfile
+  - Gemfile.lock
+  - changelog.md
+  - "*.Rmd"
+  - vendor
+  - .travis.yml
+  - node_modules
+  - .git
+
+theme: jekyll-theme-merlot
