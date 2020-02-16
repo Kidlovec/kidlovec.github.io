@@ -33,9 +33,9 @@ edgar:
 kidlovec:
   username: kidlovec
   name: 浪心
-  location: Memphis, Tennessee
+  location: Shanghai, China
   url_full: http://kidlovec.github.io/blog
-  url: kidlovec.github.io/jasper
+  url: kidlovec.github.io/blog
   bio: An Chinese coder. focus on java/spring/flink
   assets: assets/images/lang.xin.400x400.jpeg
 martin:
@@ -44,5 +44,5 @@ martin:
   location: Shanghai, Ching
   url_full: http://kidlovec.github.io/blog
   url: jekyller.github.io/jasper
-  bio: An American pastor, activist, humanitarian. People know me for leading the African-American Civil Rights movement using nonviolent civil disobedience.
+  bio: An American pastor, activist, hum
   assets: assets/images/martin.jpg

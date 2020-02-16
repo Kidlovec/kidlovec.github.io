@@ -17,17 +17,22 @@ kramdown:
       line_numbers: true
       start_line: 1
 
+kramdown:
+  syntax_highlighter_opts:
+    disable : true
 
 # Website info
 name: 'Finding The Way Home'
 description: "做一个谦卑，忠诚的实践者，不要做一个严谨，深沉的思想家. The story begins here."
 
-short_url: 'kidlovec.github.io/'
+short_url: 'kidlovec.github.io'
 ga_track_id: 'UA-117990631-1'            # Format: UA-xxxxxx-xx
 
 disqus: username
 # edit baseurl to simply '/' if using as your personal page (instead of a project page)
-baseurl: /blog/
+
+url: "http://kidlovec.github.io" # the base hostname & protocol for your site
+baseurl: "/blog"
 
 # Permalinks
 permalink: /:year-:month-:day-:title/
@@ -62,8 +67,7 @@ lsi: false
 username: Kidlovec
 repo: kidlovec.github.io
 branch: master
-relative_source: ../kidlovec.github.io/
-destination: ../gh-pages/
+relative_source: kidlovec.github.io/
 production_url:  https://kidlovec.github.io/blog
 source_url:  https://github.com/Kidlovec/kidlovec.github.io/
 
