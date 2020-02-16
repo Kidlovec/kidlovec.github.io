@@ -22,22 +22,22 @@ to the original theme. This port is based on the last Casper v1.3.7 (same as v1.
 ## Screenshots
 
 **Home page**
-![home page](https://raw.githubusercontent.com/kidlovec.github.io/jasper/master/assets/images/jasper_screen1.png)
+![home page](https://raw.githubusercontent.com/kidlovec.github.io/master/assets/images/jasper_screen1.png)
 
 **Post page**
-![post page](https://raw.githubusercontent.com/kidlovec.github.io/jasper/master/assets/images/jasper_screen2.png)
+![post page](https://raw.githubusercontent.com/kidlovec.github.io/master/assets/images/jasper_screen2.png)
 
 **Author page**
-![author page](https://raw.githubusercontent.com/kidlovec.github.io/jasper/master/assets/images/jasper_screen3.png)
+![author page](https://raw.githubusercontent.com/kidlovec.github.io/master/assets/images/jasper_screen3.png)
 
 **Related posts page**
-![tag page](https://raw.githubusercontent.com/kidlovec.github.io/jasper/master/assets/images/jasper_screen4.png)
+![tag page](https://raw.githubusercontent.com/kidlovec.github.io/master/assets/images/jasper_screen4.png)
 
 **Tags page with opened sidebar**
-![sidebar page](https://raw.githubusercontent.com/kidlovec.github.io/jasper/master/assets/images/jasper_screen5.png)
+![sidebar page](https://raw.githubusercontent.com/kidlovec.github.io/master/assets/images/jasper_screen5.png)
 
 **404 page**
-![related page](https://raw.githubusercontent.com/kidlovec.github.io/jasper/master/assets/images/jasper_screen6.png)
+![related page](https://raw.githubusercontent.com/kidlovec.github.io/master/assets/images/jasper_screen6.png)
 
 ## Jasper theme includes
 
