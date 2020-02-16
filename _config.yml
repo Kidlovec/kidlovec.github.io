@@ -32,7 +32,7 @@ disqus: username
 # edit baseurl to simply '/' if using as your personal page (instead of a project page)
 
 url: "http://kidlovec.github.io" # the base hostname & protocol for your site
-baseurl: "/blog"
+baseurl: ""
 
 # Permalinks
 permalink: /:year-:month-:day-:title/
