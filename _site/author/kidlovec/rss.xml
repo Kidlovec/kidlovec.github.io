@@ -12,6 +12,331 @@
    <atom:link href="rss" rel="self" type="application/rss+xml" />
    
 	<item>
+	  <title>在 mac 上搭建本地 redis cluster</title>
+	  <link>/2019-11-13-build-local-redis-cluster/</link>
+	  <author></author>
+	  <pubDate>2019-11-13T06:13:21+08:00</pubDate>
+	  <guid>/2019-11-13-build-local-redis-cluster/</guid>
+	  <description><![CDATA[
+	     <blockquote>
+  <p>Mac 搭建 redis cluster</p>
+</blockquote>
+
+<pre><code class="language-bash">cd ~
+mkdir redis-cluster
+cd redis-cluster
+for ((i=1; i&lt;=6;i++)); do mkdir $(expr 9000 + $i); done
+# 将本地 brew 安装好的 redis 配置拷贝过来
+cp /usr/local/etc/redis.conf 9001/redis.conf
+</code></pre>
+
+<p>修改 redis 配置</p>
+
+<pre><code class="language-bash"># 端口号，每个目录都不同
+port 9001
+# 开启集群模式
+cluster-enabled yes
+#节点超时实际，单位毫秒
+cluster-node-timeout 5000
+#集群内部配置文件(默认为 nodes.conf)
+cluster-config-file nodes-9001.conf
+# 启动 AOF
+appendonly yes
+# append 文件名
+appendfilename "appendonly-9001.aof"
+# dir /usr/local/var/db/redis/ 
+# 注意: 这里 {cluster-path} 换成本地集群文件的位置 比如 /Users/your-name/redis-cluster/9001
+dir {cluster-path}/9001/
+</code></pre>
+
+<p>依次修改 其他文件夹
+比如 9002 文件夹</p>
+
+<pre><code class="language-bash">cp 9001/redis.conf 9002/redis.conf &amp;&amp; sed -i "s/9001/9002/g" 9002/redis.conf
+</code></pre>
+
+<p>或者用批量命令</p>
+
+<pre><code class="language-bash"># 复制文件
+for PORT in {9002..9006}; do cp 9001/redis.conf $PORT/redis.conf &amp;&amp; ;  done
+# 修改文件
+for PORT in {9002..9006}; do sed -i '' "s/9001/$PORT/g" "$PORT/redis.conf" ;  done
+</code></pre>
+
+<p>查看一下改动</p>
+
+<pre><code class="language-bash">for PORT in {9002..9006}; do grep -w $PORT $PORT/redis.conf -n ; done
+92:port 9002
+264:dir Users/kidlovec/redis-cluster/9002
+677:appendfilename "appendonly-9002.aof"
+823:cluster-config-file nodes-9002.conf
+92:port 9003
+264:dir Users/kidlovec/redis-cluster/9003
+677:appendfilename "appendonly-9003.aof"
+823:cluster-config-file nodes-9003.conf
+92:port 9004
+264:dir Users/kidlovec/redis-cluster/9004
+677:appendfilename "appendonly-9004.aof"
+823:cluster-config-file nodes-9004.conf
+92:port 9005
+264:dir Users/kidlovec/redis-cluster/9005
+677:appendfilename "appendonly-9005.aof"
+823:cluster-config-file nodes-9005.conf
+92:port 9006
+264:dir Users/kidlovec/redis-cluster/9006
+677:appendfilename "appendonly-9006.aof"
+823:cluster-config-file nodes-9006.conf
+</code></pre>
+
+<p>改完了, 这时候文件树是这样的</p>
+
+<pre><code>
+➜ tree -L 2
+.
+├── 9001
+│   └── redis.conf
+├── 9002
+│   └── redis.conf
+├── 9003
+│   └── redis.conf
+├── 9004
+│   └── redis.conf
+├── 9005
+│   └── redis.conf
+└── 9006
+    └── redis.conf
+
+</code></pre>
+
+<p>写一个 集群管理简易脚本</p>
+
+<pre><code class="language-bash">vi cluster.sh
+</code></pre>
+
+<pre><code class="language-bash">#!/bin/bash 
+
+REDIS_HOME=~/redis-cluster
+APP_NAME=redis
+WAIT_TIME=2
+echo "REDIS_HOME:"${REDIS_HOME}
+
+start() {
+	for PORT in {9001..9006}
+	do
+	    REDIS_ID=$(ps -ef | grep ${APP_NAME} |grep ${PORT}| grep -v 'grep' | head -1 | awk '{print $2}')
+	    
+	    if [ -z "$REDIS_ID" ]; then
+	       
+	        echo ""
+	        echo "[${APP_NAME}-$PORT] starting ..."
+	        echo ""
+	        cd $REDIS_HOME/$PORT
+	        redis-server redis.conf &amp; &gt;/dev/null 2&gt;&amp;1
+	        sleep ${WAIT_TIME}
+	    else
+	    echo "[${APP_NAME}] has been started! "
+	    fi   
+	done
+}
+
+stop() {
+	for PORT in {9001..9006}
+	do
+	    REDIS_ID=$(ps -ef | grep ${APP_NAME} |grep ${PORT}| grep -v 'grep' | head -1 | awk '{print $2}')
+	    if [ -z "$REDIS_ID" ]; then
+	           
+	        echo "[${APP_NAME}-$PORT] has been stopped!"
+	    else
+	        echo ""
+	        echo "[${APP_NAME}-$PORT] is stoping ..."
+	        echo ""
+	        kill -15 $REDIS_ID
+	        sleep ${WAIT_TIME}
+	    fi   
+	done
+}
+
+status() {
+	
+	for PORT in {9001..9006}
+	do
+	    REDIS_ID=$(ps -ef | grep ${APP_NAME} |grep ${PORT}| grep -v 'grep' | head -1 | awk '{print $2}')
+	    if [ -z "$REDIS_ID" ]; then
+	        echo "[${APP_NAME}-$PORT] has been stop !"
+	    else
+	        echo "[${APP_NAME}-$PORT] is running !"
+	    fi
+	done
+}
+
+case "$1" in
+start)
+echo "starting redis cluster"
+start
+;;
+stop)
+echo "stopping redis cluster servers "
+stop
+;;
+status)
+status
+;;
+restart)
+echo "restart redis cluster"
+$0 stop
+sleep 2
+$0 start
+;;
+*)
+printf 'Usage: %s {start|stop|status|restart}\n' "$prog"
+exit 1
+;;
+esac
+</code></pre>
+<h3 id="启动集群">启动集群</h3>
+
+<pre><code>./cluster.sh start
+</code></pre>
+
+<p>这时候文件树是这样的</p>
+
+<pre><code class="language-bash">➜ tree -L 2
+.
+├── 9001
+│   ├── 9001.log
+│   ├── appendonly-9001.aof
+│   ├── nodes-9001.conf
+│   └── redis.conf
+├── 9002
+│   ├── 9002.log
+│   ├── appendonly-9002.aof
+│   ├── nodes-9002.conf
+│   └── redis.conf
+├── 9003
+│   ├── 9003.log
+│   ├── appendonly-9003.aof
+│   ├── nodes-9003.conf
+│   └── redis.conf
+├── 9004
+│   ├── 9004.log
+│   ├── appendonly-9004.aof
+│   ├── nodes-9004.conf
+│   └── redis.conf
+├── 9005
+│   ├── 9005.log
+│   ├── appendonly-9005.aof
+│   ├── nodes-9005.conf
+│   └── redis.conf
+├── 9006
+│   ├── 9006.log
+│   ├── appendonly-9006.aof
+│   ├── nodes-9006.conf
+│   └── redis.conf
+└── create-cluster.sh
+
+6 directories, 25 files
+
+</code></pre>
+
+<h2 id="设置-集群">设置 集群</h2>
+
+<p>Redis 5 的 集群管理由原来的 ruby 脚本，都换成 C 中了，可以直接使用 <code>redis-cli</code> 更加便捷</p>
+
+<p>具体可以查看 <code>cluster</code> 支持的命令</p>
+
+<pre><code class="language-bash">redis-cli --cluster help
+</code></pre>
+
+<p>现在 我们创建集群</p>
+
+<p>以下命令可以自动为我们设置 三主三从的集群
+9001 &lt;– 9004
+9002 &lt;– 9005
+9003 &lt;– 9006</p>
+
+<pre><code class="language-bash">
+redis-cli --cluster create 127.0.0.1:9001 127.0.0.1:9002 127.0.0.1:9003 127.0.0.1:9004 127.0.0.1:9005 127.0.0.1:9006 --cluster-replicas 1
+
+&gt;&gt;&gt; Performing hash slots allocation on 6 nodes...
+Master[0] -&gt; Slots 0 - 5460
+Master[1] -&gt; Slots 5461 - 10922
+Master[2] -&gt; Slots 10923 - 16383
+Adding replica 127.0.0.1:9004 to 127.0.0.1:9001
+Adding replica 127.0.0.1:9005 to 127.0.0.1:9002
+Adding replica 127.0.0.1:9006 to 127.0.0.1:9003
+&gt;&gt;&gt; Trying to optimize slaves allocation for anti-affinity
+[WARNING] Some slaves are in the same host as their master
+M: 18a2f6036c486dc5df56edb096ac879590cc76b2 127.0.0.1:9001
+   slots:[0-5460] (5461 slots) master
+M: 4635943ae587ff32e0e3f28dc9b533231bab6af7 127.0.0.1:9002
+   slots:[5461-10922] (5462 slots) master
+M: bb9396c5c3c6a16a38be58810026395331515a34 127.0.0.1:9003
+   slots:[10923-16383] (5461 slots) master
+S: 935906dec5a496caa7bfefd8562582afef41c7f6 127.0.0.1:9004
+   replicates 4635943ae587ff32e0e3f28dc9b533231bab6af7
+S: 40356db1c9b7847b41099bb06da8e3e5022f679b 127.0.0.1:9005
+   replicates bb9396c5c3c6a16a38be58810026395331515a34
+S: add58f1bb36a5da23bfe5c8b8249836725ec27cb 127.0.0.1:9006
+   replicates 18a2f6036c486dc5df56edb096ac879590cc76b2
+Can I set the above configuration? (type 'yes' to accept): 27.0.0.1:9004
+   replicates 4635943ae587ff32e0e3f28dc9b533231bab6af7
+S: 40356db1c9b7847b41099bb06da8e3e5022f679b 127.0.0.1:9005
+   replicates bb9396c5c3c6a16a38be58810026395331515a34
+S: add58f1bb36a5da23bfe5c8b8249836725ec27cb 127.0.0.1:9006
+   replicates 18a2f6036c486dc5df56edb096ac879590cc76b2
+Can I set the above configuration? (type 'yes' to accept): 
+
+</code></pre>
+
+<p>同意</p>
+
+<pre><code class="language-bash">Can I set the above configuration? (type 'yes' to accept): yes
+&gt;&gt;&gt; Nodes configuration updated
+&gt;&gt;&gt; Assign a different config epoch to each node
+&gt;&gt;&gt; Sending CLUSTER MEET messages to join the cluster
+Waiting for the cluster to join
+.
+&gt;&gt;&gt; Performing Cluster Check (using node 127.0.0.1:9001)
+M: 18a2f6036c486dc5df56edb096ac879590cc76b2 127.0.0.1:9001
+   slots:[0-5460] (5461 slots) master
+   1 additional replica(s)
+M: 4635943ae587ff32e0e3f28dc9b533231bab6af7 127.0.0.1:9002
+   slots:[5461-10922] (5462 slots) master
+   1 additional replica(s)
+S: add58f1bb36a5da23bfe5c8b8249836725ec27cb 127.0.0.1:9006
+   slots: (0 slots) slave
+   replicates bb9396c5c3c6a16a38be58810026395331515a34
+M: bb9396c5c3c6a16a38be58810026395331515a34 127.0.0.1:9003
+   slots:[10923-16383] (5461 slots) master
+   1 additional replica(s)
+S: 40356db1c9b7847b41099bb06da8e3e5022f679b 127.0.0.1:9005
+   slots: (0 slots) slave
+   replicates 4635943ae587ff32e0e3f28dc9b533231bab6af7
+S: 935906dec5a496caa7bfefd8562582afef41c7f6 127.0.0.1:9004
+   slots: (0 slots) slave
+   replicates 18a2f6036c486dc5df56edb096ac879590cc76b2
+[OK] All nodes agree about slots configuration.
+&gt;&gt;&gt; Check for open slots...
+&gt;&gt;&gt; Check slots coverage...
+[OK] All 16384 slots covered.
+</code></pre>
+
+<p>这样集群就创建成功了，进入集群查看</p>
+
+<pre><code class="language-bash">➜ redis-cli -p 9001 cluster nodes
+4635943ae587ff32e0e3f28dc9b533231bab6af7 127.0.0.1:9002@19002 master - 0 1588066642132 2 connected 5461-10922
+add58f1bb36a5da23bfe5c8b8249836725ec27cb 127.0.0.1:9006@19006 slave bb9396c5c3c6a16a38be58810026395331515a34 0 1588066642334 6 connected
+18a2f6036c486dc5df56edb096ac879590cc76b2 127.0.0.1:9001@19001 myself,master - 0 1588066642000 1 connected 0-5460
+bb9396c5c3c6a16a38be58810026395331515a34 127.0.0.1:9003@19003 master - 0 1588066642000 3 connected 10923-16383
+40356db1c9b7847b41099bb06da8e3e5022f679b 127.0.0.1:9005@19005 slave 4635943ae587ff32e0e3f28dc9b533231bab6af7 0 1588066642334 5 connected
+935906dec5a496caa7bfefd8562582afef41c7f6 127.0.0.1:9004@19004 slave 18a2f6036c486dc5df56edb096ac879590cc76b2 0 1588066642132 4 connected
+
+</code></pre>
+
+	  ]]></description>
+	</item>
+
+	<item>
 	  <title>Flink Introduction</title>
 	  <link>/2018-05-04-flink-introduce/</link>
 	  <author></author>
@@ -2163,22 +2488,6 @@ The poor King looked puzzled and unhappy, and struggled with the pencil for some
 <p>She ate a little bit, and said anxiously to herself, ‘Which way? Which way?’, holding her hand on the top of her head to feel which way it was growing, and she was quite surprised to find that she remained the same size: to be sure, this generally happens when one eats cake, but Alice had got so much into the way of expecting nothing but out-of-the-way things to happen, that it seemed quite dull and stupid for life to go on in the common way.</p>
 
 <p>So she set to work, and very soon finished off the cake.</p>
-
-	  ]]></description>
-	</item>
-
-	<item>
-	  <title>Gettysburg Address</title>
-	  <link>/1863-11-19-gettysburg-address/</link>
-	  <author></author>
-	  <pubDate>1863-11-19T18:18:00+08:00</pubDate>
-	  <guid>/1863-11-19-gettysburg-address/</guid>
-	  <description><![CDATA[
-	     <p>Fourscore and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.</p>
-
-<p>Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived and so dedicated, can long endure. We are met on a great battle-field of that war. We have come to dedicate a portion of that field, as a final resting place for those who here gave their lives that that nation might live. It is altogether fitting and proper that we should do this.</p>
-
-<p>But, in a larger sense, we can not dedicate-we can not consecrate-we can not hallow-this ground. The brave men, living and dead, who struggled here, have consecrated it, far above our poor power to add or detract. The world will little note, nor long remember what we say here, but it can never forget what they did here. It is for us the living, rather, to be dedicated here to the unfinished work which they who fought here have thus far so nobly advanced. It is rather for us to be here dedicated to the great task remaining before us-that from these honored dead we take increased devotion to that cause for which they gave the last full measure of devotion-that we here highly resolve that these dead shall not have died in vain-that this nation, under God, shall have a new birth of freedom-and that government of the people, by the people, for the people shall not perish from the earth.</p>
 
 	  ]]></description>
 	</item>

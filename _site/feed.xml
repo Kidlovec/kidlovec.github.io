@@ -8,6 +8,23 @@
     
       
       <item>
+        <title>在 mac 上搭建本地 redis cluster</title>
+        
+          <description>&lt;blockquote&gt;
+  &lt;p&gt;Mac 搭建 redis cluster&lt;/p&gt;
+&lt;/blockquote&gt;
+
+</description>
+        
+        <pubDate>Wed, 13 Nov 2019 06:13:21 +0800</pubDate>
+        <link>
+        http://localhost:4000/2019-11-13-build-local-redis-cluster/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019-11-13-build-local-redis-cluster/</guid>
+      </item>
+      
+    
+      
+      <item>
         <title>Flink Introduction</title>
         
           <description>&lt;p&gt;&lt;strong&gt;目录&lt;/strong&gt;&lt;/p&gt;
