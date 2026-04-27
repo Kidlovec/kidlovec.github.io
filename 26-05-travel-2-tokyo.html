@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#e8e2d8">
+<title>Travel to Tokyo · May 3-9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#faf7f2;--bg-page:#ebe5d8;--bg-card:#ffffff;
+  --ink:#1a1614;--ink-soft:#5c5651;--ink-muted:#8b8680;
+  --accent:#b73225;--accent-soft:#f4e8e6;--line:#e8e2d8;--line-soft:#f0ebe2;
+  --gold:#a68654;--teal:#3d6b6e;--teal-soft:#e6efef;
+  --max-w:460px;
+  --max-w-desktop:780px;
+  --sidebar-w:200px;
+  --gap:32px;
+}
+html{background:var(--bg-page);overflow-x:clip}
+body{background:var(--bg-page);color:var(--ink);font-family:'Noto Sans SC',sans-serif;font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:clip}
+body{
+  background-image:
+    radial-gradient(circle at 50% 0%,rgba(166,134,84,0.06) 0%,transparent 60%),
+    repeating-linear-gradient(45deg,transparent 0,transparent 20px,rgba(26,22,20,0.012) 20px,rgba(26,22,20,0.012) 21px);
+  min-height:100vh;
+  padding-bottom:120px
+}
+
+/* PAGE LAYOUT: flex on desktop */
+.page-wrap{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  gap:var(--gap);
+  padding:0;
+  overflow:visible
+}
+
+/* CONTAINER */
+.container{
+  max-width:var(--max-w);
+  width:100%;
+  background:var(--bg);
+  background-image:
+    radial-gradient(circle at 20% 0%,rgba(183,50,37,0.03) 0%,transparent 50%),
+    radial-gradient(circle at 80% 100%,rgba(166,134,84,0.04) 0%,transparent 50%);
+  min-height:100vh;
+  position:relative;
+  box-shadow:0 0 60px rgba(26,22,20,0.06);
+  flex-shrink:0
+}
+
+.hero{position:relative;padding:60px 24px 40px;text-align:center;border-bottom:1px solid var(--line);background:linear-gradient(180deg,transparent 0%,var(--bg-card) 100%)}
+.hero-mark{display:inline-block;width:28px;height:28px;border:1px solid var(--accent);border-radius:50%;position:relative;margin-bottom:20px}
+.hero-mark::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:8px;height:8px;background:var(--accent);border-radius:50%}
+.hero-jp{font-family:'Shippori Mincho',serif;font-size:11px;letter-spacing:0.4em;color:var(--accent);margin-bottom:14px;text-transform:uppercase}
+.hero h1{font-family:'Noto Serif SC',serif;font-size:28px;font-weight:600;letter-spacing:0.05em;line-height:1.4;margin-bottom:14px}
+.hero h1 span{color:var(--accent);font-weight:700}
+.hero-sub{font-size:12px;color:var(--ink-muted);letter-spacing:0.15em}
+.hero-meta{display:flex;justify-content:center;gap:24px;margin-top:24px;font-size:11px;color:var(--ink-soft)}
+.hero-meta div{text-align:center}
+.hero-meta strong{display:block;font-family:'Noto Serif SC',serif;font-size:16px;color:var(--ink);font-weight:600;margin-bottom:4px}
+
+.section{padding:40px 20px 20px}
+.section-label{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.section-label-line{flex:1;height:1px;background:var(--line)}
+.section-label-text{font-family:'Shippori Mincho',serif;font-size:10px;letter-spacing:0.4em;color:var(--gold);text-transform:uppercase}
+
+.day-card{background:var(--bg-card);border:1px solid var(--line);margin-bottom:24px;overflow:hidden;scroll-margin-top:80px}
+
+/* DAY NAVIGATION */
+/* Mobile: sticky horizontal bar at top */
+.day-nav-mobile{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:var(--bg-card);
+  border-bottom:1px solid var(--line);
+  padding:10px 0;
+  margin:0 -1px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none
+}
+.day-nav-mobile::-webkit-scrollbar{display:none}
+.day-nav-mobile-inner{
+  display:flex;
+  gap:6px;
+  padding:0 16px;
+  white-space:nowrap
+}
+.day-nav-pill{
+  flex-shrink:0;
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  padding:6px 12px;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:var(--ink-soft);
+  font-size:10px;
+  letter-spacing:0.05em;
+  cursor:pointer;
+  transition:all 0.18s ease;
+  min-width:48px;
+  text-decoration:none
+}
+.day-nav-pill:active{transform:scale(0.96)}
+.day-nav-pill .pill-num{
+  font-family:'Noto Serif SC',serif;
+  font-size:15px;
+  font-weight:600;
+  color:var(--ink);
+  line-height:1
+}
+.day-nav-pill .pill-day{
+  font-family:'Shippori Mincho',serif;
+  font-size:9px;
+  color:var(--ink-muted);
+  letter-spacing:0.15em;
+  margin-top:2px
+}
+.day-nav-pill.active{
+  background:var(--accent);
+  border-color:var(--accent)
+}
+.day-nav-pill.active .pill-num,
+.day-nav-pill.active .pill-day{color:var(--bg-card)}
+
+/* Desktop: vertical sidebar nav (hidden on mobile) */
+.day-nav-desktop{display:none}
+
+/* DESKTOP LAYOUT (≥980px): wider container + sticky sidebar */
+@media(min-width:980px){
+  body{padding-bottom:120px}
+
+  .page-wrap{
+    padding:24px;
+    gap:var(--gap)
+  }
+
+  .container{
+    max-width:var(--max-w-desktop);
+    margin:0;
+    border-radius:8px;
+    min-height:auto
+  }
+
+  .day-nav-mobile{display:none}
+
+  .day-nav-desktop{
+    display:block;
+    position:sticky;
+    top:24px;
+    align-self:flex-start;
+    width:var(--sidebar-w);
+    flex-shrink:0;
+    z-index:50
+  }
+  .day-nav-desktop-inner{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:18px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    box-shadow:0 4px 20px rgba(26,22,20,0.04)
+  }
+  .day-nav-desktop-label{
+    font-family:'Shippori Mincho',serif;
+    font-size:9px;
+    letter-spacing:0.3em;
+    color:var(--gold);
+    text-transform:uppercase;
+    text-align:center;
+    padding-bottom:10px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:6px
+  }
+  .day-nav-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 12px;
+    border:1px solid transparent;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:all 0.18s ease;
+    font-size:11px;
+    text-decoration:none;
+    border-radius:3px
+  }
+  .day-nav-item:hover{background:var(--bg);color:var(--ink)}
+  .day-nav-item .nav-num{
+    font-family:'Noto Serif SC',serif;
+    font-size:16px;
+    font-weight:600;
+    color:var(--ink);
+    line-height:1;
+    width:24px;
+    flex-shrink:0
+  }
+  .day-nav-item .nav-text{
+    font-size:11px;
+    color:var(--ink-muted);
+    letter-spacing:0.05em
+  }
+  .day-nav-item.active{
+    background:var(--accent-soft);
+    border-color:var(--accent)
+  }
+  .day-nav-item.active .nav-num{color:var(--accent)}
+  .day-nav-item.active .nav-text{color:var(--accent);font-weight:500}
+
+  /* Optional: make hero a bit bigger on desktop */
+  .hero{padding:70px 32px 48px}
+  .hero h1{font-size:34px}
+
+  /* Budget bar — aligned with content column (offset by sidebar on desktop) */
+  .budget-bar{
+    max-width:var(--max-w-desktop);
+    width:calc(100% - 48px);
+    left:calc(50% + (var(--sidebar-w) + var(--gap)) / 2);
+    transform:translateX(-50%)
+  }
+  /* Modals match content column width and offset */
+  .breakdown,.detail-modal{
+    max-width:var(--max-w-desktop);
+    left:calc(50% + (var(--sidebar-w) + var(--gap)) / 2)
+  }
+
+  /* Schedule: 2-column on wider days */
+  .day-card .schedule{padding:20px 28px 8px}
+  .day-card .choice{padding:18px 28px 22px}
+  .day-card .day-header{padding:22px 28px}
+  .hotel-fixed{padding:14px 28px}
+
+  /* Section padding */
+  .section{padding:48px 28px 28px}
+  .tickets-card,.tips{margin-left:28px;margin-right:28px}
+
+  /* Options: 2-column grid when many choices on desktop */
+  .options{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:10px
+  }
+  /* Single-column groups (transport pairs) — only 1-2 options, full width is fine */
+  .options[data-group="airport-in"],
+  .options[data-group="airport-out"],
+  .options[data-group="hakone-pass"],
+  .options[data-group="romance-car"]{
+    grid-template-columns:1fr
+  }
+}
+
+/* Even wider screens (≥1280px): give a touch more room */
+@media(min-width:1280px){
+  :root{--max-w-desktop:820px}
+}
+.day-header{padding:20px 22px;border-bottom:1px solid var(--line-soft);display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.day-date{font-family:'Noto Serif SC',serif}
+.day-date .num{font-size:28px;font-weight:600;letter-spacing:-0.02em;color:var(--ink)}
+.day-date .month{font-size:11px;color:var(--ink-muted);letter-spacing:0.2em;margin-left:6px;text-transform:uppercase}
+.day-meta{text-align:right;font-size:11px;color:var(--ink-soft);letter-spacing:0.1em}
+.day-meta .weekday{font-family:'Shippori Mincho',serif;color:var(--accent);margin-bottom:2px}
+.day-body{padding:4px 0}
+
+.schedule{padding:16px 22px 4px}
+.schedule-row{display:flex;gap:14px;padding:8px 0;font-size:13px}
+.schedule-time{flex-shrink:0;width:50px;font-family:'Noto Serif SC',serif;color:var(--accent);font-size:12px;font-weight:500;padding-top:2px}
+.schedule-text{color:var(--ink-soft);line-height:1.6}
+
+.choice{padding:16px 22px 20px;border-top:1px dashed var(--line);margin-top:8px}
+.choice-label{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.choice-icon{font-family:'Shippori Mincho',serif;font-size:13px;color:var(--bg-card);background:var(--ink);width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:2px;font-weight:500;flex-shrink:0}
+.choice-icon.lunch{background:var(--accent)}
+.choice-icon.bfast{background:var(--gold)}
+.choice-icon.special{background:var(--ink)}
+.choice-icon.attr{background:var(--teal)}
+.choice-title{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:600;color:var(--ink);letter-spacing:0.05em}
+.choice-hint{font-size:11px;color:var(--ink-muted);margin-left:auto;letter-spacing:0.05em}
+
+.options{display:flex;flex-direction:column;gap:8px}
+.option{display:flex;justify-content:space-between;align-items:flex-start;padding:13px 14px 13px 14px;border:1px solid var(--line);background:var(--bg);cursor:pointer;transition:all 0.18s ease;position:relative;user-select:none;min-height:56px}
+.option:active{transform:scale(0.99)}
+.option.selected{background:var(--accent-soft);border-color:var(--accent)}
+.option.selected::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.option-main{flex:1;padding-right:12px;min-width:0}
+.option-name{font-size:14px;font-weight:500;color:var(--ink);line-height:1.4;margin-bottom:4px}
+.option-desc{font-size:11.5px;color:var(--ink-muted);line-height:1.5}
+.option-tag{display:inline-block;font-size:10px;background:var(--ink);color:var(--bg-card);padding:1px 6px;margin-right:6px;border-radius:1px;letter-spacing:0.05em;vertical-align:1px}
+.option-tag.gold{background:var(--gold)}
+.option-tag.red{background:var(--accent)}
+.option-tag.teal{background:var(--teal)}
+.option-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.option-price{font-family:'Noto Serif SC',serif;font-size:13px;color:var(--ink);font-weight:600;white-space:nowrap;text-align:right}
+.option-price small{display:block;font-size:9px;color:var(--ink-muted);font-weight:400;letter-spacing:0.1em;margin-top:2px}
+.option.selected .option-price{color:var(--accent)}
+
+/* INFO BUTTON */
+.option-info{
+  width:24px;height:24px;border-radius:50%;
+  border:1px solid var(--line);background:var(--bg-card);
+  color:var(--ink-muted);font-size:12px;font-style:italic;
+  font-family:'Noto Serif SC',serif;font-weight:600;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.15s ease;
+  flex-shrink:0
+}
+.option-info:hover,.option-info:active{
+  border-color:var(--accent);color:var(--accent);background:var(--accent-soft)
+}
+.option.selected .option-info{border-color:var(--accent);color:var(--accent)}
+
+.hotel-fixed{padding:14px 22px;background:var(--line-soft);font-size:12px;color:var(--ink-soft);display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line)}
+.hotel-fixed .hotel-name{font-family:'Noto Serif SC',serif;color:var(--ink);font-weight:500}
+.hotel-fixed .hotel-tag{font-size:10px;background:var(--bg);border:1px solid var(--line);padding:2px 6px;color:var(--ink-muted);letter-spacing:0.1em}
+
+.flight-card{background:var(--bg-card);border:1px solid var(--line);padding:18px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.flight-info{flex:1}
+.flight-route{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.flight-detail{font-size:11px;color:var(--ink-muted);letter-spacing:0.05em}
+.flight-icon{width:32px;height:32px;border:1px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:16px;flex-shrink:0}
+
+/* BUDGET BAR — centered on desktop */
+.budget-bar{
+  position:fixed;bottom:0;
+  left:50%;transform:translateX(-50%);
+  width:100%;max-width:var(--max-w);
+  background:var(--ink);color:var(--bg);
+  padding:14px 20px calc(14px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 -4px 24px rgba(26,22,20,0.15);
+  z-index:100;cursor:pointer
+}
+.budget-info{display:flex;flex-direction:column;gap:2px}
+.budget-label{font-size:10px;letter-spacing:0.25em;color:var(--gold);text-transform:uppercase;font-family:'Shippori Mincho',serif}
+.budget-amount{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:600;letter-spacing:0.02em}
+.budget-amount .yen{font-size:14px;margin-right:2px;color:var(--gold)}
+.budget-rmb{font-size:11px;color:rgba(250,247,242,0.6);margin-top:1px}
+.budget-toggle{font-size:11px;color:rgba(250,247,242,0.7);letter-spacing:0.1em;border:1px solid rgba(250,247,242,0.2);padding:8px 12px;border-radius:1px;user-select:none}
+
+/* MODALS — both centered on desktop */
+.breakdown,.detail-modal{
+  position:fixed;bottom:0;
+  left:50%;transform:translate(-50%,100%);
+  width:100%;max-width:var(--max-w);
+  background:var(--bg-card);
+  border-top-left-radius:16px;border-top-right-radius:16px;
+  max-height:80vh;overflow-y:auto;z-index:200;
+  padding:24px 24px calc(24px + env(safe-area-inset-bottom));
+  transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:0 -8px 32px rgba(0,0,0,0.2)
+}
+.breakdown.show,.detail-modal.show{transform:translate(-50%,0)}
+.modal-overlay{position:fixed;inset:0;background:rgba(26,22,20,0.5);z-index:150;opacity:0;pointer-events:none;transition:opacity 0.3s ease}
+.modal-overlay.show{opacity:1;pointer-events:auto}
+
+.modal-handle{width:40px;height:4px;background:var(--line);border-radius:2px;margin:0 auto 20px}
+
+.breakdown h2{font-family:'Noto Serif SC',serif;font-size:18px;margin-bottom:6px;letter-spacing:0.05em}
+.breakdown-sub{font-size:11px;color:var(--ink-muted);letter-spacing:0.1em;margin-bottom:20px;font-family:'Shippori Mincho',serif}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.breakdown-row:last-child{border-bottom:none}
+.breakdown-cat{color:var(--ink-soft);font-size:11px;letter-spacing:0.1em;margin-right:8px;flex-shrink:0;width:36px}
+.breakdown-name{flex:1;color:var(--ink);font-size:13px}
+.breakdown-price{font-family:'Noto Serif SC',serif;font-weight:500;color:var(--ink)}
+.breakdown-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding:14px 16px;background:var(--ink);color:var(--bg)}
+.breakdown-total-label{font-family:'Shippori Mincho',serif;font-size:12px;letter-spacing:0.2em}
+.breakdown-total-amount{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:600}
+.breakdown-total-amount .yen{color:var(--gold);font-size:14px}
+.breakdown-note{margin-top:16px;padding:12px 14px;background:var(--line-soft);font-size:11px;color:var(--ink-soft);line-height:1.6}
+
+/* DETAIL MODAL */
+.detail-header{margin-bottom:20px}
+.detail-kicker{font-family:'Shippori Mincho',serif;font-size:10px;letter-spacing:0.3em;color:var(--accent);text-transform:uppercase;margin-bottom:8px}
+.detail-name{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:8px}
+.detail-tagline{font-size:12px;color:var(--ink-muted);letter-spacing:0.05em}
+.detail-section{
+  padding:14px 0;
+  border-top:1px solid var(--line);
+  display:flex;
+  gap:14px
+}
+.detail-section:first-of-type{border-top:1px solid var(--ink)}
+.detail-icon{
+  flex-shrink:0;
+  width:32px;height:32px;
+  background:var(--bg);border:1px solid var(--line);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px
+}
+.detail-content{flex:1;min-width:0}
+.detail-label{
+  font-family:'Shippori Mincho',serif;
+  font-size:10px;
+  letter-spacing:0.25em;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:4px
+}
+.detail-text{
+  font-size:13px;
+  color:var(--ink);
+  line-height:1.6
+}
+.detail-text .em{color:var(--accent);font-weight:500}
+.detail-close{
+  width:100%;
+  margin-top:20px;
+  padding:14px;
+  background:var(--ink);color:var(--bg);
+  border:none;
+  font-family:'Noto Sans SC',sans-serif;
+  font-size:13px;letter-spacing:0.1em;
+  cursor:pointer
+}
+
+/* LINK BUTTONS in detail modal */
+.detail-links{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+  flex-wrap:wrap
+}
+.detail-link{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 12px;
+  border:1px solid var(--line);
+  background:var(--bg-card);
+  color:var(--ink);
+  font-size:11.5px;
+  text-decoration:none;
+  font-family:'Noto Sans SC',sans-serif;
+  letter-spacing:0.03em;
+  transition:all 0.15s ease;
+  cursor:pointer
+}
+.detail-link:active{transform:scale(0.97)}
+.detail-link:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.detail-link.primary{
+  background:var(--accent);
+  color:var(--bg-card);
+  border-color:var(--accent)
+}
+.detail-link.primary:hover{background:var(--ink);border-color:var(--ink);color:var(--bg-card)}
+.detail-link.map{
+  background:var(--teal);
+  color:var(--bg-card);
+  border-color:var(--teal)
+}
+.detail-link.map:hover{background:var(--ink);border-color:var(--ink);color:var(--bg-card)}
+.detail-link .arrow{font-size:14px;line-height:1}
+
+.presets{margin:20px 20px 0;padding:16px;background:var(--bg-card);border:1px solid var(--line)}
+.presets-label{font-family:'Shippori Mincho',serif;font-size:10px;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;margin-bottom:12px}
+.preset-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.preset-btn{border:1px solid var(--line);background:var(--bg);padding:10px 6px;font-family:'Noto Sans SC',sans-serif;font-size:12px;color:var(--ink);cursor:pointer;transition:all 0.2s;text-align:center}
+.preset-btn:active{transform:scale(0.97)}
+.preset-btn .preset-name{font-family:'Noto Serif SC',serif;font-weight:600;margin-bottom:2px;font-size:13px}
+.preset-btn .preset-amt{font-size:10px;color:var(--ink-muted)}
+.preset-btn.active{border-color:var(--accent);background:var(--accent-soft)}
+
+.footer{text-align:center;padding:30px 20px 30px;font-size:10px;color:var(--ink-muted);letter-spacing:0.2em;font-family:'Shippori Mincho',serif}
+.footer-divider{width:30px;height:1px;background:var(--line);margin:0 auto 14px}
+
+.tips{background:var(--bg-card);border-left:3px solid var(--accent);padding:14px 18px;margin:16px 22px;font-size:12px;color:var(--ink-soft);line-height:1.7}
+.tips strong{color:var(--ink);font-family:'Noto Serif SC',serif;font-size:12px}
+
+.tickets-card{background:var(--bg-card);border:1px solid var(--line);margin:0 20px 24px;padding:0;overflow:hidden}
+.tickets-header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.tickets-header h3{font-family:'Noto Serif SC',serif;font-size:15px;font-weight:600}
+.tickets-header .badge{margin-left:auto;font-size:10px;background:var(--teal);color:var(--bg);padding:2px 8px;letter-spacing:0.1em}
+.ticket-row{display:flex;align-items:flex-start;padding:12px 20px;border-bottom:1px solid var(--line-soft);font-size:12px;gap:10px}
+.ticket-row:last-child{border-bottom:none}
+.ticket-icon{flex-shrink:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--bg-card);font-weight:600}
+.ticket-icon.warn{background:var(--accent)}
+.ticket-icon.info{background:var(--teal)}
+.ticket-icon.ok{background:var(--gold)}
+.ticket-info{flex:1}
+.ticket-name{font-weight:500;color:var(--ink);margin-bottom:2px;font-size:13px}
+.ticket-detail{color:var(--ink-muted);font-size:11px;line-height:1.5}
+.ticket-price{font-family:'Noto Serif SC',serif;font-size:12px;color:var(--ink);font-weight:600;white-space:nowrap;text-align:right}
+
+/* INLINE LINKS in ticket rows */
+.ticket-actions{
+  margin-top:6px;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap
+}
+.ticket-link{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  font-size:10.5px;
+  padding:3px 8px;
+  border:1px solid var(--accent);
+  background:var(--accent-soft);
+  color:var(--accent);
+  text-decoration:none;
+  letter-spacing:0.02em;
+  transition:all 0.15s ease
+}
+.ticket-link:hover,.ticket-link:active{background:var(--accent);color:var(--bg-card)}
+.ticket-link.subtle{
+  border-color:var(--line);
+  background:var(--bg);
+  color:var(--ink-soft)
+}
+.ticket-link.subtle:hover{border-color:var(--ink);color:var(--ink);background:var(--bg-card)}
+
+@media(min-width:600px) and (max-width:979px){
+  body{padding-bottom:120px}
+  .container{margin-top:24px;margin-bottom:24px;border-radius:8px;min-height:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+<!-- DESKTOP: SIDEBAR DAY NAV -->
+<nav class="day-nav-desktop" id="dayNavDesktop">
+  <div class="day-nav-desktop-inner">
+    <div class="day-nav-desktop-label">— 日程 —</div>
+    <a class="day-nav-item" href="#day-3" data-day="3"><span class="nav-num">03</span><span class="nav-text">抵达·赤坂</span></a>
+    <a class="day-nav-item" href="#day-4" data-day="4"><span class="nav-num">04</span><span class="nav-text">筑地·银座</span></a>
+    <a class="day-nav-item" href="#day-5" data-day="5"><span class="nav-num">05</span><span class="nav-text">→ 箱根</span></a>
+    <a class="day-nav-item" href="#day-6" data-day="6"><span class="nav-num">06</span><span class="nav-text">→ 镰仓</span></a>
+    <a class="day-nav-item" href="#day-7" data-day="7"><span class="nav-num">07</span><span class="nav-text">江之岛</span></a>
+    <a class="day-nav-item" href="#day-8" data-day="8"><span class="nav-num">08</span><span class="nav-text">东京最后</span></a>
+    <a class="day-nav-item" href="#day-9" data-day="9"><span class="nav-num">09</span><span class="nav-text">回上海</span></a>
+  </div>
+</nav>
+
+<div class="container">
+
+<header class="hero">
+  <div class="hero-mark"></div>
+  <div class="hero-jp">May · Tokyo · 2026</div>
+  <h1>东京美食<span>七日</span>之旅</h1>
+  <div class="hero-sub">夫妻 · 美食优先 · 5月3-9日</div>
+  <div class="hero-meta">
+    <div><strong>7</strong>天</div>
+    <div><strong>6</strong>晚</div>
+    <div><strong>3</strong>城</div>
+  </div>
+</header>
+
+<!-- MOBILE: STICKY DAY NAV -->
+<nav class="day-nav-mobile" id="dayNavMobile">
+  <div class="day-nav-mobile-inner">
+    <a class="day-nav-pill" href="#day-3" data-day="3"><span class="pill-num">03</span><span class="pill-day">日</span></a>
+    <a class="day-nav-pill" href="#day-4" data-day="4"><span class="pill-num">04</span><span class="pill-day">月</span></a>
+    <a class="day-nav-pill" href="#day-5" data-day="5"><span class="pill-num">05</span><span class="pill-day">火</span></a>
+    <a class="day-nav-pill" href="#day-6" data-day="6"><span class="pill-num">06</span><span class="pill-day">水</span></a>
+    <a class="day-nav-pill" href="#day-7" data-day="7"><span class="pill-num">07</span><span class="pill-day">木</span></a>
+    <a class="day-nav-pill" href="#day-8" data-day="8"><span class="pill-num">08</span><span class="pill-day">金</span></a>
+    <a class="day-nav-pill" href="#day-9" data-day="9"><span class="pill-num">09</span><span class="pill-day">土</span></a>
+  </div>
+</nav>
+
+<div class="presets">
+  <div class="presets-label">— 一键方案 —</div>
+  <div class="preset-row">
+    <button class="preset-btn" data-preset="economy"><div class="preset-name">省钱型</div><div class="preset-amt">~¥150K</div></button>
+    <button class="preset-btn active" data-preset="balanced"><div class="preset-name">平衡型</div><div class="preset-amt">~¥285K</div></button>
+    <button class="preset-btn" data-preset="luxury"><div class="preset-name">奢华型</div><div class="preset-amt">~¥460K</div></button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label"><div class="section-label-line"></div><div class="section-label-text">Itinerary</div><div class="section-label-line"></div></div>
+
+  <!-- 5/3 -->
+  <div class="day-card" id="day-3">
+    <div class="day-header"><div class="day-date"><span class="num">03</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">日曜日</div><div>抵达 · 赤坂</div></div></div>
+    <div class="day-body">
+      <div class="schedule">
+        <div class="schedule-row"><div class="schedule-time">12:30</div><div class="schedule-text">FM815 抵达羽田 T3</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:30</div><div class="schedule-text">入住 the b akasaka-mitsuke</div></div>
+        <div class="schedule-row"><div class="schedule-time">16:00</div><div class="schedule-text">日枝神社 + 赤坂氷川神社散步 (免费)</div></div>
+        <div class="schedule-row"><div class="schedule-time">19:00</div><div class="schedule-text">晚餐</div></div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon special">交</span><span class="choice-title">羽田 → 赤坂交通</span></div>
+        <div class="options" data-group="airport-in">
+          <div class="option" data-price="9000" data-name="打车 · 羽田→赤坂" data-cat="交通" data-detail="taxi-in">
+            <div class="option-main"><div class="option-name">打车直达 <span class="option-tag">省心</span></div><div class="option-desc">40-50分钟 · 行李方便</div></div>
+            <div class="option-right"><div class="option-price">¥9,000<small>2人合计</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="1000" data-name="电车 · 京急→银座线" data-cat="交通" data-detail="train-in">
+            <div class="option-main"><div class="option-name">电车 京急 + 银座线</div><div class="option-desc">~40分钟 · 需换乘1次</div></div>
+            <div class="option-right"><div class="option-price">¥1,000<small>2人合计</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon">晚</span><span class="choice-title">5/3 晚餐 · 赤坂</span><span class="choice-hint">必预约</span></div>
+        <div class="options" data-group="d1-dinner">
+          <div class="option" data-price="45000" data-name="赤坂浅田 · 怀石" data-cat="晚餐" data-detail="asada">
+            <div class="option-main"><div class="option-name">赤坂浅田 <span class="option-tag red">名店</span></div><div class="option-desc">京怀石老铺 · 黄金周必提前</div></div>
+            <div class="option-right"><div class="option-price">¥45,000<small>人均22,500</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="40000" data-name="人形町今半 紀尾井町店" data-cat="晚餐" data-detail="imahan-kioi">
+            <div class="option-main"><div class="option-name">人形町今半 紀尾井町 <span class="option-tag gold">寿喜烧</span></div><div class="option-desc">明治28年老铺 · 步行5分到酒店</div></div>
+            <div class="option-right"><div class="option-price">¥40,000<small>人均20,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="30000" data-name="赤坂きみ家" data-cat="晚餐" data-detail="kimiya">
+            <div class="option-main"><div class="option-name">赤坂 きみ家 <span class="option-tag gold">推荐</span></div><div class="option-desc">板前割烹 · 本地人爱店</div></div>
+            <div class="option-right"><div class="option-price">¥30,000<small>人均15,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="35000" data-name="鮨 龍次郎 赤坂" data-cat="晚餐" data-detail="ryujiro">
+            <div class="option-main"><div class="option-name">鮨 龍次郎 赤坂 <span class="option-tag gold">寿司</span></div><div class="option-desc">赤坂高完成度 omakase · 性价比好</div></div>
+            <div class="option-right"><div class="option-price">¥35,000<small>人均17,500</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="6000" data-name="一兰拉面赤坂" data-cat="晚餐" data-detail="ichiran">
+            <div class="option-main"><div class="option-name">一兰拉面 · 赤坂</div><div class="option-desc">简单稳妥 · 第一晚省力</div></div>
+            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hotel-fixed"><span class="hotel-name">the b akasaka-mitsuke</span><span class="hotel-tag">已订 · 不计入</span></div>
+    </div>
+  </div>
+
+  <!-- 5/4 -->
+  <div class="day-card" id="day-4">
+    <div class="day-header"><div class="day-date"><span class="num">04</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">月曜日</div><div>筑地 + 银座</div></div></div>
+    <div class="day-body">
+      <div class="schedule">
+        <div class="schedule-row"><div class="schedule-time">07:30</div><div class="schedule-text">筑地场外市场早餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">10:30</div><div class="schedule-text">银座购物 · 伊东屋文具</div></div>
+        <div class="schedule-row"><div class="schedule-time">13:00</div><div class="schedule-text">银座午餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">15:00</div><div class="schedule-text">三菱一号馆 / 银座艺廊 (5/4 周一西洋美术馆休)</div></div>
+        <div class="schedule-row"><div class="schedule-time">19:30</div><div class="schedule-text">晚餐</div></div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon bfast">早</span><span class="choice-title">5/4 早餐 · 筑地</span></div>
+        <div class="options" data-group="d2-bfast">
+          <div class="option" data-price="10000" data-name="寿司大 筑地店" data-cat="早餐" data-detail="sushidai">
+            <div class="option-main"><div class="option-name">寿司大 筑地店 <span class="option-tag red">名店</span></div><div class="option-desc">人气 No.1 · 排队 1-2 小时</div></div>
+            <div class="option-right"><div class="option-price">¥10,000<small>人均5,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="6000" data-name="大江戸 寿司" data-cat="早餐" data-detail="oedo">
+            <div class="option-main"><div class="option-name">大江戸 寿司</div><div class="option-desc">性价比高 · 队伍较短</div></div>
+            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="3000" data-name="きつねや 牛丼" data-cat="早餐" data-detail="kitsuneya">
+            <div class="option-main"><div class="option-name">きつねや 牛丼</div><div class="option-desc">网红老店 · 边逛边吃</div></div>
+            <div class="option-right"><div class="option-price">¥3,000<small>人均1,500</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon lunch">午</span><span class="choice-title">5/4 午餐 · 银座</span></div>
+        <div class="options" data-group="d2-lunch">
+          <div class="option" data-price="25000" data-name="银座久兵衛" data-cat="午餐" data-detail="kyubey">
+            <div class="option-main"><div class="option-name">银座 久兵衛 <span class="option-tag red">寿司名店</span></div><div class="option-desc">寿司老铺 · 午市套餐</div></div>
+            <div class="option-right"><div class="option-price">¥25,000<small>人均12,500</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="30000" data-name="天ぷら近藤" data-cat="午餐" data-detail="kondo">
+            <div class="option-main"><div class="option-name">天ぷら 近藤 <span class="option-tag red">米其林</span></div><div class="option-desc">米其林2星 · 极难订</div></div>
+            <div class="option-right"><div class="option-price">¥30,000<small>人均15,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="20000" data-name="人形町今半 銀座店" data-cat="午餐" data-detail="imahan-ginza">
+            <div class="option-main"><div class="option-name">人形町今半 銀座店 <span class="option-tag gold">寿喜烧</span></div><div class="option-desc">午市寿喜烧 · 性价比高</div></div>
+            <div class="option-right"><div class="option-price">¥20,000<small>人均10,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="10000" data-name="资生堂Parlour 银座" data-cat="午餐" data-detail="shiseido">
+            <div class="option-main"><div class="option-name">资生堂 Parlour 银座本店</div><div class="option-desc">洋食代表 · 氛围老派</div></div>
+            <div class="option-right"><div class="option-price">¥10,000<small>人均5,000</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon">晚</span><span class="choice-title">5/4 晚餐</span><span class="choice-hint">值得记一辈子</span></div>
+        <div class="options" data-group="d2-dinner">
+          <div class="option" data-price="80000" data-name="すきやばし 次郎 六本木店" data-cat="晚餐" data-detail="jiro-roppongi">
+            <div class="option-main"><div class="option-name">すきやばし 次郎 六本木店 <span class="option-tag red">顶级</span></div><div class="option-desc">分店比本店好订一点</div></div>
+            <div class="option-right"><div class="option-price">¥80,000<small>人均40,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="60000" data-name="鮨 銀座おのでら 本店" data-cat="晚餐" data-detail="onodera">
+            <div class="option-main"><div class="option-name">鮨 銀座おのでら 本店 <span class="option-tag red">寿司</span></div><div class="option-desc">米其林1星 · 顶级连锁本店</div></div>
+            <div class="option-right"><div class="option-price">¥60,000<small>人均30,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="100000" data-name="銀座小十" data-cat="晚餐" data-detail="koju">
+            <div class="option-main"><div class="option-name">銀座 小十 <span class="option-tag red">米其林3星</span></div><div class="option-desc">米其林3星和食 · 提前2个月</div></div>
+            <div class="option-right"><div class="option-price">¥100,000<small>人均50,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="20000" data-name="鳥福 銀座" data-cat="晚餐" data-detail="torifuku">
+            <div class="option-main"><div class="option-name">鳥福 銀座 <span class="option-tag gold">推荐</span></div><div class="option-desc">烧鸟 · 酒类丰富</div></div>
+            <div class="option-right"><div class="option-price">¥20,000<small>人均10,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="3000" data-name="銀座 篝 拉面" data-cat="晚餐" data-detail="kagari">
+            <div class="option-main"><div class="option-name">銀座 篝 拉面</div><div class="option-desc">鸡白汤神店 · 夜班排队</div></div>
+            <div class="option-right"><div class="option-price">¥3,000<small>人均1,500</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hotel-fixed"><span class="hotel-name">the b akasaka-mitsuke</span><span class="hotel-tag">已订 · 不计入</span></div>
+    </div>
+  </div>
+
+  <!-- 5/5 -->
+  <div class="day-card" id="day-5">
+    <div class="day-header"><div class="day-date"><span class="num">05</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">火曜日</div><div>东京 → 箱根</div></div></div>
+    <div class="day-body">
+      <div class="schedule">
+        <div class="schedule-row"><div class="schedule-time">10:00</div><div class="schedule-text">Romance Car 新宿→箱根汤本</div></div>
+        <div class="schedule-row"><div class="schedule-time">12:00</div><div class="schedule-text">汤本午餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:00</div><div class="schedule-text">箱根黄金路线 · 大涌谷 · 芦之湖</div></div>
+        <div class="schedule-row"><div class="schedule-time">17:00</div><div class="schedule-text">入住旅馆 + 部屋食怀石</div></div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon special">宿</span><span class="choice-title">5/5 箱根温泉旅馆</span><span class="choice-hint">含1泊2食</span></div>
+        <div class="options" data-group="ryokan">
+          <div class="option" data-price="70000" data-name="強羅花扇 円かの杜" data-cat="住宿" data-detail="hanaogi">
+            <div class="option-main"><div class="option-name">強羅花扇 円かの杜 <span class="option-tag red">顶级</span></div><div class="option-desc">全室客室温泉 · 京风怀石公认前列</div></div>
+            <div class="option-right"><div class="option-price">¥70,000<small>2人1泊2食</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="50000" data-name="月の宿 紗ら" data-cat="住宿" data-detail="sara">
+            <div class="option-main"><div class="option-name">月の宿 紗ら <span class="option-tag gold">推荐</span></div><div class="option-desc">汤本徒步5分 · 全室露天 · 设计感</div></div>
+            <div class="option-right"><div class="option-price">¥50,000<small>2人1泊2食</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="40000" data-name="箱根湯本 開雲" data-cat="住宿" data-detail="kaiun">
+            <div class="option-main"><div class="option-name">箱根湯本 開雲</div><div class="option-desc">含飲み放題 · 性价比好</div></div>
+            <div class="option-right"><div class="option-price">¥40,000<small>2人1泊2食</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon lunch">午</span><span class="choice-title">5/5 午餐 · 箱根汤本</span></div>
+        <div class="options" data-group="d3-lunch">
+          <div class="option selected" data-price="6000" data-name="田むら銀かつ亭" data-cat="午餐" data-detail="ginkatsutei">
+            <div class="option-main"><div class="option-name">田むら 銀かつ亭 <span class="option-tag gold">名物</span></div><div class="option-desc">豆腐猪排煮 · 排队</div></div>
+            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="15000" data-name="菊華荘 怀石" data-cat="午餐" data-detail="kikkasou">
+            <div class="option-main"><div class="option-name">菊華荘 怀石</div><div class="option-desc">富士屋系 · 大正浪漫午市</div></div>
+            <div class="option-right"><div class="option-price">¥15,000<small>人均7,500</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="4000" data-name="はつ花そば 本店" data-cat="午餐" data-detail="hatsuhana">
+            <div class="option-main"><div class="option-name">はつ花そば 本店</div><div class="option-desc">自然薯荞麦 · 清淡</div></div>
+            <div class="option-right"><div class="option-price">¥4,000<small>人均2,000</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon special">交</span><span class="choice-title">箱根周游券 + Romance Car</span></div>
+        <div class="options" data-group="hakone-pass">
+          <div class="option selected" data-price="12200" data-name="Hakone Free Pass · 2日券" data-cat="交通" data-detail="hakone-pass">
+            <div class="option-main"><div class="option-name">Hakone Free Pass</div><div class="option-desc">登山电车+缆车+海贼船+巴士</div></div>
+            <div class="option-right"><div class="option-price">¥12,200<small>2人2日</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="8000" data-name="单买票 估算" data-cat="交通">
+            <div class="option-main"><div class="option-name">不买周游券 · 单买</div><div class="option-desc">如果只玩1-2项划算</div></div>
+            <div class="option-right"><div class="option-price">¥8,000<small>2人估算</small></div></div>
+          </div>
+        </div>
+        <div class="options" data-group="romance-car" style="margin-top:8px">
+          <div class="option selected" data-price="5000" data-name="Romance Car 指定席" data-cat="交通" data-detail="romance-car">
+            <div class="option-main"><div class="option-name">Romance Car 指定席</div><div class="option-desc">85分钟直达 · 4/5 上午10点开抢</div></div>
+            <div class="option-right"><div class="option-price">¥5,000<small>2人</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5/6 -->
+  <div class="day-card" id="day-6">
+    <div class="day-header"><div class="day-date"><span class="num">06</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">水曜日</div><div>箱根 → 镰仓</div></div></div>
+    <div class="day-body">
+      <div class="schedule">
+        <div class="schedule-row"><div class="schedule-time">07:30</div><div class="schedule-text">旅馆早餐 + 晨汤</div></div>
+        <div class="schedule-row"><div class="schedule-time">10:30</div><div class="schedule-text">POLA美术馆 / 箱根神社·平和鸟居</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:00</div><div class="schedule-text">汤本→小田原→大船→镰仓</div></div>
+        <div class="schedule-row"><div class="schedule-time">17:00</div><div class="schedule-text">七里浜看夕阳 (日落 18:30)</div></div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon">晚</span><span class="choice-title">5/6 晚餐 · 镰仓七里浜</span></div>
+        <div class="options" data-group="d4-dinner">
+          <div class="option selected" data-price="20000" data-name="AMALFI DELLA SERA" data-cat="晚餐" data-detail="amalfi">
+            <div class="option-main"><div class="option-name">AMALFI DELLA SERA <span class="option-tag red">日落餐厅</span></div><div class="option-desc">七里滨意餐看海 · 必订位</div></div>
+            <div class="option-right"><div class="option-price">¥20,000<small>人均10,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="10000" data-name="bills 七里ヶ浜" data-cat="晚餐" data-detail="bills">
+            <div class="option-main"><div class="option-name">bills 七里ヶ浜 <span class="option-tag gold">名店</span></div><div class="option-desc">世界第一早餐店 · 晚餐也有</div></div>
+            <div class="option-right"><div class="option-price">¥10,000<small>人均5,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="15000" data-name="酒店内 Le Trianon" data-cat="晚餐" data-detail="trianon">
+            <div class="option-main"><div class="option-name">酒店内 Le Trianon</div><div class="option-desc">海景法餐 · 最省心</div></div>
+            <div class="option-right"><div class="option-price">¥15,000<small>人均7,500</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hotel-fixed"><span class="hotel-name">镰仓王子大酒店</span><span class="hotel-tag">已订 · 不计入</span></div>
+    </div>
+  </div>
+
+  <!-- 5/7 -->
+  <div class="day-card" id="day-7">
+    <div class="day-header"><div class="day-date"><span class="num">07</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">木曜日</div><div>镰仓 → 五反田</div></div></div>
+    <div class="day-body">
+      <div class="schedule">
+        <div class="schedule-row"><div class="schedule-time">07:30</div><div class="schedule-text">早餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">09:00</div><div class="schedule-text">镰仓大佛 + 长谷寺</div></div>
+        <div class="schedule-row"><div class="schedule-time">12:30</div><div class="schedule-text">小町通 + 镰仓午餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:30</div><div class="schedule-text">江ノ電 → 江之岛</div></div>
+        <div class="schedule-row"><div class="schedule-time">17:00</div><div class="schedule-text">镰仓→品川→五反田</div></div>
+        <div class="schedule-row"><div class="schedule-time">20:00</div><div class="schedule-text">晚餐</div></div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon attr">景</span><span class="choice-title">5/7 江之岛景点</span><span class="choice-hint">2人</span></div>
+        <div class="options" data-group="d5-attr">
+          <div class="option selected" data-price="5600" data-name="新江ノ島水族館" data-cat="景点" data-detail="enosui">
+            <div class="option-main"><div class="option-name">新江ノ島水族館 <span class="option-tag teal">水族馆</span></div><div class="option-desc">海豚秀 + 相模湾大水槽 + 水母</div></div>
+            <div class="option-right"><div class="option-price">¥5,600<small>2人成人</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="1000" data-name="江之岛展望塔 Sea Candle" data-cat="景点" data-detail="seacandle">
+            <div class="option-main"><div class="option-name">江之岛展望塔 + 神社</div><div class="option-desc">看富士山 + 走江ノ岛</div></div>
+            <div class="option-right"><div class="option-price">¥1,000<small>2人</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="0" data-name="不去江之岛 · 直接回东京" data-cat="景点">
+            <div class="option-main"><div class="option-name">不去江之岛 · 早回东京</div><div class="option-desc">镰仓玩深一点 · 早点回酒店</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>—</small></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon bfast">早</span><span class="choice-title">5/7 早餐</span></div>
+        <div class="options" data-group="d5-bfast">
+          <div class="option selected" data-price="6000" data-name="bills 七里ヶ浜 早餐" data-cat="早餐" data-detail="bills">
+            <div class="option-main"><div class="option-name">bills 七里ヶ浜 <span class="option-tag red">必吃</span></div><div class="option-desc">世界第一早餐 · 排队</div></div>
+            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="0" data-name="酒店早餐 (含)" data-cat="早餐">
+            <div class="option-main"><div class="option-name">酒店内早餐</div><div class="option-desc">省心 · 通常已含房费</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>已含</small></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon lunch">午</span><span class="choice-title">5/7 午餐 · 镰仓</span></div>
+        <div class="options" data-group="d5-lunch">
+          <div class="option selected" data-price="10000" data-name="鎌倉松原庵" data-cat="午餐" data-detail="matsubaran">
+            <div class="option-main"><div class="option-name">鎌倉 松原庵 <span class="option-tag gold">推荐</span></div><div class="option-desc">古民家荞麦 · 庭院氛围一流</div></div>
+            <div class="option-right"><div class="option-price">¥10,000<small>人均5,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="5000" data-name="Garden House" data-cat="午餐" data-detail="gardenhouse">
+            <div class="option-main"><div class="option-name">Garden House</div><div class="option-desc">Café 风 · 镰仓站旁</div></div>
+            <div class="option-right"><div class="option-price">¥5,000<small>人均2,500</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="3000" data-name="イワタコーヒー" data-cat="午餐" data-detail="iwata">
+            <div class="option-main"><div class="option-name">イワタコーヒー</div><div class="option-desc">古早咖啡 · 川端康成御用</div></div>
+            <div class="option-right"><div class="option-price">¥3,000<small>人均1,500</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon">晚</span><span class="choice-title">5/7 晚餐 · 五反田</span></div>
+        <div class="options" data-group="d5-dinner">
+          <div class="option" data-price="30000" data-name="TTOAHISU · 米其林1星法餐" data-cat="晚餐" data-detail="ttoahisu">
+            <div class="option-main"><div class="option-name">TTOAHISU <span class="option-tag red">米其林1星</span></div><div class="option-desc">五反田法餐 · 高完成度</div></div>
+            <div class="option-right"><div class="option-price">¥30,000<small>人均15,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="15000" data-name="鮨いち兆 五反田" data-cat="晚餐" data-detail="ichicho">
+            <div class="option-main"><div class="option-name">鮨 いち兆 五反田 <span class="option-tag gold">寿司</span></div><div class="option-desc">寿司 · 性价比之王</div></div>
+            <div class="option-right"><div class="option-price">¥15,000<small>人均7,500</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="10000" data-name="目黒のさんま 居酒屋" data-cat="晚餐" data-detail="sanma">
+            <div class="option-main"><div class="option-name">目黒のさんま</div><div class="option-desc">居酒屋氛围满分 · 打车10分</div></div>
+            <div class="option-right"><div class="option-price">¥10,000<small>人均5,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="8000" data-name="五反田 鳥かど 烧鸟" data-cat="晚餐" data-detail="torikado">
+            <div class="option-main"><div class="option-name">五反田 鳥かど</div><div class="option-desc">本地烧鸟 · 平易近人</div></div>
+            <div class="option-right"><div class="option-price">¥8,000<small>人均4,000</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hotel-fixed"><span class="hotel-name">三井花园酒店 五反田</span><span class="hotel-tag">已订 · 不计入</span></div>
+    </div>
+  </div>
+
+  <!-- 5/8 -->
+  <div class="day-card" id="day-8">
+    <div class="day-header"><div class="day-date"><span class="num">08</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">金曜日</div><div>东京最后一日</div></div></div>
+    <div class="day-body">
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon special">日</span><span class="choice-title">5/8 全天路线</span><span class="choice-hint">3选1</span></div>
+        <div class="options" data-group="d6-route">
+          <div class="option selected" data-price="12000" data-name="A · 东京美食日" data-cat="路线" data-detail="route-a">
+            <div class="option-main"><div class="option-name">A · 东京美食日 <span class="option-tag gold">轻松</span></div><div class="option-desc">豊洲市场 + 藏前/清澄白河咖啡巡礼</div></div>
+            <div class="option-right"><div class="option-price">¥12,000<small>含午餐+交通</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="20000" data-name="B · 日光当日往返" data-cat="路线" data-detail="route-b">
+            <div class="option-main"><div class="option-name">B · 日光当日往返 <span class="option-tag red">深度</span></div><div class="option-desc">东武SPACIA + 三世遗 + 中禅寺湖</div></div>
+            <div class="option-right"><div class="option-price">¥20,000<small>含特急+午餐</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="10000" data-name="C · 横浜中华街" data-cat="路线" data-detail="route-c">
+            <div class="option-main"><div class="option-name">C · 横浜半日</div><div class="option-desc">中华街 + 红砖仓库 + 山下公园</div></div>
+            <div class="option-right"><div class="option-price">¥10,000<small>含交通+午餐</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon attr">附</span><span class="choice-title">5/8 加项 · 水族馆</span><span class="choice-hint">可选</span></div>
+        <div class="options" data-group="d6-aquarium">
+          <div class="option selected" data-price="0" data-name="不加水族馆" data-cat="景点">
+            <div class="option-main"><div class="option-name">不加</div><div class="option-desc">5/7 已去过水族馆 · 跳过</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>—</small></div></div>
+          </div>
+          <div class="option" data-price="5400" data-name="アクアパーク品川" data-cat="景点" data-detail="aquapark">
+            <div class="option-main"><div class="option-name">アクアパーク品川 <span class="option-tag teal">水族馆</span></div><div class="option-desc">海豚秀+音光秀 · 五反田1站</div></div>
+            <div class="option-right"><div class="option-price">¥5,400<small>2人</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="5000" data-name="すみだ水族館" data-cat="景点" data-detail="sumida">
+            <div class="option-main"><div class="option-name">すみだ水族館 (晴空塔)</div><div class="option-desc">企鹅 + 水母 + 晴空塔同游</div></div>
+            <div class="option-right"><div class="option-price">¥5,000<small>2人</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon">晚</span><span class="choice-title">5/8 晚餐 · 最后一晚</span><span class="choice-hint">告别东京</span></div>
+        <div class="options" data-group="d6-dinner">
+          <div class="option" data-price="80000" data-name="鮨さいとう 六本木分店" data-cat="晚餐" data-detail="saito">
+            <div class="option-main"><div class="option-name">鮨 さいとう 六本木分店 <span class="option-tag red">顶级</span></div><div class="option-desc">日本顶级寿司之一</div></div>
+            <div class="option-right"><div class="option-price">¥80,000<small>人均40,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="60000" data-name="Den · 米其林2星" data-cat="晚餐" data-detail="den">
+            <div class="option-main"><div class="option-name">Den (神宫前) <span class="option-tag red">米其林2星</span></div><div class="option-desc">创新和食 · 亚洲50最佳</div></div>
+            <div class="option-right"><div class="option-price">¥60,000<small>人均30,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="15000" data-name="博多もつ鍋 おおやま" data-cat="晚餐" data-detail="motsunabe">
+            <div class="option-main"><div class="option-name">博多もつ鍋 おおやま</div><div class="option-desc">内脏火锅 · 东京最佳</div></div>
+            <div class="option-right"><div class="option-price">¥15,000<small>人均7,500</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="3000" data-name="銀座 篝 拉面" data-cat="晚餐" data-detail="kagari">
+            <div class="option-main"><div class="option-name">銀座 篝 拉面</div><div class="option-desc">鸡白汤神店 · 收尾</div></div>
+            <div class="option-right"><div class="option-price">¥3,000<small>人均1,500</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hotel-fixed"><span class="hotel-name">三井花园酒店 五反田</span><span class="hotel-tag">已订 · 不计入</span></div>
+    </div>
+  </div>
+
+  <!-- 5/9 -->
+  <div class="day-card" id="day-9">
+    <div class="day-header"><div class="day-date"><span class="num">09</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">土曜日</div><div>成田 → 上海</div></div></div>
+    <div class="day-body">
+      <div class="schedule">
+        <div class="schedule-row"><div class="schedule-time">11:30</div><div class="schedule-text">退房 · 五反田→品川</div></div>
+        <div class="schedule-row"><div class="schedule-time">12:30</div><div class="schedule-text">N'EX 品川 → 成田 T2</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:00</div><div class="schedule-text">Check-in 过关</div></div>
+        <div class="schedule-row"><div class="schedule-time">16:55</div><div class="schedule-text">FM3040 起飞</div></div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon special">交</span><span class="choice-title">五反田 → 成田机场</span></div>
+        <div class="options" data-group="airport-out">
+          <div class="option selected" data-price="6500" data-name="N'EX 成田特快" data-cat="交通" data-detail="nex">
+            <div class="option-main"><div class="option-name">N'EX 成田特快</div><div class="option-desc">品川→T2 · 75分钟 · 指定席</div></div>
+            <div class="option-right"><div class="option-price">¥6,500<small>2人</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="7200" data-name="利木津巴士" data-cat="交通" data-detail="limousine">
+            <div class="option-main"><div class="option-name">利木津巴士</div><div class="option-desc">品川→T2 · 黄金周可能堵</div></div>
+            <div class="option-right"><div class="option-price">¥7,200<small>2人</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tips">
+    <strong>📝 提醒</strong><br>
+    · 已订酒店(赤坂 / 镰仓 / 五反田)价格不计入此预算<br>
+    · 机票已购,不计入<br>
+    · 餐厅价格为参考,实际看点单<br>
+    · 黄金周餐厅必须 1 个月前预约<br>
+    · 点选项右侧的 <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1px solid var(--ink-muted);font-style:italic;font-family:'Noto Serif SC',serif;font-size:10px;color:var(--ink-muted)">i</span> 看 <strong>预订网址 + Google 地图</strong>
+  </div>
+</div>
+
+<!-- TICKETS / RESERVATIONS -->
+<div class="section" style="padding-top:20px">
+  <div class="section-label"><div class="section-label-line"></div><div class="section-label-text">Tickets &amp; Bookings</div><div class="section-label-line"></div></div>
+
+  <div class="tickets-card">
+    <div class="tickets-header"><h3>需要提前预订的</h3><span class="badge">立刻订</span></div>
+    <div class="ticket-row"><div class="ticket-icon warn">!</div><div class="ticket-info"><div class="ticket-name">Romance Car (5/5)</div><div class="ticket-detail">乘车日前 1 个月 10:00 开放 · 4/5 抢票 · e-Romancecar 网站</div><div class="ticket-actions"><a class="ticket-link" href="https://www.e-romancecar.jp/" target="_blank" rel="noopener">e-Romancecar 抢票 ↗</a></div></div><div class="ticket-price">¥2,500<br><small style="color:var(--ink-muted);font-weight:400">/人</small></div></div>
+    <div class="ticket-row"><div class="ticket-icon warn">!</div><div class="ticket-info"><div class="ticket-name">N'EX 成田特快 (5/9)</div><div class="ticket-detail">出发前 1 周订 · JR EAST 官网 / みどりの窓口</div><div class="ticket-actions"><a class="ticket-link" href="https://www.jreast.co.jp/multi/zh-CHS/pass/nex.html" target="_blank" rel="noopener">JR EAST 订票 ↗</a></div></div><div class="ticket-price">¥3,250<br><small style="color:var(--ink-muted);font-weight:400">/人</small></div></div>
+    <div class="ticket-row"><div class="ticket-icon info">i</div><div class="ticket-info"><div class="ticket-name">新江ノ島水族館 (5/7)</div><div class="ticket-detail">5/7 周四不需预约 · 但买电子票省排队 · 9:00-17:00</div><div class="ticket-actions"><a class="ticket-link" href="https://www.enosui.com/" target="_blank" rel="noopener">官网 ↗</a><a class="ticket-link subtle" href="https://www.klook.com/search/result/?keyword=%E6%96%B0%E6%B1%9F%E3%83%8E%E5%B3%B6%E6%B0%B4%E6%97%8F%E9%A4%A8" target="_blank" rel="noopener">Klook ↗</a></div></div><div class="ticket-price">¥2,800<br><small style="color:var(--ink-muted);font-weight:400">/人</small></div></div>
+    <div class="ticket-row"><div class="ticket-icon warn">!</div><div class="ticket-info"><div class="ticket-name">餐厅预约</div><div class="ticket-detail">米其林 / 寿喜烧 / omakase · 提前 2-4 周</div><div class="ticket-actions"><a class="ticket-link subtle" href="https://tabelog.com/" target="_blank" rel="noopener">Tabelog ↗</a><a class="ticket-link subtle" href="https://restaurant.ikyu.com/" target="_blank" rel="noopener">一休餐厅 ↗</a><a class="ticket-link subtle" href="https://pocket-concierge.jp/en/" target="_blank" rel="noopener">Pocket Concierge ↗</a></div></div><div class="ticket-price">—</div></div>
+  </div>
+
+  <div class="tickets-card">
+    <div class="tickets-header"><h3>景点门票一览</h3></div>
+    <div class="ticket-row"><div class="ticket-icon ok">✓</div><div class="ticket-info"><div class="ticket-name">日枝神社 / 赤坂氷川神社</div><div class="ticket-detail">免费 · 24小时开放</div></div><div class="ticket-price" style="color:var(--gold)">免费</div></div>
+    <div class="ticket-row"><div class="ticket-icon info">i</div><div class="ticket-info"><div class="ticket-name">三菱一号馆美术馆 (5/4)</div><div class="ticket-detail">现场购票 · 西洋美术馆周一休 · 此为代替</div></div><div class="ticket-price">¥2,000<br><small style="color:var(--ink-muted);font-weight:400">/人</small></div></div>
+    <div class="ticket-row"><div class="ticket-icon ok">✓</div><div class="ticket-info"><div class="ticket-name">大涌谷 (5/5)</div><div class="ticket-detail">免费 · 黑蛋 ¥500/份 · 出发前查火山状态</div></div><div class="ticket-price" style="color:var(--gold)">免费</div></div>
+    <div class="ticket-row"><div class="ticket-icon info">i</div><div class="ticket-info"><div class="ticket-name">箱根POLA美术馆 (5/6)</div><div class="ticket-detail">现场购票 · Hakone Pass 有折扣</div></div><div class="ticket-price">¥1,800<br><small style="color:var(--ink-muted);font-weight:400">/人</small></div></div>
+    <div class="ticket-row"><div class="ticket-icon info">i</div><div class="ticket-info"><div class="ticket-name">雕刻之森美术馆 (备选)</div><div class="ticket-detail">现场购票即可</div></div><div class="ticket-price">¥1,600<br><small style="color:var(--ink-muted);font-weight:400">/人</small></div></div>
+    <div class="ticket-row"><div class="ticket-icon ok">✓</div><div class="ticket-info"><div class="ticket-name">箱根神社 · 平和鸟居 (5/6)</div><div class="ticket-detail">免费 · 鸟居拍照排队约 1-2 小时</div></div><div class="ticket-price" style="color:var(--gold)">免费</div></div>
+    <div class="ticket-row"><div class="ticket-icon info">i</div><div class="ticket-info"><div class="ticket-name">镰仓大佛(高德院)(5/7)</div><div class="ticket-detail">现场购票 · 进大佛体内 +¥50</div></div><div class="ticket-price">¥300<br><small style="color:var(--ink-muted);font-weight:400">/人</small></div></div>
+    <div class="ticket-row"><div class="ticket-icon info">i</div><div class="ticket-info"><div class="ticket-name">长谷寺 (5/7)</div><div class="ticket-detail">现场购票 · 海景观音堂展望台</div></div><div class="ticket-price">¥400<br><small style="color:var(--ink-muted);font-weight:400">/人</small></div></div>
+    <div class="ticket-row"><div class="ticket-icon info">i</div><div class="ticket-info"><div class="ticket-name">报国寺 · 竹寺 (5/7)</div><div class="ticket-detail">现场购票 · 抹茶 +¥600</div></div><div class="ticket-price">¥400<br><small style="color:var(--ink-muted);font-weight:400">/人</small></div></div>
+    <div class="ticket-row"><div class="ticket-icon ok">✓</div><div class="ticket-info"><div class="ticket-name">鶴岡八幡宮 (5/7)</div><div class="ticket-detail">免费 · 镰仓最大神社</div></div><div class="ticket-price" style="color:var(--gold)">免费</div></div>
+    <div class="ticket-row"><div class="ticket-icon info">i</div><div class="ticket-info"><div class="ticket-name">江之岛展望塔 (5/7)</div><div class="ticket-detail">含 Eskar 扶梯 + 萨缪尔花园 + 展望塔</div></div><div class="ticket-price">¥500<br><small style="color:var(--ink-muted);font-weight:400">/人</small></div></div>
+    <div class="ticket-row"><div class="ticket-icon info">i</div><div class="ticket-info"><div class="ticket-name">アクアパーク品川 (5/8 可选)</div><div class="ticket-detail">官网或 Klook 预购 · 海豚秀亮点</div></div><div class="ticket-price">¥2,700<br><small style="color:var(--ink-muted);font-weight:400">/人</small></div></div>
+    <div class="ticket-row"><div class="ticket-icon info">i</div><div class="ticket-info"><div class="ticket-name">日光東照宮 (5/8 B路线)</div><div class="ticket-detail">现场购票 · 三世遗精华</div></div><div class="ticket-price">¥1,600<br><small style="color:var(--ink-muted);font-weight:400">/人</small></div></div>
+    <div class="ticket-row"><div class="ticket-icon info">i</div><div class="ticket-info"><div class="ticket-name">明治神宫 (备选)</div><div class="ticket-detail">免费 · 内苑(明治神宫御苑)¥500</div></div><div class="ticket-price" style="color:var(--gold)">免费</div></div>
+  </div>
+
+  <div class="tips">
+    <strong>🎫 购票小贴士</strong><br>
+    · <strong>Klook / KKday</strong> 中文界面,能买大部分景点电子票<br>
+    · <strong>JR EAST 官网</strong> 买 N'EX,可选英文界面<br>
+    · <strong>e-Romancecar</strong> 抢小田急浪漫号(全席指定)<br>
+    · <strong>Tabelog / OMAKASE / Pocket Concierge</strong> 高级餐厅预约<br>
+    · 寺院/神社基本现场购票,带零钱方便
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label"><div class="section-label-line"></div><div class="section-label-text">Flight Info</div><div class="section-label-line"></div></div>
+  <div class="flight-card"><div class="flight-icon">↗</div><div class="flight-info"><div class="flight-route">FM815 · 上海 → 东京</div><div class="flight-detail">5/3 · 虹桥 T1 08:20 → 羽田 T3 12:30</div></div></div>
+  <div class="flight-card"><div class="flight-icon">↘</div><div class="flight-info"><div class="flight-route">FM3040 · 东京 → 上海</div><div class="flight-detail">5/9 · 成田 T2 16:55 → 浦东 T1 19:15</div></div></div>
+</div>
+
+<div class="footer"><div class="footer-divider"></div>Have a wonderful trip</div>
+
+</div><!-- /container -->
+
+</div><!-- /page-wrap -->
+
+<div class="budget-bar" id="budgetBar">
+  <div class="budget-info">
+    <div class="budget-label">Total Budget</div>
+    <div class="budget-amount"><span class="yen">¥</span><span id="totalAmount">0</span></div>
+    <div class="budget-rmb">≈ <span id="totalRmb">0</span> RMB · 2人</div>
+  </div>
+  <div class="budget-toggle">明细 ▲</div>
+</div>
+
+<div class="modal-overlay" id="overlay"></div>
+
+<div class="breakdown" id="breakdown">
+  <div class="modal-handle"></div>
+  <h2>预算明细</h2>
+  <div class="breakdown-sub">— BUDGET BREAKDOWN —</div>
+  <div id="breakdownList"></div>
+  <div class="breakdown-total"><div class="breakdown-total-label">合 计</div><div class="breakdown-total-amount"><span class="yen">¥</span><span id="modalTotal">0</span></div></div>
+  <div class="breakdown-note">💡 此预算不含已订住宿 + 机票<br>汇率约 1元 ≈ 20 日元(浮动)<br>各餐人均价仅供参考,实际按点单</div>
+</div>
+
+<div class="detail-modal" id="detailModal">
+  <div class="modal-handle"></div>
+  <div class="detail-header">
+    <div class="detail-kicker" id="dKicker">— 详情 —</div>
+    <div class="detail-name" id="dName">—</div>
+    <div class="detail-tagline" id="dTagline"></div>
+  </div>
+  <div class="detail-section">
+    <div class="detail-icon">📞</div>
+    <div class="detail-content">
+      <div class="detail-label">如何预订</div>
+      <div class="detail-text" id="dBook">—</div>
+      <div class="detail-links" id="dBookLinks"></div>
+    </div>
+  </div>
+  <div class="detail-section">
+    <div class="detail-icon">🚇</div>
+    <div class="detail-content">
+      <div class="detail-label">如何前往</div>
+      <div class="detail-text" id="dGo">—</div>
+      <div class="detail-links" id="dGoLinks"></div>
+    </div>
+  </div>
+  <div class="detail-section">
+    <div class="detail-icon">🕐</div>
+    <div class="detail-content">
+      <div class="detail-label">营业时间</div>
+      <div class="detail-text" id="dHours">—</div>
+    </div>
+  </div>
+  <div class="detail-section" id="dTipSec">
+    <div class="detail-icon">💡</div>
+    <div class="detail-content">
+      <div class="detail-label">小贴士</div>
+      <div class="detail-text" id="dTip">—</div>
+    </div>
+  </div>
+  <button class="detail-close" id="dClose">关闭</button>
+</div>
+
+<script>
+const RATE = 20;
+
+// ========== DETAIL DATA ==========
+// URL helpers
+const enc = encodeURIComponent;
+const gmap = q => `https://www.google.com/maps/search/?api=1&query=${enc(q)}`;
+const tabelog = q => `https://tabelog.com/rstLst/?sw=${enc(q)}`;
+const ikyu = q => `https://restaurant.ikyu.com/search?rstName=${enc(q)}`;
+const pc = q => `https://pocket-concierge.jp/en/restaurants?q=${enc(q)}`;
+const omakase = q => `https://omakase.in/en/searches?q=${enc(q)}`;
+const opentable = q => `https://www.opentable.jp/s?term=${enc(q)}`;
+const klook = q => `https://www.klook.com/search/result/?keyword=${enc(q)}`;
+const booking = q => `https://www.booking.com/searchresults.html?ss=${enc(q)}`;
+
+const details = {
+  // 交通
+  'taxi-in': {kicker:'机场打车',name:'打车 · 羽田→赤坂',tagline:'最省心,行李多最优',
+    book:'机场到达层有「タクシー」专用窗口,直接排队上车,无需预约。也可用 GO app 叫车。',
+    go:'羽田 T3 到达大厅 → 出口对面就是出租车专用通道。预计 40-50 分钟到赤坂见附,堵车更久。',
+    hours:'24 小时',
+    tip:'2人 ¥9,000 左右(2026 计费)。超过 22:00 加 20% 夜间费。出租车都打表,不收小费。',
+    bookLinks:[
+      {label:'GO 打车 app', url:'https://go.goinc.jp/'}
+    ],
+    mapUrl: gmap('Haneda Airport Terminal 3 Taxi Stand')},
+  'train-in': {kicker:'机场电车',name:'京急 + 银座线',tagline:'省钱稳妥,有 Suica 即可',
+    book:'到达大厅买 Suica/PASMO 实体卡或用手机加 Apple Pay 钱包,刷进站,无需提前订票。',
+    go:'羽田 T3 → 京急机场线(往品川方向,约 25 分钟)→ JR 山手线 1 站到新桥 → 银座线赤坂见附。',
+    hours:'始发车 5:30,末班 23:30 左右',
+    tip:'⚠️ 黄金周末班车前后会爆挤,行李多建议错峰或打车。',
+    bookLinks:[
+      {label:'京急官网中文', url:'https://www.haneda-tokyo-access.com/cn/'}
+    ],
+    mapUrl: gmap('京急蒲田駅')},
+
+  // 5/3 晚餐
+  'asada': {kicker:'5/3 晚餐',name:'赤坂浅田',tagline:'京怀石老铺',
+    book:'<span class="em">立刻订</span> · 一休.comレストラン / Tabelog · 黄金周提前 2 个月起。电话 03-3585-6606。',
+    go:'从 the b 酒店步行约 12 分钟。地铁银座线/南北线「溜池山王」9 号出口徒步 3 分。',
+    hours:'11:30-14:00 / 18:00-22:00 · 周日休',
+    tip:'怀石套餐 ¥15,000 起,夜は¥18,000~。穿搭整洁(business casual)。',
+    bookLinks:[
+      {label:'一休餐厅', url:ikyu('赤坂浅田')},
+      {label:'Tabelog', url:tabelog('赤坂浅田')}
+    ],
+    mapUrl: gmap('赤坂浅田 港区赤坂')},
+  'imahan-kioi': {kicker:'5/3 晚餐',name:'人形町今半 紀尾井町店',tagline:'明治28年寿喜烧老铺',
+    book:'<span class="em">官网或一休.comレストラン</span>(中文界面)直接订位 · 电话 03-3556-7898 · 提前 2-4 周。',
+    go:'<span class="em">离 the b 酒店超近</span> · 步行 5 分钟到「東京ガーデンテラス紀尾井町」内。',
+    hours:'11:00-15:00 / 17:00-22:00 (L.O. 21:00)',
+    tip:'寿喜烧/涮锅/网烤牛排三选一。午市更便宜。有数寄屋造个室,适合纪念日。服务费 10%。',
+    bookLinks:[
+      {label:'今半官网', url:'https://restaurant.imahan.com/kioichou/'},
+      {label:'一休餐厅', url:ikyu('人形町今半 紀尾井町')},
+      {label:'Tabelog', url:tabelog('人形町今半 紀尾井町')}
+    ],
+    mapUrl: gmap('人形町今半 紀尾井町店 東京ガーデンテラス')},
+  'kimiya': {kicker:'5/3 晚餐',name:'赤坂 きみ家',tagline:'板前割烹,常客制小店',
+    book:'电话 03-3583-7855 / Tabelog 提前 1 周。',
+    go:'千代田线「赤坂」徒步 3 分,从酒店步行约 10 分钟。',
+    hours:'晚餐为主 17:30-22:00 · 周日休',
+    tip:'吧台 8 席为主 · 主厨当面料理 · 季节食材为主。预算 ¥12,000-18,000。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('赤坂 きみ家')}
+    ],
+    mapUrl: gmap('赤坂 きみ家')},
+  'ryujiro': {kicker:'5/3 晚餐',name:'鮨 龍次郎 赤坂',tagline:'高完成度 omakase · 性价比好',
+    book:'<span class="em">OMAKASE / Pocket Concierge</span>(支持英文)· 提前 3-4 周。',
+    go:'银座线「赤坂見附」徒步 5 分。从酒店步行 7 分钟。',
+    hours:'夜のみ · 18:00 / 20:30 二轮制',
+    tip:'omakase ¥17,000 左右(2026)· 12-15 贯 · 江户前手法。',
+    bookLinks:[
+      {label:'OMAKASE', url:omakase('Ryujiro Akasaka')},
+      {label:'Pocket Concierge', url:pc('鮨 龍次郎')},
+      {label:'Tabelog', url:tabelog('鮨 龍次郎 赤坂')}
+    ],
+    mapUrl: gmap('鮨 龍次郎 赤坂')},
+  'ichiran': {kicker:'5/3 晚餐',name:'一兰拉面 赤坂店',tagline:'24小时,第一晚保险选项',
+    book:'无需预约,门口自助点单机。',
+    go:'银座线「赤坂見附」徒步 2 分,从酒店 1 分钟。',
+    hours:'24 小时营业',
+    tip:'¥1,500 一碗左右 · 单人座 · 多语言菜单。第一晚累就这家。',
+    bookLinks:[
+      {label:'一兰中文官网', url:'https://www.ichiran.com/zh-hans/'}
+    ],
+    mapUrl: gmap('一蘭 赤坂店')},
+
+  // 5/4
+  'sushidai': {kicker:'5/4 早餐',name:'寿司大 筑地店',tagline:'筑地外市场人气王',
+    book:'<span class="em">不接受预约</span>。早起排队,5:00 已有队伍。',
+    go:'大江户线「築地市場」A1 出口徒步 4 分钟,或 日比谷线「築地」徒步 5 分。',
+    hours:'5:00-14:00 · 周日 + 不定休',
+    tip:'omakase 大约 ¥4,500 / 人,12 贯左右。⚠️ 队伍 1-2 小时正常。座位仅 12 席。',
+    bookLinks:[
+      {label:'Tabelog 查看排队', url:tabelog('寿司大 築地')}
+    ],
+    mapUrl: gmap('寿司大 築地場外市場')},
+  'oedo': {kicker:'5/4 早餐',name:'大江戸 寿司',tagline:'筑地老牌,队伍较短',
+    book:'可现场,Tabelog 也能预约。',
+    go:'筑地场外市场内,与寿司大同区域。',
+    hours:'6:00-14:00',
+    tip:'比寿司大队短得多,品质同样在线 · 性价比之选。¥3,000 左右。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('大江戸 築地市場')}
+    ],
+    mapUrl: gmap('大江戸 寿司 築地')},
+  'kitsuneya': {kicker:'5/4 早餐',name:'きつねや 牛丼',tagline:'站着吃 · 牛もつ煮込み名物',
+    book:'无需。',
+    go:'筑地场外市场入口附近。',
+    hours:'6:30-13:30',
+    tip:'¥1,000-1,500/人。一边逛市场一边吃,网红打卡店,排队 20-30 分。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('きつねや 築地')}
+    ],
+    mapUrl: gmap('きつねや 築地場外市場')},
+
+  'kyubey': {kicker:'5/4 午餐',name:'銀座 久兵衛 本店',tagline:'昭和10年创业,寿司老铺',
+    book:'<span class="em">官网</span>(久兵衛.com)或电话 03-3571-6523 · 提前 2-4 周。',
+    go:'银座线/丸之内线「銀座」C2 出口徒步 4 分。',
+    hours:'11:30-14:00 / 17:00-22:00 · 周日及节假日休',
+    tip:'<span class="em">午市套餐 ¥10,000 起</span>性价比远高于晚市。预约时说"昼"会便宜很多。',
+    bookLinks:[
+      {label:'久兵衛官网', url:'https://www.kyubey.jp/'},
+      {label:'Tabelog', url:tabelog('久兵衛 銀座本店')}
+    ],
+    mapUrl: gmap('銀座 久兵衛 本店')},
+  'kondo': {kicker:'5/4 午餐',name:'銀座 天ぷら 近藤',tagline:'米其林2星 · 蔬菜天妇罗',
+    book:'电话 03-5568-0923(只接电话)· 提前 1-2 个月,黄金周建议 6-8 周前。',
+    go:'银座线「銀座」B5 出口徒步 1 分,9 楼。',
+    hours:'昼 12:00-15:00 / 夜 17:00-22:00 · 周日休',
+    tip:'<span class="em">午市 ¥8,000 起,晚市 ¥15,000 起</span>。玉米天妇罗一定要吃。座位 7 席。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('天ぷら 近藤 銀座')},
+      {label:'Pocket Concierge', url:pc('Tempura Kondo')}
+    ],
+    mapUrl: gmap('天ぷら近藤 銀座')},
+  'imahan-ginza': {kicker:'5/4 午餐',name:'人形町今半 銀座店',tagline:'银座方便位置的寿喜烧',
+    book:'官网 / 一休.comレストラン · 提前 1-2 周。',
+    go:'銀座线/丸之内线「銀座」B5 / B7 徒步 2 分。GINZA SIX 附近。',
+    hours:'11:00-15:00 / 17:00-22:00',
+    tip:'<span class="em">午市寿喜烧 ¥6,000 起</span>(贵价的 ¥10,000+)· 比晚市便宜得多。',
+    bookLinks:[
+      {label:'今半官网', url:'https://restaurant.imahan.com/ginza/'},
+      {label:'一休餐厅', url:ikyu('人形町今半 銀座')}
+    ],
+    mapUrl: gmap('人形町今半 銀座店')},
+  'shiseido': {kicker:'5/4 午餐',name:'資生堂パーラー 銀座本店',tagline:'1902年创业 · 洋食代表',
+    book:'Tabelog 或现场。周末建议 1 周前订。',
+    go:'銀座线「銀座」A2 出口徒步 5 分,资生堂大楼内。',
+    hours:'11:30-21:30 · 周一休',
+    tip:'⚠️ 5/4 是周一可能休 · 提前确认。明治18年的肉饼蛋包饭、奶油可乐饼必吃。¥4,000-6,000。',
+    bookLinks:[
+      {label:'资生堂官网', url:'https://parlour.shiseido.co.jp/restaurant/'},
+      {label:'Tabelog', url:tabelog('資生堂パーラー 銀座本店')}
+    ],
+    mapUrl: gmap('資生堂パーラー 銀座本店')},
+
+  'jiro-roppongi': {kicker:'5/4 晚餐',name:'すきやばし次郎 六本木店',tagline:'神店分店',
+    book:'<span class="em">电话 03-5413-0033</span>(只接电话日语预约) · 提前 1-2 个月。或通过酒店 Concierge 介绍。',
+    go:'大江户线/日比谷线「六本木」直结,六本木 Hills 内。',
+    hours:'夜のみ · 17:00 / 19:30 / 22:00 三轮制',
+    tip:'<span class="em">¥40,000 / 人起</span>,正式着装,2 小时内吃完离席。手机相机收起来,拍照禁止。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('すきやばし次郎 六本木')}
+    ],
+    mapUrl: gmap('すきやばし次郎 六本木ヒルズ')},
+  'onodera': {kicker:'5/4 晚餐',name:'鮨 銀座おのでら 本店',tagline:'米其林1星',
+    book:'<span class="em">官网或 Pocket Concierge</span>(英文界面) · 提前 4-6 周。',
+    go:'銀座线「銀座」A1 出口徒步 2 分,银座七丁目。',
+    hours:'昼 12:00-14:00 / 夜 17:30 / 20:30',
+    tip:'¥30,000 / 人左右 · omakase 18 贯 · 比次郎好订很多但水准接近。',
+    bookLinks:[
+      {label:'おのでら官网', url:'https://onodera-group.com/sushi-onodera/'},
+      {label:'Pocket Concierge', url:pc('Sushi Ginza Onodera')},
+      {label:'OMAKASE', url:omakase('Sushi Ginza Onodera')}
+    ],
+    mapUrl: gmap('鮨 銀座おのでら 本店')},
+  'koju': {kicker:'5/4 晚餐',name:'銀座 小十',tagline:'米其林3星 · 现代怀石',
+    book:'<span class="em">电话 03-6215-9544</span>(只接电话)· 提前 2-3 个月,黄金周可能不可能。',
+    go:'銀座线/丸之内线「銀座」C8 出口徒步 3 分,銀座新洋ビル 4 階。',
+    hours:'夜のみ 18:00 一轮制',
+    tip:'¥40,000-50,000 / 人 · 主厨奥田透 · 不接受新客优先,通过 Concierge 介绍最好。',
+    bookLinks:[
+      {label:'Pocket Concierge', url:pc('Ginza Koju')},
+      {label:'Tabelog', url:tabelog('銀座 小十')}
+    ],
+    mapUrl: gmap('銀座 小十')},
+  'torifuku': {kicker:'5/4 晚餐',name:'鳥福 銀座',tagline:'银座烧鸟 · 酒水搭配出色',
+    book:'Tabelog / Hot Pepper · 提前 1-2 周。',
+    go:'銀座线「銀座」B4 出口徒步 3 分。',
+    hours:'17:00-23:00 · 周日休',
+    tip:'¥10,000 / 人 · omakase 12-15 串 · 烧鸟+清酒+葡萄酒搭配最佳之一。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('鳥福 銀座')}
+    ],
+    mapUrl: gmap('鳥福 銀座')},
+  'kagari': {kicker:'拉面收尾',name:'銀座 篝 (本店)',tagline:'鸡白汤 SOBA 神店',
+    book:'<span class="em">不能预约</span> · 整理券系统 · 高峰排 30-60 分。',
+    go:'銀座一丁目站 8 出口徒步 2 分。',
+    hours:'11:00-21:30',
+    tip:'¥1,500 一碗 · 鸡白汤 SOBA 是绝品。中午队伍最长,夜班(20:30 后)较短。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('銀座 篝 本店')}
+    ],
+    mapUrl: gmap('銀座 篝 本店')},
+
+  // 5/5 箱根
+  'hanaogi': {kicker:'5/5 住宿',name:'強羅花扇 円かの杜',tagline:'箱根顶级旅馆',
+    book:'<span class="em">官网</span>(hanaougi.jp)/ 一休.com / 楽天Travel · 提前 1-2 个月。',
+    go:'<span class="em">提供「強羅」站免费送迎</span> · 抵达時電話。也可从汤本搭登山电车到強羅。',
+    hours:'Check-in 15:00 / Check-out 11:00',
+    tip:'全室客室温泉 + 京风怀石。一泊二食 ¥35,000-50,000 / 人。',
+    bookLinks:[
+      {label:'花扇官网', url:'https://hanaougi.jp/madoka/'},
+      {label:'一休订房', url:'https://www.ikyu.com/00041085/'},
+      {label:'Booking.com', url:booking('強羅花扇 円かの杜')}
+    ],
+    mapUrl: gmap('強羅花扇 円かの杜')},
+  'sara': {kicker:'5/5 住宿',name:'月の宿 紗ら',tagline:'设计感新派,汤本徒步可达',
+    book:'<span class="em">楽天Travel / Booking.com / 官网</span> · 提前 1-2 个月。',
+    go:'<span class="em">「箱根湯本」站徒步 5 分钟</span> · 行李可送旅馆 (TaQbin 当日達)。',
+    hours:'Check-in 15:00 / Check-out 11:00',
+    tip:'全室带露天风吕 + 现代设计 · 一泊二食 ¥25,000 / 人左右。',
+    bookLinks:[
+      {label:'Booking.com', url:booking('月の宿 紗ら')},
+      {label:'一休订房', url:ikyu('月の宿 紗ら')},
+      {label:'Agoda', url:`https://www.agoda.com/search?q=${enc('月の宿 紗ら')}`}
+    ],
+    mapUrl: gmap('月の宿 紗ら 箱根湯本')},
+  'kaiun': {kicker:'5/5 住宿',name:'箱根湯本 開雲',tagline:'性价比首选,含飲み放題',
+    book:'楽天Travel / Booking.com / Jalan。',
+    go:'「箱根湯本」徒步 10 分 · 提前申请有送迎。',
+    hours:'Check-in 15:00 / Check-out 10:00',
+    tip:'¥20,000 / 人 一泊二食含 90 分钟飲み放題,会席+各种酒,很 chill。',
+    bookLinks:[
+      {label:'Booking.com', url:booking('箱根湯本 開雲')},
+      {label:'楽天Travel', url:`https://travel.rakuten.co.jp/dsearch/?f_keyword=${enc('箱根湯本 開雲')}`}
+    ],
+    mapUrl: gmap('箱根湯本 開雲')},
+  'ginkatsutei': {kicker:'5/5 午餐',name:'田むら 銀かつ亭 本店',tagline:'箱根名物豆腐猪排煮',
+    book:'<span class="em">不接受预约</span> · 排队制。',
+    go:'箱根登山电车「強羅」站徒步 1 分。',
+    hours:'11:00-14:30 / 17:00-19:30 · 周三休',
+    tip:'豆腐かつ煮 ¥1,800,只此一家 · 现金优先。排队 30-60 分钟。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('田むら 銀かつ亭 強羅')}
+    ],
+    mapUrl: gmap('田むら 銀かつ亭 強羅')},
+  'kikkasou': {kicker:'5/5 午餐',name:'菊華荘 (富士屋酒店)',tagline:'1895 年大正建筑内的怀石',
+    book:'富士屋酒店官网 / 电话 0460-82-2211 · 提前 1-2 周。',
+    go:'「箱根湯本」搭巴士 15 分到「宮ノ下」站徒步 5 分。',
+    hours:'昼 11:30-14:30 / 夜 17:30-20:00',
+    tip:'¥6,000-12,000 怀石午市 · 大正浪漫氛围拉满。"明治の客室"建筑国家文化财。',
+    bookLinks:[
+      {label:'富士屋官网', url:'https://www.fujiyahotel.jp/restaurant/kikkaso/'},
+      {label:'Tabelog', url:tabelog('菊華荘 富士屋')}
+    ],
+    mapUrl: gmap('菊華荘 富士屋ホテル 宮ノ下')},
+  'hatsuhana': {kicker:'5/5 午餐',name:'はつ花そば 本店',tagline:'自然薯荞麦 · 清淡名物',
+    book:'无需预约。',
+    go:'「箱根湯本」徒步 5 分。',
+    hours:'10:00-19:00 · 周三休',
+    tip:'¥1,500-2,500 / 人 · 山菜と自然薯せいろ经典。30 分排队。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('はつ花そば 箱根湯本')}
+    ],
+    mapUrl: gmap('はつ花そば 本店 箱根湯本')},
+  'hakone-pass': {kicker:'箱根周游',name:'Hakone Free Pass',tagline:'箱根全境通票',
+    book:'<span class="em">小田急官网 / EMot app(中英文)/ 新宿西口/箱根湯本站窗口</span>购买。',
+    go:'2日券:新宿出发 ¥6,100,小田原出发 ¥5,000(2026 价)。',
+    hours:'连续 2 日有效',
+    tip:'含登山电车+缆车+海贼船+巴士所有交通 + 多家美术馆 5-20% 折扣。<br>不含 Romance Car 特急券,需另外加购。',
+    bookLinks:[
+      {label:'小田急官网中文', url:'https://www.odakyu.jp/tc/passes/hakone/'},
+      {label:'Klook 购买', url:klook('Hakone Free Pass')}
+    ],
+    mapUrl: gmap('小田急 箱根湯本駅')},
+  'romance-car': {kicker:'特急列车',name:'Romance Car',tagline:'85分钟直达,全席指定',
+    book:'<span class="em">e-Romancecar 官网</span>(中英文)· <span class="em">乘车日前 1 个月 10:00 开放</span> · <span class="em">4/5 上午抢票</span>。',
+    go:'新宿西口小田急线 Romance Car 专用月台。',
+    hours:'多个班次,从 7:00 到 22:00',
+    tip:'¥1,200/人特急券(车票另算 ¥1,300/人)。<span class="em">展望席</span>(1, 10 号车)抢手 · GSE 新型最佳。',
+    bookLinks:[
+      {label:'e-Romancecar 抢票', url:'https://www.e-romancecar.jp/'},
+      {label:'小田急 EMot app', url:'https://www.emot.jp/'}
+    ],
+    mapUrl: gmap('小田急 新宿駅 ロマンスカー')},
+
+  // 5/6
+  'amalfi': {kicker:'5/6 晚餐',name:'AMALFI DELLA SERA',tagline:'七里浜悬崖意餐 · 看海日落',
+    book:'<span class="em">官网 / 电话 0467-32-2001</span> · 提前 2-4 周 · 黄金周更早。',
+    go:'江ノ電「七里ヶ浜」徒步 3 分上坡。从镰仓王子酒店步行 6 分。',
+    hours:'11:00-22:00',
+    tip:'<span class="em">日落席必订</span>(预约时说 sunset table)· ¥10,000 / 人 · 5月 日落 18:30 · 提前 30 分到。',
+    bookLinks:[
+      {label:'Amalfi 官网', url:'https://www.ristorante-amalfi.com/sera/'},
+      {label:'OpenTable', url:opentable('Amalfi Della Sera')},
+      {label:'Tabelog', url:tabelog('AMALFI DELLA SERA 七里ヶ浜')}
+    ],
+    mapUrl: gmap('AMALFI DELLA SERA 七里ヶ浜')},
+  'bills': {kicker:'七里浜餐厅',name:'bills 七里ヶ浜',tagline:'世界第一早餐',
+    book:'OpenTable · 早餐时段(7-11 点)可现场排队;午晚提前订。',
+    go:'江ノ電「七里ヶ浜」徒步 1 分,海边二楼。',
+    hours:'7:00-21:00',
+    tip:'<span class="em">ricotta hotcake</span>(¥2,200)是招牌 · 周末早餐排队 1 小时常态。',
+    bookLinks:[
+      {label:'bills 官网', url:'https://billsjapan.com/jp/'},
+      {label:'OpenTable 订位', url:opentable('bills 七里ヶ浜')}
+    ],
+    mapUrl: gmap('bills 七里ヶ浜')},
+  'trianon': {kicker:'5/6 晚餐',name:'Le Trianon (镰仓王子内)',tagline:'酒店内法餐 · 海景',
+    book:'酒店前台 / 官网。',
+    go:'酒店内 4 楼。',
+    hours:'晚 17:30-21:00',
+    tip:'¥7,500 / 人左右 · 全海景 · 最省力但价格不便宜。',
+    bookLinks:[
+      {label:'镰仓王子官网', url:'https://www.princehotels.com/kamakura/zh-cn/dining/le-trianon/'}
+    ],
+    mapUrl: gmap('鎌倉プリンスホテル Le Trianon')},
+
+  // 5/7
+  'enosui': {kicker:'5/7 景点',name:'新江ノ島水族館 (えのすい)',tagline:'海豚秀+8000条沙丁鱼大水槽',
+    book:'<span class="em">官网 / Klook / KKday</span> 买电子票 · <span class="em">5/7 周四不需预约</span>。',
+    go:'<span class="em">小田急「片瀬江ノ島」徒步 3 分</span> · 江ノ電「江ノ島」徒步 10 分。从七里浜酒店搭江ノ電约 15 分。',
+    hours:'9:00-17:00 (最終入場 16:00)',
+    tip:'¥2,800/成人 · 海豚秀(Wave)13:00 / 15:00 · 提前 15 分到场抢座 · 看完 1.5-2 小时。',
+    bookLinks:[
+      {label:'えのすい官网', url:'https://www.enosui.com/'},
+      {label:'Klook 电子票', url:klook('新江ノ島水族館')},
+      {label:'KKday 电子票', url:`https://www.kkday.com/zh-cn/search?keyword=${enc('新江ノ島水族館')}`}
+    ],
+    mapUrl: gmap('新江ノ島水族館')},
+  'seacandle': {kicker:'5/7 景点',name:'江之岛展望塔 + 神社',tagline:'富士山遥望',
+    book:'现场购票 Eskar 套票 ¥500/人。',
+    go:'江ノ電「江ノ島」徒步 20 分(全程上山)· 用 Eskar 扶梯轻松些。',
+    hours:'9:00-20:00',
+    tip:'晴天可遥望富士山 · 黄昏最美 · 江岛神社也免费。',
+    bookLinks:[
+      {label:'江之岛官网', url:'https://enoshima-seacandle.com/'},
+      {label:'Klook', url:klook('江の島シーキャンドル')}
+    ],
+    mapUrl: gmap('江の島シーキャンドル 展望灯台')},
+  'matsubaran': {kicker:'5/7 午餐',name:'鎌倉 松原庵',tagline:'古民家荞麦 · 镰仓代表',
+    book:'<span class="em">OpenTable</span> 或电话 0467-61-3838 · 提前 1 周。',
+    go:'江ノ電「由比ヶ浜」徒步 3 分。',
+    hours:'11:00-22:00 (无休)',
+    tip:'昭和初期古民家改造 · 庭院绝美 · ¥3,000-5,000 / 人 · 推荐荞麦御膳。',
+    bookLinks:[
+      {label:'松原庵官网', url:'https://matsubara-an.com/'},
+      {label:'OpenTable', url:opentable('鎌倉 松原庵')}
+    ],
+    mapUrl: gmap('鎌倉 松原庵')},
+  'gardenhouse': {kicker:'5/7 午餐',name:'Garden House Kamakura',tagline:'美式 brunch · 镰仓站旁',
+    book:'OpenTable 或现场。',
+    go:'JR「鎌倉」西口徒步 3 分。',
+    hours:'9:00-22:00',
+    tip:'¥2,500 / 人 · 自家烟熏三明治、蛋盖饭 · 庭院位最佳。',
+    bookLinks:[
+      {label:'Garden House 官网', url:'https://www.gardenhouse-kamakura.jp/'},
+      {label:'OpenTable', url:opentable('Garden House Kamakura')}
+    ],
+    mapUrl: gmap('Garden House Kamakura')},
+  'iwata': {kicker:'5/7 午餐',name:'イワタ珈琲店',tagline:'川端康成爱店',
+    book:'无预约。',
+    go:'JR「鎌倉」徒步 2 分,小町通入口。',
+    hours:'10:00-17:30 · 周二三休',
+    tip:'<span class="em">3 cm 厚松饼</span>是名物 · 等 30 分。¥1,500 / 人。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('イワタコーヒー店 鎌倉')}
+    ],
+    mapUrl: gmap('イワタコーヒー店 鎌倉')},
+
+  'ttoahisu': {kicker:'5/7 晚餐',name:'TTOAHISU',tagline:'米其林1星 · 五反田法餐',
+    book:'<span class="em">Tabelog</span> / 电话 03-3779-7575 · 提前 2-4 周。',
+    go:'JR/都営浅草線「五反田」西口徒步 3 分。从酒店超近。',
+    hours:'夜のみ 18:00-22:00 · 周日一休',
+    tip:'¥15,000-20,000 / 人 · 主厨田森一切自家庭院蔬菜 · 静谧氛围。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('TTOAHISU 五反田')},
+      {label:'Pocket Concierge', url:pc('TTOAHISU')}
+    ],
+    mapUrl: gmap('TTOAHISU 五反田')},
+  'ichicho': {kicker:'5/7 晚餐',name:'鮨 いち兆 五反田',tagline:'寿司性价比之王',
+    book:'Tabelog · 提前 2-3 周。',
+    go:'「五反田」西口徒步 5 分。',
+    hours:'18:00-23:00 · 周日休',
+    tip:'¥7,500 / 人 omakase · 江户前手法 · 性价比之王 · 师傅亲切爱聊天。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('鮨 いち兆 五反田')},
+      {label:'OMAKASE', url:omakase('Ichicho Gotanda')}
+    ],
+    mapUrl: gmap('鮨 いち兆 五反田')},
+  'sanma': {kicker:'5/7 晚餐',name:'目黒のさんま',tagline:'本格居酒屋',
+    book:'Tabelog / Hot Pepper。',
+    go:'JR「目黒」徒步 6 分 / 五反田打车 10 分。',
+    hours:'18:00-23:30',
+    tip:'¥5,000 / 人 · 烤秋刀鱼名物(常年提供)· 居酒屋氛围满分。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('目黒のさんま')}
+    ],
+    mapUrl: gmap('目黒のさんま 居酒屋')},
+  'torikado': {kicker:'5/7 晚餐',name:'五反田 鳥かど',tagline:'本地烧鸟',
+    book:'Tabelog · 当天可能也行。',
+    go:'「五反田」东口徒步 3 分。',
+    hours:'17:00-23:00',
+    tip:'¥4,000 / 人 omakase 烧鸟 · 比高级店实惠。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('鳥かど 五反田')}
+    ],
+    mapUrl: gmap('鳥かど 五反田')},
+
+  // 5/8
+  'route-a': {kicker:'5/8 路线 A',name:'东京美食日',tagline:'豊洲 + 咖啡巡礼',
+    book:'豊洲市场无需预约。',
+    go:'五反田 → 百合海鸥号「市場前」站直达豊洲市场 · 后转「藏前」「清澄白河」。',
+    hours:'豊洲市场 5:30-15:00 / 周日休',
+    tip:'5/8 周五开业。蓝瓶咖啡清澄白河本店、Allpress、Arise Coffee · 走一天舒服。',
+    bookLinks:[
+      {label:'豊洲市场官网', url:'https://www.toyosu-market.or.jp/'}
+    ],
+    mapUrl: gmap('豊洲市場 江東区')},
+  'route-b': {kicker:'5/8 路线 B',name:'日光当日往返',tagline:'东武 SPACIA + 三世遗',
+    book:'<span class="em">东武日光线 SPACIA</span> 提前订 · 全日光 Pass ¥4,800。',
+    go:'浅草站搭 SPACIA 特急 1h50m 直达东武日光 · 来回 6 小时 + 现场 4-5 小时。',
+    hours:'东照宫 8:00-17:00',
+    tip:'<span class="em">提早 6:30 出发,18:00 前回</span>。中禅寺湖在山上巴士 50 分。',
+    bookLinks:[
+      {label:'东武铁路中文', url:'https://www.tobu.co.jp/odakyu/foreign/cn_han/spacia/'},
+      {label:'Klook 日光 Pass', url:klook('東武日光 Pass')}
+    ],
+    mapUrl: gmap('東武日光駅')},
+  'route-c': {kicker:'5/8 路线 C',name:'横浜半日',tagline:'最轻松',
+    book:'无需。',
+    go:'五反田 → 山手线「品川」→ 京急 → 「横浜」(总 30 分)。',
+    hours:'中华街 11:00-22:00',
+    tip:'¥5,000 / 人 · 中华街吃午餐 · 红砖仓库 + 山下公园 + 大栈桥看船。',
+    bookLinks:[
+      {label:'横浜中华街官网', url:'https://www.chinatown.or.jp/'}
+    ],
+    mapUrl: gmap('横浜中華街')},
+
+  'aquapark': {kicker:'5/8 加项',name:'アクアパーク品川',tagline:'光影海豚秀,城市水族馆',
+    book:'<span class="em">官网 / Klook</span> 买电子票省时。',
+    go:'<span class="em">JR/京急「品川」高轮口徒步 2 分</span> · 品川王子酒店内。从五反田 1 站。',
+    hours:'10:00-22:00 (闭馆前1h停止入场)',
+    tip:'¥2,700/人 · 海豚秀含光影投影,有特点 · 1.5 小时玩完。',
+    bookLinks:[
+      {label:'アクアパーク官网', url:'https://www.aqua-park.jp/aqua/'},
+      {label:'Klook 电子票', url:klook('アクアパーク品川')}
+    ],
+    mapUrl: gmap('マクセル アクアパーク品川')},
+  'sumida': {kicker:'5/8 加项',name:'すみだ水族館',tagline:'晴空塔同游,城市水族馆',
+    book:'官网 / Klook 买电子票。',
+    go:'东武/半蔵門/浅草线「とうきょうスカイツリー」直结 · 晴空塔 5、6 楼。',
+    hours:'9:00-21:00 (闭馆前1h停止入场)',
+    tip:'¥2,500/人 · 企鹅、水母、金鱼有特点 · 配晴空塔玩半天 · 室内全天候。',
+    bookLinks:[
+      {label:'すみだ水族館官网', url:'https://www.sumida-aquarium.com/'},
+      {label:'Klook 电子票', url:klook('すみだ水族館')}
+    ],
+    mapUrl: gmap('すみだ水族館 東京スカイツリータウン')},
+
+  'saito': {kicker:'5/8 晚餐',name:'鮨 さいとう 六本木分店',tagline:'日本顶级寿司',
+    book:'<span class="em">通过会员介绍 / Concierge / OMAKASE</span> · 提前 2-3 个月,极难。',
+    go:'大江户线/日比谷线「六本木」徒步 5 分。',
+    hours:'昼 12:00 / 夜 17:30 / 20:30',
+    tip:'¥40,000-50,000 / 人 · 主厨齐藤·东京寿司神级 · 直接订几乎不可能,问酒店 Concierge。',
+    bookLinks:[
+      {label:'OMAKASE', url:omakase('Sushi Saito')},
+      {label:'Tabelog', url:tabelog('鮨 さいとう 六本木')}
+    ],
+    mapUrl: gmap('鮨 さいとう 六本木')},
+  'den': {kicker:'5/8 晚餐',name:'Den (神宮前)',tagline:'米其林2星 · 创新和食',
+    book:'<span class="em">官网 / Tablecheck</span>(英文)· 提前 6-8 周(国际客极抢手)。',
+    go:'銀座线「外苑前」徒步 5 分。',
+    hours:'夜のみ 18:00 / 20:30',
+    tip:'¥30,000 / 人 · 主厨长谷川的"DENtucky 炸鸡"成名 · 亚洲50最佳餐厅之一。',
+    bookLinks:[
+      {label:'Den 官网', url:'https://www.jimbochoden.com/'},
+      {label:'Tablecheck', url:`https://www.tablecheck.com/en/shops?q=${enc('Den Tokyo')}`},
+      {label:'Pocket Concierge', url:pc('Den Tokyo')}
+    ],
+    mapUrl: gmap('Den 神宮前')},
+  'motsunabe': {kicker:'5/8 晚餐',name:'博多もつ鍋 おおやま',tagline:'内脏火锅 · 福冈名物',
+    book:'Tabelog · 1 周前。',
+    go:'多家分店 · 推荐丸之内/汐留店,从五反田 15 分。',
+    hours:'11:00-23:00',
+    tip:'¥6,000-7,500 / 人 · 味噌スープ最赞 · 内脏火锅 + 韩式拉面收尾。',
+    bookLinks:[
+      {label:'おおやま官网', url:'https://www.motu-ooyama.com/'},
+      {label:'Tabelog', url:tabelog('博多もつ鍋 おおやま 丸の内')}
+    ],
+    mapUrl: gmap('博多もつ鍋 おおやま 丸の内')},
+
+  // 5/9
+  'nex': {kicker:'5/9 机场',name:'N\'EX 成田特快',tagline:'品川到成田直达',
+    book:'<span class="em">JR EAST 官网</span>(英文)· <span class="em">提前 1 周订</span> · 品川/东京站 みどりの窓口 也可。',
+    go:'JR「品川」3 番月台。',
+    hours:'7:00-21:00 多个班次',
+    tip:'¥3,250 / 人 · 全席指定 · 75 分钟到 T2 · 比利木津巴士稳。',
+    bookLinks:[
+      {label:'JR EAST 网上预约', url:'https://www.jreast.co.jp/multi/zh-CHS/pass/nex.html'},
+      {label:'Klook N\'EX 票', url:klook('成田特快 NEX')}
+    ],
+    mapUrl: gmap('JR 品川駅 成田エクスプレス')},
+  'limousine': {kicker:'5/9 机场',name:'利木津巴士',tagline:'品川王子→T2 直达',
+    book:'现场或网上 · 当日也可。',
+    go:'品川王子酒店前 / 各大酒店附近站点。',
+    hours:'多班次',
+    tip:'¥3,600 / 人 · 1.5-2 小时 · 黄金周尾(5/9 周六)可能堵 · 行李给司机直接装。',
+    bookLinks:[
+      {label:'利木津巴士官网中文', url:'https://www.limousinebus.co.jp/ch1/'}
+    ],
+    mapUrl: gmap('品川プリンスホテル リムジンバス乗り場')},
+};
+
+// ========== UI LOGIC ==========
+document.querySelectorAll('.options').forEach(group => {
+  group.querySelectorAll('.option').forEach(opt => {
+    opt.addEventListener('click', e => {
+      // ignore click on info button
+      if (e.target.closest('.option-info')) return;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      group.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      updateTotal();
+    });
+    const info = opt.querySelector('.option-info');
+    if (info) {
+      info.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = opt.dataset.detail;
+        if (id) showDetail(id);
+      });
+    }
+  });
+});
+
+function showDetail(id) {
+  const d = details[id];
+  if (!d) return;
+  document.getElementById('dKicker').textContent = '— ' + (d.kicker || '详情') + ' —';
+  document.getElementById('dName').textContent = d.name;
+  document.getElementById('dTagline').textContent = d.tagline || '';
+  document.getElementById('dBook').innerHTML = d.book || '—';
+  document.getElementById('dGo').innerHTML = d.go || '—';
+  document.getElementById('dHours').innerHTML = d.hours || '—';
+  document.getElementById('dTip').innerHTML = d.tip || '—';
+  document.getElementById('dTipSec').style.display = d.tip ? '' : 'none';
+
+  // Render booking links
+  const bookLinks = document.getElementById('dBookLinks');
+  bookLinks.innerHTML = '';
+  if (d.bookLinks && d.bookLinks.length) {
+    d.bookLinks.forEach((lk, idx) => {
+      const a = document.createElement('a');
+      a.href = lk.url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.className = 'detail-link' + (idx === 0 ? ' primary' : '');
+      a.innerHTML = lk.label + ' <span class="arrow">↗</span>';
+      bookLinks.appendChild(a);
+    });
+  }
+
+  // Render map link
+  const goLinks = document.getElementById('dGoLinks');
+  goLinks.innerHTML = '';
+  if (d.mapUrl) {
+    const a = document.createElement('a');
+    a.href = d.mapUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.className = 'detail-link map';
+    a.innerHTML = '📍 Google Maps <span class="arrow">↗</span>';
+    goLinks.appendChild(a);
+  }
+  if (d.transitUrl) {
+    const a = document.createElement('a');
+    a.href = d.transitUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.className = 'detail-link';
+    a.innerHTML = '🚇 路线规划 <span class="arrow">↗</span>';
+    goLinks.appendChild(a);
+  }
+
+  document.getElementById('detailModal').classList.add('show');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeAllModals() {
+  document.getElementById('detailModal').classList.remove('show');
+  document.getElementById('breakdown').classList.remove('show');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+document.getElementById('overlay').addEventListener('click', closeAllModals);
+document.getElementById('dClose').addEventListener('click', closeAllModals);
+
+function updateTotal() {
+  let total = 0;
+  const items = [];
+  document.querySelectorAll('.options').forEach(group => {
+    const sel = group.querySelector('.option.selected');
+    if (sel) {
+      const price = parseInt(sel.dataset.price) || 0;
+      total += price;
+      items.push({cat: sel.dataset.cat, name: sel.dataset.name, price: price});
+    }
+  });
+  document.getElementById('totalAmount').textContent = total.toLocaleString();
+  document.getElementById('modalTotal').textContent = total.toLocaleString();
+  document.getElementById('totalRmb').textContent = Math.round(total / RATE).toLocaleString();
+  const list = document.getElementById('breakdownList');
+  list.innerHTML = '';
+  const cats = ['住宿', '路线', '景点', '早餐', '午餐', '晚餐', '交通'];
+  const grouped = {};
+  items.forEach(it => { if (!grouped[it.cat]) grouped[it.cat] = []; grouped[it.cat].push(it); });
+  cats.forEach(cat => {
+    if (grouped[cat]) {
+      grouped[cat].forEach(it => {
+        const row = document.createElement('div');
+        row.className = 'breakdown-row';
+        row.innerHTML = `<span class="breakdown-cat">${cat}</span><span class="breakdown-name">${it.name}</span><span class="breakdown-price">¥${it.price.toLocaleString()}</span>`;
+        list.appendChild(row);
+      });
+    }
+  });
+}
+
+const presets = {
+  economy: {
+    'airport-in':'电车 · 京急→银座线','d1-dinner':'一兰拉面赤坂',
+    'd2-bfast':'きつねや 牛丼','d2-lunch':'资生堂Parlour 银座','d2-dinner':'銀座 篝 拉面',
+    'ryokan':'箱根湯本 開雲','d3-lunch':'はつ花そば 本店',
+    'hakone-pass':'单买票 估算','romance-car':'Romance Car 指定席',
+    'd4-dinner':'bills 七里ヶ浜',
+    'd5-attr':'江之岛展望塔 Sea Candle','d5-bfast':'酒店早餐 (含)','d5-lunch':'イワタコーヒー','d5-dinner':'五反田 鳥かど 烧鸟',
+    'd6-route':'C · 横浜中华街','d6-aquarium':'不加水族馆','d6-dinner':'銀座 篝 拉面',
+    'airport-out':"N'EX 成田特快"
+  },
+  balanced: {
+    'airport-in':'电车 · 京急→银座线','d1-dinner':'人形町今半 紀尾井町店',
+    'd2-bfast':'大江戸 寿司','d2-lunch':'银座久兵衛','d2-dinner':'鳥福 銀座',
+    'ryokan':'月の宿 紗ら','d3-lunch':'田むら銀かつ亭',
+    'hakone-pass':'Hakone Free Pass · 2日券','romance-car':'Romance Car 指定席',
+    'd4-dinner':'AMALFI DELLA SERA',
+    'd5-attr':'新江ノ島水族館','d5-bfast':'bills 七里ヶ浜 早餐','d5-lunch':'鎌倉松原庵','d5-dinner':'鮨いち兆 五反田',
+    'd6-route':'A · 东京美食日','d6-aquarium':'不加水族馆','d6-dinner':'Den · 米其林2星',
+    'airport-out':"N'EX 成田特快"
+  },
+  luxury: {
+    'airport-in':'打车 · 羽田→赤坂','d1-dinner':'赤坂浅田 · 怀石',
+    'd2-bfast':'寿司大 筑地店','d2-lunch':'天ぷら近藤','d2-dinner':'鮨 銀座おのでら 本店',
+    'ryokan':'強羅花扇 円かの杜','d3-lunch':'菊華荘 怀石',
+    'hakone-pass':'Hakone Free Pass · 2日券','romance-car':'Romance Car 指定席',
+    'd4-dinner':'AMALFI DELLA SERA',
+    'd5-attr':'新江ノ島水族館','d5-bfast':'bills 七里ヶ浜 早餐','d5-lunch':'鎌倉松原庵','d5-dinner':'TTOAHISU · 米其林1星法餐',
+    'd6-route':'B · 日光当日往返','d6-aquarium':'アクアパーク品川','d6-dinner':'鮨さいとう 六本木分店',
+    'airport-out':"N'EX 成田特快"
+  }
+};
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const preset = presets[btn.dataset.preset];
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    Object.entries(preset).forEach(([groupId, name]) => {
+      const group = document.querySelector(`.options[data-group="${groupId}"]`);
+      if (!group) return;
+      group.querySelectorAll('.option').forEach(opt => {
+        if (opt.dataset.name === name) {
+          group.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+        }
+      });
+    });
+    updateTotal();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  });
+});
+
+document.getElementById('budgetBar').addEventListener('click', () => {
+  document.getElementById('breakdown').classList.add('show');
+  document.getElementById('overlay').classList.add('show');
+});
+
+updateTotal();
+
+// ========== DAY NAVIGATION ==========
+
+// Sticky fallback: detect on first scroll whether position:sticky is working.
+// If not (e.g., older Safari with non-clip overflow), switch nav to position:fixed.
+let stickyChecked = false;
+function checkStickyOnScroll() {
+  if (stickyChecked) return;
+  const nav = document.getElementById('dayNavDesktop');
+  if (!nav || !window.matchMedia('(min-width: 980px)').matches) {
+    stickyChecked = true;
+    return;
+  }
+  if (window.scrollY < 100) return; // wait until enough scroll to test
+  stickyChecked = true;
+  const rect = nav.getBoundingClientRect();
+  // If sticky is working, top should be near 24px. If broken, it scrolled away.
+  if (rect.top < -10 || rect.top > 80) {
+    nav.style.position = 'fixed';
+    nav.style.top = '24px';
+    nav.style.left = rect.left + window.scrollX + 'px';
+  }
+}
+window.addEventListener('scroll', checkStickyOnScroll, {passive: true});
+
+// Smooth scroll on click (with offset for sticky mobile nav)
+document.querySelectorAll('.day-nav-pill, .day-nav-item').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const id = link.getAttribute('href').slice(1);
+    const target = document.getElementById(id);
+    if (target) {
+      const isMobile = window.matchMedia('(max-width: 979px)').matches;
+      const offset = isMobile ? 70 : 20;
+      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({top, behavior: 'smooth'});
+    }
+  });
+});
+
+// Active state via IntersectionObserver
+const dayCards = document.querySelectorAll('.day-card[id^="day-"]');
+const navLinks = document.querySelectorAll('.day-nav-pill, .day-nav-item');
+
+function setActiveDay(dayNum) {
+  navLinks.forEach(l => {
+    l.classList.toggle('active', l.dataset.day === String(dayNum));
+  });
+  // Auto-scroll mobile pills to keep active in view
+  const activePill = document.querySelector('.day-nav-pill.active');
+  if (activePill) {
+    const nav = document.getElementById('dayNavMobile');
+    const navRect = nav.getBoundingClientRect();
+    const pillRect = activePill.getBoundingClientRect();
+    if (pillRect.left < navRect.left + 20 || pillRect.right > navRect.right - 20) {
+      const scrollTo = activePill.offsetLeft - nav.clientWidth / 2 + activePill.clientWidth / 2;
+      nav.scrollTo({left: scrollTo, behavior: 'smooth'});
+    }
+  }
+}
+
+const observer = new IntersectionObserver(entries => {
+  // pick the entry closest to the top of viewport
+  let bestEntry = null;
+  let bestRatio = -1;
+  entries.forEach(entry => {
+    if (entry.isIntersecting && entry.intersectionRatio > bestRatio) {
+      bestRatio = entry.intersectionRatio;
+      bestEntry = entry;
+    }
+  });
+  if (bestEntry) {
+    const dayNum = bestEntry.target.id.replace('day-', '');
+    setActiveDay(dayNum);
+  }
+}, {
+  rootMargin: '-80px 0px -50% 0px',
+  threshold: [0, 0.1, 0.3, 0.5]
+});
+
+dayCards.forEach(card => observer.observe(card));
+
+// Initial active state based on scroll position
+window.addEventListener('load', () => {
+  let current = 3;
+  dayCards.forEach(card => {
+    const rect = card.getBoundingClientRect();
+    if (rect.top < 200) current = parseInt(card.id.replace('day-', ''));
+  });
+  setActiveDay(current);
+});
+</script>
+</body>
+</html>
