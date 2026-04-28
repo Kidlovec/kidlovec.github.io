@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#faf7f2">
+<title>房贷计算器 · Tools · kidlovec</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-page: #ebe5d8;
+  --bg: #faf7f2;
+  --bg-card: #ffffff;
+  --ink: #1a1614;
+  --ink-soft: #5c5651;
+  --ink-muted: #8b8680;
+  --accent: #b73225;
+  --accent-soft: #f4e8e6;
+  --line: #e8e2d8;
+  --line-soft: #f0ebe2;
+  --gold: #a68654;
+  --gold-soft: #f5efe2;
+  --teal: #3d6b6e;
+  --teal-soft: #e6efef;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { background: var(--bg-page); }
+body {
+  font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg-page);
+  color: var(--ink);
+  line-height: 1.7;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(166,134,84,0.05) 0%, transparent 60%),
+    repeating-linear-gradient(45deg, transparent 0, transparent 20px, rgba(26,22,20,0.012) 20px, rgba(26,22,20,0.012) 21px);
+  min-height: 100vh;
+}
+.site-bar {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 22px 24px 8px;
+  font-size: 0.76rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--ink-muted);
+  letter-spacing: 0.05em;
+}
+.site-bar a { color: var(--ink-soft); text-decoration: none; transition: color .2s; }
+.site-bar a:hover { color: var(--accent); }
+.site-bar .crumbs { display: flex; gap: 8px; align-items: center; }
+.site-bar .crumbs .sep { color: var(--ink-muted); opacity: 0.45; }
+.site-bar .crumbs .current { color: var(--ink); }
+.container { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+h1 {
+  font-family: 'Noto Serif SC', serif;
+  text-align: center;
+  font-size: 1.7rem;
+  font-weight: 600;
+  padding: 16px 0 4px;
+  color: var(--ink);
+  letter-spacing: 0.03em;
+}
+.subtitle {
+  font-family: 'Noto Serif SC', serif;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+.title-rule { width: 32px; height: 1px; background: var(--accent); margin: 18px auto 26px; opacity: 0.55; }
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 24px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 2px rgba(26,22,20,0.025);
+}
+.card h2 {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.02em;
+}
+.card h2::before { content: ''; width: 3px; height: 14px; background: var(--accent); border-radius: 1px; }
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+  letter-spacing: 0.04em;
+}
+.form-group input[type="number"],
+.form-group input[type="month"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-size: 0.95rem;
+  background: var(--bg);
+  color: var(--ink);
+  transition: border-color 0.2s, background 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.form-group input:focus { outline: none; border-color: var(--accent); background: #fff; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.radio-group { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 8px 18px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  transition: all 0.2s;
+  background: var(--bg);
+}
+.radio-group input[type="radio"] { accent-color: var(--accent); }
+.radio-group label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.btn {
+  padding: 11px 24px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+}
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: #9a2a1f; border-color: #9a2a1f; }
+.btn-primary:active { transform: scale(0.98); }
+.btn-sm { font-size: 0.82rem; padding: 8px 16px; }
+.btn-block { width: 100%; margin-top: 8px; background: transparent; border: 1px dashed var(--line); color: var(--ink-soft); }
+.btn-block:hover { border-color: var(--accent); color: var(--accent); border-style: solid; background: var(--bg); }
+.btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--ink-soft); }
+.btn-ghost:hover { border-color: var(--ink-soft); color: var(--ink); }
+.event-item {
+  background: var(--bg);
+  border: 1px solid var(--line-soft);
+  border-radius: 3px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  position: relative;
+}
+.event-item .event-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.event-item.prepay-item .event-fields { grid-template-columns: 1fr 1fr 1fr; }
+.event-item .event-fields input,
+.event-item .event-fields select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-size: 0.85rem;
+  background: #fff;
+  color: var(--ink);
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.event-item .event-fields select {
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238b8680'/%3E%3C/svg%3E") no-repeat right 10px center;
+  padding-right: 28px;
+}
+.event-item .remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.event-item .remove-btn:hover { color: var(--accent); }
+.event-label { font-size: 0.7rem; color: var(--ink-muted); margin-bottom: 4px; letter-spacing: 0.04em; }
+.event-item.rate-item { border-left: 3px solid var(--gold); }
+.event-item.prepay-item { border-left: 3px solid var(--teal); }
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.summary-item {
+  background: var(--bg);
+  border: 1px solid var(--line-soft);
+  border-radius: 3px;
+  padding: 16px 14px;
+  text-align: center;
+}
+.summary-item .value {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+.summary-item .label { font-size: 0.72rem; color: var(--ink-muted); margin-top: 6px; letter-spacing: 0.04em; }
+.summary-item.highlight .value { color: var(--accent); }
+.summary-item.green .value { color: var(--teal); }
+.changes-list { margin-top: 12px; }
+.change-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--line-soft);
+  border-radius: 3px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+.change-entry .change-date {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.change-entry .change-tag {
+  font-size: 0.68rem;
+  padding: 3px 9px;
+  border-radius: 2px;
+  color: #fff;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+}
+.change-entry .change-tag.prepay { background: var(--teal); }
+.change-entry .change-tag.rate { background: var(--gold); }
+.change-entry .change-tag.start { background: var(--ink); }
+.change-entry .change-detail { color: var(--ink-soft); flex: 1; }
+.change-entry .change-payment {
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.table-wrap {
+  overflow-x: auto;
+  margin-top: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #fff;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  min-width: 700px;
+  font-variant-numeric: tabular-nums;
+}
+thead { position: sticky; top: 0; z-index: 1; }
+th {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 600;
+  padding: 12px 8px;
+  text-align: center;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+td {
+  padding: 9px 8px;
+  text-align: center;
+  border-bottom: 1px solid var(--line-soft);
+  white-space: nowrap;
+  color: var(--ink-soft);
+}
+tr:hover { background: var(--bg); }
+tr.prepay-row { background: var(--teal-soft); }
+tr.prepay-row:hover { background: #d6e6e6; }
+tr.rate-row { background: var(--gold-soft); }
+tr.rate-row:hover { background: #ede4d0; }
+tr.paid td { color: var(--ink-muted); }
+tr.current-divider td { border-bottom: 2px solid var(--accent); }
+.status-badge { display: inline-block; font-size: 0.66rem; padding: 2px 8px; border-radius: 2px; letter-spacing: 0.05em; }
+.status-badge.paid { background: var(--line); color: var(--ink-soft); }
+.status-badge.unpaid { background: transparent; color: var(--ink-muted); border: 1px solid var(--line); }
+.status-badge.current { background: var(--accent); color: #fff; }
+.paid-progress { margin-top: 14px; }
+.paid-progress .progress-bar { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin-top: 8px; }
+.paid-progress .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--gold)); border-radius: 2px; transition: width 0.4s; }
+.paid-progress .progress-text { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--ink-muted); margin-top: 6px; letter-spacing: 0.03em; }
+#results { display: none; }
+.calc-actions { display: flex; gap: 12px; margin-top: 18px; }
+.calc-actions .btn { flex: 1; }
+.section-desc { font-size: 0.78rem; color: var(--ink-muted); margin-bottom: 14px; font-style: italic; letter-spacing: 0.02em; }
+.io-text {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 120px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.io-text:focus { outline: none; border-color: var(--accent); background: #fff; }
+.io-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.io-status {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.76rem;
+  margin-top: 8px;
+  min-height: 1.2em;
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+}
+.io-status.valid { color: var(--teal); }
+.io-status.warn { color: var(--gold); }
+.io-status.invalid { color: var(--accent); }
+.io-hint { font-size: 0.78rem; margin-top: 10px; min-height: 1em; letter-spacing: 0.02em; }
+.io-hint.success { color: var(--teal); }
+.io-hint.error { color: var(--accent); }
+.footer-note { text-align: center; color: var(--ink-muted); font-size: 0.72rem; padding: 32px 16px 24px; letter-spacing: 0.06em; }
+.footer-note .divider { width: 24px; height: 1px; background: var(--line); margin: 0 auto 16px; opacity: 0.7; }
+.footer-note a { color: var(--accent); text-decoration: none; }
+.footer-note a:hover { text-decoration: underline; }
+@media (max-width: 600px) {
+  .site-bar { padding: 16px 14px 6px; font-size: 0.7rem; }
+  .container { padding: 0 12px; }
+  .card { padding: 16px 14px; }
+  .card h2 { font-size: 0.96rem; margin-bottom: 14px; }
+  h1 { font-size: 1.35rem; padding: 10px 0 4px; }
+  .subtitle { font-size: 0.74rem; }
+  .title-rule { margin: 14px auto 20px; }
+  .form-row { grid-template-columns: 1fr; gap: 10px; }
+  .form-group input[type="number"],
+  .form-group input[type="month"] { padding: 8px 10px; font-size: 0.9rem; }
+  .radio-group { gap: 8px; }
+  .radio-group label { padding: 7px 14px; font-size: 0.82rem; }
+  .summary-grid { gap: 8px; }
+  .summary-item { padding: 12px 8px; }
+  .summary-item .value { font-size: 1.05rem; }
+  .summary-item .label { font-size: 0.66rem; }
+  .event-item { padding: 12px; padding-right: 28px; }
+  .event-item .event-fields { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .event-item.prepay-item .event-fields { grid-template-columns: 1fr 1fr; }
+  .event-item .event-fields input,
+  .event-item .event-fields select { padding: 7px 8px; font-size: 0.8rem; }
+  .event-label { font-size: 0.66rem; }
+  .calc-actions { flex-direction: column; gap: 8px; }
+  table { font-size: 0.7rem; min-width: 580px; }
+  th { padding: 9px 4px; font-size: 0.68rem; }
+  td { padding: 7px 3px; }
+  .status-badge { font-size: 0.58rem; padding: 1px 5px; }
+  .change-entry { flex-wrap: wrap; gap: 6px; padding: 10px 12px; font-size: 0.78rem; }
+  .change-entry .change-payment { width: 100%; text-align: right; }
+  .section-desc { font-size: 0.72rem; }
+  .paid-progress .progress-text { font-size: 0.68rem; }
+}
+@media (max-width: 360px) {
+  .summary-grid { grid-template-columns: 1fr; }
+  .summary-item[style*="grid-column"] { grid-column: auto !important; }
+  table { min-width: 520px; font-size: 0.64rem; }
+}
+</style>
+</head>
+<body>
+<div class="site-bar">
+  <div class="crumbs">
+    <a href="/">kidlovec</a>
+    <span class="sep">/</span>
+    <a href="/tools/">Tools</a>
+    <span class="sep">/</span>
+    <span class="current">房贷计算器</span>
+  </div>
+  <a href="/tools/">&larr; 返回</a>
+</div>
+
+<div class="container">
+  <h1>房贷计算器</h1>
+  <div class="subtitle">支持利率调整 &middot; 多次提前还款 &middot; 配置自动保存在浏览器本地</div>
+  <div class="title-rule"></div>
+
+  <div class="card">
+    <h2>贷款参数</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>贷款总额（万元）</label>
+        <input type="number" id="totalAmount" value="100" min="1" step="1">
+      </div>
+      <div class="form-group">
+        <label>放款月份</label>
+        <input type="month" id="loanStartMonth" value="2024-01">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>年利率（%）</label>
+        <input type="number" id="annualRate" value="3.1" min="0.01" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>贷款期限（年）</label>
+        <input type="number" id="totalYears" value="30" min="1" max="50" step="1">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>还款方式</label>
+      <div class="radio-group">
+        <label><input type="radio" name="method" value="equal_installment" checked>等额本息</label>
+        <label><input type="radio" name="method" value="equal_principal">等额本金</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>利率调整</h2>
+    <div class="section-desc">贷款期间利率发生变化时添加，将从指定月份起按新利率重算</div>
+    <div id="rateList"></div>
+    <button class="btn btn-primary btn-sm btn-block" onclick="addRateChange()">+ 添加利率调整</button>
+  </div>
+
+  <div class="card">
+    <h2>提前还款</h2>
+    <div class="section-desc">支持多次提前还款，每次可选择缩短期限或减少月供</div>
+    <div id="prepayList"></div>
+    <button class="btn btn-primary btn-sm btn-block" onclick="addPrepayment()">+ 添加提前还款</button>
+  </div>
+
+  <div class="card">
+    <h2>导入 / 导出</h2>
+    <div class="section-desc">把整份配置（贷款参数 + 利率调整 + 提前还款）以 JSON 文本贴板，方便备份或迁移设备</div>
+    <textarea id="ioText" class="io-text" oninput="validateIOText()" placeholder='{
+  "totalAmount": "289",
+  "loanStartMonth": "2022-08",
+  "annualRate": "4.65",
+  "totalYears": "30",
+  "method": "equal_installment",
+  "rateChanges": [
+    { "month": "2023-09", "rate": "4.55" }
+  ],
+  "prepayments": [
+    { "month": "2024-07", "amount": "25", "action": "shorten_term" }
+  ]
+}'></textarea>
+    <div id="ioStatus" class="io-status"></div>
+    <div class="io-actions">
+      <button class="btn btn-ghost btn-sm" onclick="exportEvents()">↓ 导出 / 示例</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyIOText()">复制</button>
+      <button class="btn btn-primary btn-sm" onclick="importEvents()">↑ 从文本导入</button>
+    </div>
+    <div id="ioHint" class="io-hint"></div>
+  </div>
+
+  <div class="calc-actions">
+    <button class="btn btn-primary" onclick="calculate()">开始计算</button>
+    <button class="btn btn-ghost btn-sm" onclick="clearConfig()">清除已保存配置</button>
+  </div>
+  <div id="saveHint" style="text-align:center;font-size:0.75rem;color:#10b981;margin-top:6px;display:none">配置已自动保存</div>
+
+  <div id="results">
+    <div class="card">
+      <h2>贷款总览</h2>
+      <div class="summary-grid" id="summaryOverview"></div>
+    </div>
+
+    <div class="card">
+      <h2>已还款统计</h2>
+      <div class="summary-grid" id="summaryPaid"></div>
+    </div>
+
+    <div class="card">
+      <h2>未来还款预估</h2>
+      <div class="summary-grid" id="summaryFuture"></div>
+    </div>
+
+    <div class="card" id="changesCard" style="display:none">
+      <h2>月供变化记录</h2>
+      <div id="changesList" class="changes-list"></div>
+    </div>
+
+    <div class="card">
+      <h2>还款计划表</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>状态</th>
+              <th>期数</th>
+              <th>日期</th>
+              <th>月供(元)</th>
+              <th>本金(元)</th>
+              <th>利息(元)</th>
+              <th>提前还款(元)</th>
+              <th>剩余本金(元)</th>
+              <th>年利率(%)</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-note">
+  <div class="divider"></div>
+  仅供个人参考 &middot; 不构成金融建议 &middot; <a href="/tools/">更多小工具</a>
+</div>
+
+<script>
+const STORAGE_KEY = 'kidlovec_mortgage_calculator_config';
+let itemId = 0;
+
+function getDefaultMonth() {
+  return document.getElementById('loanStartMonth').value || '2024-01';
+}
+
+function addMonths(yearMonth, n) {
+  const [y, m] = yearMonth.split('-').map(Number);
+  const d = new Date(y, m - 1 + n, 1);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+function monthDiff(ym1, ym2) {
+  const [y1, m1] = ym1.split('-').map(Number);
+  const [y2, m2] = ym2.split('-').map(Number);
+  return (y2 - y1) * 12 + (m2 - m1);
+}
+
+function formatYM(ym) {
+  const [y, m] = ym.split('-');
+  return y + '年' + parseInt(m) + '月';
+}
+
+// --- Save / Load ---
+function collectConfig() {
+  const rateItems = [];
+  document.querySelectorAll('.rate-item').forEach(item => {
+    rateItems.push({
+      month: item.querySelector('.rc-month').value,
+      rate: item.querySelector('.rc-rate').value
+    });
+  });
+  const prepayItems = [];
+  document.querySelectorAll('.prepay-item').forEach(item => {
+    prepayItems.push({
+      month: item.querySelector('.pp-month').value,
+      amount: item.querySelector('.pp-amount').value,
+      action: item.querySelector('.pp-action').value
+    });
+  });
+  return {
+    totalAmount: document.getElementById('totalAmount').value,
+    loanStartMonth: document.getElementById('loanStartMonth').value,
+    annualRate: document.getElementById('annualRate').value,
+    totalYears: document.getElementById('totalYears').value,
+    method: document.querySelector('input[name="method"]:checked').value,
+    rateChanges: rateItems,
+    prepayments: prepayItems
+  };
+}
+
+function saveConfig() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectConfig()));
+    const hint = document.getElementById('saveHint');
+    hint.style.display = 'block';
+    setTimeout(() => { hint.style.display = 'none'; }, 2000);
+  } catch (e) { /* quota exceeded or private mode — silently ignore */ }
+}
+
+function loadConfig() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const cfg = JSON.parse(raw);
+    if (cfg.totalAmount) document.getElementById('totalAmount').value = cfg.totalAmount;
+    if (cfg.loanStartMonth) document.getElementById('loanStartMonth').value = cfg.loanStartMonth;
+    if (cfg.annualRate) document.getElementById('annualRate').value = cfg.annualRate;
+    if (cfg.totalYears) document.getElementById('totalYears').value = cfg.totalYears;
+    if (cfg.method) {
+      const radio = document.querySelector(`input[name="method"][value="${cfg.method}"]`);
+      if (radio) radio.checked = true;
+    }
+    if (Array.isArray(cfg.rateChanges)) {
+      cfg.rateChanges.forEach(rc => addRateChangeWithData(rc.month, rc.rate));
+    }
+    if (Array.isArray(cfg.prepayments)) {
+      cfg.prepayments.forEach(pp => addPrepaymentWithData(pp.month, pp.amount, pp.action));
+    }
+  } catch (e) { /* corrupted data — ignore */ }
+}
+
+function clearConfig() {
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById('totalAmount').value = '100';
+  document.getElementById('loanStartMonth').value = '2024-01';
+  document.getElementById('annualRate').value = '3.1';
+  document.getElementById('totalYears').value = '30';
+  document.querySelector('input[name="method"][value="equal_installment"]').checked = true;
+  document.getElementById('rateList').innerHTML = '';
+  document.getElementById('prepayList').innerHTML = '';
+  document.getElementById('results').style.display = 'none';
+  const hint = document.getElementById('saveHint');
+  hint.textContent = '已清除保存的配置';
+  hint.style.color = '#e74c3c';
+  hint.style.display = 'block';
+  setTimeout(() => { hint.style.display = 'none'; hint.textContent = '配置已自动保存'; hint.style.color = '#10b981'; }, 2000);
+}
+
+// --- Add items (with optional preset data for loading) ---
+function addRateChange(monthVal, rateVal) {
+  addRateChangeWithData(monthVal, rateVal);
+}
+function addRateChangeWithData(monthVal, rateVal) {
+  const id = ++itemId;
+  const m = monthVal || addMonths(getDefaultMonth(), 12);
+  const r = rateVal || '';
+  const div = document.createElement('div');
+  div.className = 'event-item rate-item';
+  div.id = 'item-' + id;
+  div.innerHTML = `
+    <button class="remove-btn" onclick="removeItem(${id})">&times;</button>
+    <div class="event-fields">
+      <div><div class="event-label">生效月份</div><input type="month" class="rc-month" value="${m}"></div>
+      <div><div class="event-label">新年利率（%）</div><input type="number" class="rc-rate" min="0.01" step="0.01" placeholder="新利率" value="${r}"></div>
+    </div>`;
+  document.getElementById('rateList').appendChild(div);
+}
+
+function addPrepayment(monthVal, amountVal, actionVal) {
+  addPrepaymentWithData(monthVal, amountVal, actionVal);
+}
+function addPrepaymentWithData(monthVal, amountVal, actionVal) {
+  const id = ++itemId;
+  const m = monthVal || addMonths(getDefaultMonth(), 12);
+  const a = amountVal || '';
+  const act = actionVal || 'shorten_term';
+  const div = document.createElement('div');
+  div.className = 'event-item prepay-item';
+  div.id = 'item-' + id;
+  div.innerHTML = `
+    <button class="remove-btn" onclick="removeItem(${id})">&times;</button>
+    <div class="event-fields">
+      <div><div class="event-label">还款月份</div><input type="month" class="pp-month" value="${m}"></div>
+      <div><div class="event-label">金额（万元）</div><input type="number" class="pp-amount" min="0.01" step="0.01" placeholder="金额" value="${a}"></div>
+      <div><div class="event-label">还款后策略</div>
+        <select class="pp-action">
+          <option value="shorten_term"${act === 'shorten_term' ? ' selected' : ''}>缩短期限</option>
+          <option value="reduce_payment"${act === 'reduce_payment' ? ' selected' : ''}>减少月供</option>
+        </select>
+      </div>
+    </div>`;
+  document.getElementById('prepayList').appendChild(div);
+}
+
+function removeItem(id) {
+  const el = document.getElementById('item-' + id);
+  if (el) el.remove();
+}
+
+function getRateChanges(startMonth) {
+  const items = document.querySelectorAll('.rate-item');
+  const list = [];
+  items.forEach(item => {
+    const ym = item.querySelector('.rc-month').value;
+    const rate = parseFloat(item.querySelector('.rc-rate').value);
+    if (ym && rate > 0) {
+      const monthIndex = monthDiff(startMonth, ym);
+      if (monthIndex > 0) list.push({ monthIndex, rate, ym });
+    }
+  });
+  list.sort((a, b) => a.monthIndex - b.monthIndex);
+  return list;
+}
+
+function getPrepayments(startMonth) {
+  const items = document.querySelectorAll('.prepay-item');
+  const list = [];
+  items.forEach(item => {
+    const ym = item.querySelector('.pp-month').value;
+    const amount = parseFloat(item.querySelector('.pp-amount').value) * 10000;
+    const action = item.querySelector('.pp-action').value;
+    if (ym && amount > 0) {
+      const monthIndex = monthDiff(startMonth, ym);
+      if (monthIndex > 0) list.push({ monthIndex, amount, action, ym });
+    }
+  });
+  list.sort((a, b) => a.monthIndex - b.monthIndex);
+  const merged = [];
+  for (const pp of list) {
+    if (merged.length > 0 && merged[merged.length - 1].monthIndex === pp.monthIndex) {
+      merged[merged.length - 1].amount += pp.amount;
+      merged[merged.length - 1].action = pp.action;
+    } else {
+      merged.push({ ...pp });
+    }
+  }
+  return merged;
+}
+
+function calcEqualInstallment(balance, monthlyRate, months) {
+  if (months <= 0) return 0;
+  if (monthlyRate === 0) return balance / months;
+  return balance * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
+}
+
+function calcNewTerm(balance, monthlyRate, payment) {
+  if (monthlyRate === 0) return Math.ceil(balance / payment);
+  if (payment <= balance * monthlyRate) return Infinity;
+  return Math.ceil(-Math.log(1 - balance * monthlyRate / payment) / Math.log(1 + monthlyRate));
+}
+
+function calculateSchedule(config, prepayments, rateChanges) {
+  const { totalAmount, annualRate, totalMonths, method, startMonth } = config;
+  let currentAnnualRate = annualRate;
+  let monthlyRate = currentAnnualRate / 100 / 12;
+  let balance = totalAmount;
+  let remainingMonths = totalMonths;
+  let currentPayment = method === 'equal_installment'
+    ? calcEqualInstallment(balance, monthlyRate, remainingMonths) : 0;
+
+  const schedule = [];
+  const changes = [];
+  const ppMap = {};
+  for (const pp of prepayments) ppMap[pp.monthIndex] = pp;
+  const rcMap = {};
+  for (const rc of rateChanges) rcMap[rc.monthIndex] = rc;
+
+  let month = 0;
+  let prevPayment = currentPayment;
+
+  while (balance > 0.01 && remainingMonths > 0) {
+    month++;
+
+    // Check rate change at start of this month
+    const rc = rcMap[month];
+    if (rc) {
+      const oldRate = currentAnnualRate;
+      currentAnnualRate = rc.rate;
+      monthlyRate = currentAnnualRate / 100 / 12;
+      if (method === 'equal_installment') {
+        currentPayment = calcEqualInstallment(balance, monthlyRate, remainingMonths);
+      }
+      changes.push({
+        monthIndex: month,
+        ym: addMonths(startMonth, month),
+        type: 'rate',
+        detail: `利率 ${oldRate}% → ${currentAnnualRate}%`,
+        newPayment: method === 'equal_installment' ? currentPayment : null
+      });
+    }
+
+    const interest = balance * monthlyRate;
+    let principal, payment;
+
+    if (method === 'equal_installment') {
+      payment = Math.min(currentPayment, balance + interest);
+      principal = payment - interest;
+    } else {
+      principal = balance / remainingMonths;
+      payment = principal + interest;
+    }
+
+    if (principal > balance) principal = balance;
+    balance -= principal;
+    if (balance < 0.01) balance = 0;
+    remainingMonths--;
+
+    let ppAmount = 0;
+    const pp = ppMap[month];
+
+    if (pp && balance > 0) {
+      ppAmount = Math.min(pp.amount, balance);
+      balance -= ppAmount;
+      if (balance < 0.01) balance = 0;
+
+      if (balance > 0) {
+        const oldPayment = currentPayment;
+        if (pp.action === 'shorten_term') {
+          if (method === 'equal_installment') {
+            remainingMonths = calcNewTerm(balance, monthlyRate, currentPayment);
+          } else {
+            const origPrincipalPerMonth = config.totalAmount / config.totalMonths;
+            remainingMonths = Math.ceil(balance / origPrincipalPerMonth);
+            if (remainingMonths <= 0) remainingMonths = 1;
+          }
+          changes.push({
+            monthIndex: month,
+            ym: addMonths(startMonth, month),
+            type: 'prepay',
+            detail: `提前还款 ${formatNum(ppAmount)} 元，缩短期限`,
+            newPayment: method === 'equal_installment' ? currentPayment : null,
+            remainingMonths,
+            action: 'shorten_term'
+          });
+        } else {
+          if (method === 'equal_installment') {
+            currentPayment = calcEqualInstallment(balance, monthlyRate, remainingMonths);
+          }
+          changes.push({
+            monthIndex: month,
+            ym: addMonths(startMonth, month),
+            type: 'prepay',
+            detail: `提前还款 ${formatNum(ppAmount)} 元，减少月供`,
+            newPayment: method === 'equal_installment' ? currentPayment : null,
+            oldPayment: method === 'equal_installment' ? oldPayment : null,
+            remainingMonths,
+            action: 'reduce_payment'
+          });
+        }
+      } else {
+        changes.push({
+          monthIndex: month,
+          ym: addMonths(startMonth, month),
+          type: 'prepay',
+          detail: `提前还款 ${formatNum(ppAmount)} 元，贷款已还清`,
+          newPayment: 0,
+          remainingMonths: 0,
+          action: 'cleared'
+        });
+      }
+    }
+
+    schedule.push({
+      month,
+      date: addMonths(startMonth, month),
+      monthlyPayment: Math.round(payment * 100) / 100,
+      principal: Math.round(principal * 100) / 100,
+      interest: Math.round(interest * 100) / 100,
+      prepayment: Math.round(ppAmount * 100) / 100,
+      remainingBalance: Math.round(balance * 100) / 100,
+      annualRate: currentAnnualRate
+    });
+
+    if (balance <= 0) break;
+  }
+  return { schedule, changes };
+}
+
+function formatNum(n) {
+  return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function calculate() {
+  const totalAmount = parseFloat(document.getElementById('totalAmount').value) * 10000;
+  const annualRate = parseFloat(document.getElementById('annualRate').value);
+  const totalYears = parseInt(document.getElementById('totalYears').value);
+  const method = document.querySelector('input[name="method"]:checked').value;
+  const startMonth = document.getElementById('loanStartMonth').value;
+
+  if (!totalAmount || !annualRate || !totalYears || !startMonth) return;
+
+  const totalMonths = totalYears * 12;
+  const config = { totalAmount, annualRate, totalMonths, method, startMonth };
+  const prepayments = getPrepayments(startMonth);
+  const rateChanges = getRateChanges(startMonth);
+
+  const { schedule, changes } = calculateSchedule(config, prepayments, rateChanges);
+  const { schedule: scheduleNoPrepay } = calculateSchedule(config, [], rateChanges);
+
+  const totalPayment = schedule.reduce((s, r) => s + r.monthlyPayment + r.prepayment, 0);
+  const totalInterest = schedule.reduce((s, r) => s + r.interest, 0);
+  const totalInterestNoPrepay = scheduleNoPrepay.reduce((s, r) => s + r.interest, 0);
+  const savedInterest = totalInterestNoPrepay - totalInterest;
+  const endDate = schedule.length > 0 ? schedule[schedule.length - 1].date : startMonth;
+
+  // Determine paid months based on current date
+  const now = new Date();
+  const currentYM = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  let paidCount = 0;
+  for (const row of schedule) {
+    if (row.date <= currentYM) paidCount++;
+  }
+  const paidPercent = schedule.length > 0 ? Math.round(paidCount / schedule.length * 100) : 0;
+  const paidSlice = schedule.slice(0, paidCount);
+  const paidTotal = paidSlice.reduce((s, r) => s + r.monthlyPayment + r.prepayment, 0);
+  const paidPrincipal = paidSlice.reduce((s, r) => s + r.principal + r.prepayment, 0);
+  const paidInterest = paidSlice.reduce((s, r) => s + r.interest, 0);
+
+  const remainingBalance = paidCount > 0 ? schedule[paidCount - 1].remainingBalance : totalAmount;
+  const paidPrepayTotal = paidSlice.reduce((s, r) => s + r.prepayment, 0);
+  const futureSlice = schedule.slice(paidCount);
+  const futureTotal = futureSlice.reduce((s, r) => s + r.monthlyPayment + r.prepayment, 0);
+  const futureInterest = futureSlice.reduce((s, r) => s + r.interest, 0);
+  const futurePrepayTotal = futureSlice.reduce((s, r) => s + r.prepayment, 0);
+  const futureCount = futureSlice.length;
+
+  // 1. Overview
+  document.getElementById('summaryOverview').innerHTML = `
+    <div class="summary-item"><div class="value">${formatNum(totalPayment)}</div><div class="label">总还款额（元）</div></div>
+    <div class="summary-item"><div class="value">${formatNum(totalInterest)}</div><div class="label">总利息（元）</div></div>
+    <div class="summary-item highlight"><div class="value">${formatNum(savedInterest)}</div><div class="label">节省利息（元）</div></div>
+    <div class="summary-item green"><div class="value">${schedule.length}期</div><div class="label">${formatYM(addMonths(startMonth, 1))} ~ ${formatYM(endDate)}</div></div>
+    <div class="summary-item" style="grid-column: span 2">
+      <div class="value">${paidCount} / ${schedule.length} 期</div>
+      <div class="paid-progress">
+        <div class="progress-bar"><div class="progress-fill" style="width:${paidPercent}%"></div></div>
+        <div class="progress-text"><span>已还 ${paidPercent}%</span><span>剩余 ${futureCount} 期</span></div>
+      </div>
+    </div>`;
+
+  // 2. Paid summary
+  document.getElementById('summaryPaid').innerHTML = `
+    <div class="summary-item"><div class="value">${formatNum(paidTotal)}</div><div class="label">已还款总额（元）</div></div>
+    <div class="summary-item"><div class="value">${paidCount}</div><div class="label">已还期数</div></div>
+    <div class="summary-item"><div class="value">${formatNum(paidPrincipal)}</div><div class="label">已还本金（元）</div></div>
+    <div class="summary-item"><div class="value">${formatNum(paidInterest)}</div><div class="label">已还利息（元）</div></div>
+    <div class="summary-item green"><div class="value">${formatNum(paidPrepayTotal)}</div><div class="label">累计提前还款（元）</div></div>
+    <div class="summary-item highlight"><div class="value">${formatNum(remainingBalance)}</div><div class="label">剩余待还本金（元）</div></div>`;
+
+  // 3. Future summary
+  document.getElementById('summaryFuture').innerHTML = `
+    <div class="summary-item"><div class="value">${formatNum(futureTotal)}</div><div class="label">未来还款总额（元）</div></div>
+    <div class="summary-item"><div class="value">${futureCount}</div><div class="label">剩余期数</div></div>
+    <div class="summary-item"><div class="value">${formatNum(remainingBalance)}</div><div class="label">待还本金（元）</div></div>
+    <div class="summary-item"><div class="value">${formatNum(futureInterest)}</div><div class="label">未来利息（元）</div></div>
+    ${futurePrepayTotal > 0 ? `<div class="summary-item green"><div class="value">${formatNum(futurePrepayTotal)}</div><div class="label">计划提前还款（元）</div></div>` : ''}
+    ${futureCount > 0 ? `<div class="summary-item"><div class="value">${formatYM(futureSlice[futureSlice.length - 1].date)}</div><div class="label">预计还清时间</div></div>` : ''}`;
+
+  // Render changes
+  const changesCard = document.getElementById('changesCard');
+  const changesList = document.getElementById('changesList');
+  if (changes.length > 0) {
+    changesCard.style.display = '';
+    // Add initial state
+    let html = `<div class="change-entry">
+      <span class="change-date">${formatYM(addMonths(startMonth, 1))}</span>
+      <span class="change-tag start">起始</span>
+      <span class="change-detail">利率 ${annualRate}%，${method === 'equal_installment' ? '等额本息' : '等额本金'}</span>
+      ${method === 'equal_installment' ? `<span class="change-payment">月供 ${formatNum(calcEqualInstallment(totalAmount, annualRate / 100 / 12, totalMonths))} 元</span>` : ''}
+    </div>`;
+    for (const c of changes) {
+      const tag = c.type === 'prepay'
+        ? '<span class="change-tag prepay">提前还款</span>'
+        : '<span class="change-tag rate">利率调整</span>';
+      let paymentStr = '';
+      if (c.newPayment !== null && c.newPayment !== undefined && method === 'equal_installment') {
+        paymentStr = `<span class="change-payment">月供 ${formatNum(c.newPayment)} 元</span>`;
+      }
+      let extra = '';
+      if (c.remainingMonths !== undefined && c.remainingMonths > 0) {
+        extra = `，剩余 ${c.remainingMonths} 期`;
+      }
+      html += `<div class="change-entry">
+        <span class="change-date">${formatYM(c.ym)}</span>
+        ${tag}
+        <span class="change-detail">${c.detail}${extra}</span>
+        ${paymentStr}
+      </div>`;
+    }
+    changesList.innerHTML = html;
+  } else {
+    changesCard.style.display = 'none';
+  }
+
+  // Render schedule table
+  const tbody = document.getElementById('scheduleBody');
+  let thtml = '';
+  for (const row of schedule) {
+    const classes = [];
+    const isPaid = row.date <= currentYM;
+    const isCurrent = row.date === currentYM;
+    if (isPaid && !isCurrent) classes.push('paid');
+    if (row.prepayment > 0) classes.push('prepay-row');
+    const rc = rateChanges.find(r => r.monthIndex === row.month);
+    if (rc && row.prepayment <= 0) classes.push('rate-row');
+    if (isCurrent) classes.push('current-divider');
+    const cls = classes.length > 0 ? ` class="${classes.join(' ')}"` : '';
+
+    let badge;
+    if (isCurrent) badge = '<span class="status-badge current">当期</span>';
+    else if (isPaid) badge = '<span class="status-badge paid">已还</span>';
+    else badge = '<span class="status-badge unpaid">未还</span>';
+
+    thtml += `<tr${cls}>
+      <td>${badge}</td>
+      <td>${row.month}</td>
+      <td>${formatYM(row.date)}</td>
+      <td>${formatNum(row.monthlyPayment)}</td>
+      <td>${formatNum(row.principal)}</td>
+      <td>${formatNum(row.interest)}</td>
+      <td>${row.prepayment > 0 ? formatNum(row.prepayment) : '-'}</td>
+      <td>${formatNum(row.remainingBalance)}</td>
+      <td>${row.annualRate}</td>
+    </tr>`;
+  }
+  tbody.innerHTML = thtml;
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+  // Scroll table to current month row
+  setTimeout(() => {
+    const currentRow = tbody.querySelector('.current-divider');
+    if (currentRow) {
+      currentRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 400);
+
+  // Auto-save config after each calculation
+  saveConfig();
+}
+
+// --- Import / Export full config as JSON text ---
+const SAMPLE_CONFIG = {
+  totalAmount: "289",
+  loanStartMonth: "2022-08",
+  annualRate: "4.65",
+  totalYears: "30",
+  method: "equal_installment",
+  rateChanges: [
+    { month: "2023-09", rate: "4.55" },
+    { month: "2024-11", rate: "3.9" },
+    { month: "2025-09", rate: "3.2" }
+  ],
+  prepayments: [
+    { month: "2024-07", amount: "25", action: "shorten_term" },
+    { month: "2025-06", amount: "35", action: "shorten_term" }
+  ]
+};
+
+function isConfigEmpty(cfg) {
+  return (!cfg.rateChanges || cfg.rateChanges.length === 0)
+      && (!cfg.prepayments || cfg.prepayments.length === 0);
+}
+
+function exportEvents() {
+  const cfg = collectConfig();
+  if (isConfigEmpty(cfg)) {
+    document.getElementById('ioText').value = JSON.stringify(SAMPLE_CONFIG, null, 2);
+    showIOHint('当前没有利率调整或提前还款记录，已填入示例配置作为参考', 'success');
+  } else {
+    document.getElementById('ioText').value = JSON.stringify(cfg, null, 2);
+    showIOHint(`已导出完整配置（${cfg.rateChanges.length} 条利率调整、${cfg.prepayments.length} 条提前还款）`, 'success');
+  }
+  validateIOText();
+}
+
+// Schema check — returns array of human-readable issues
+function validateConfigShape(data) {
+  const issues = [];
+  if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+    issues.push('JSON 顶层必须是对象 {}');
+    return issues;
+  }
+  const ymRe = /^\d{4}-(0[1-9]|1[0-2])$/;
+  if (data.loanStartMonth && !ymRe.test(data.loanStartMonth)) {
+    issues.push('loanStartMonth 应为 "YYYY-MM" 格式');
+  }
+  if (data.totalAmount != null && data.totalAmount !== '' && !(parseFloat(data.totalAmount) > 0)) {
+    issues.push('totalAmount 应为正数（万元）');
+  }
+  if (data.annualRate != null && data.annualRate !== '' && !(parseFloat(data.annualRate) > 0)) {
+    issues.push('annualRate 应为正数（百分比）');
+  }
+  if (data.totalYears != null && data.totalYears !== '' && !(parseInt(data.totalYears) > 0)) {
+    issues.push('totalYears 应为正整数');
+  }
+  if (data.method && data.method !== 'equal_installment' && data.method !== 'equal_principal') {
+    issues.push('method 必须是 "equal_installment" 或 "equal_principal"');
+  }
+  if (data.rateChanges !== undefined) {
+    if (!Array.isArray(data.rateChanges)) {
+      issues.push('rateChanges 应为数组');
+    } else {
+      for (let i = 0; i < data.rateChanges.length; i++) {
+        const rc = data.rateChanges[i];
+        if (!rc || typeof rc !== 'object') { issues.push(`rateChanges[${i}] 应为对象`); break; }
+        if (rc.month && !ymRe.test(rc.month)) { issues.push(`rateChanges[${i}].month 应为 "YYYY-MM"`); break; }
+        if (rc.rate != null && rc.rate !== '' && !(parseFloat(rc.rate) > 0)) { issues.push(`rateChanges[${i}].rate 应为正数`); break; }
+      }
+    }
+  }
+  if (data.prepayments !== undefined) {
+    if (!Array.isArray(data.prepayments)) {
+      issues.push('prepayments 应为数组');
+    } else {
+      for (let i = 0; i < data.prepayments.length; i++) {
+        const pp = data.prepayments[i];
+        if (!pp || typeof pp !== 'object') { issues.push(`prepayments[${i}] 应为对象`); break; }
+        if (pp.month && !ymRe.test(pp.month)) { issues.push(`prepayments[${i}].month 应为 "YYYY-MM"`); break; }
+        if (pp.amount != null && pp.amount !== '' && !(parseFloat(pp.amount) > 0)) { issues.push(`prepayments[${i}].amount 应为正数（万元）`); break; }
+        if (pp.action && pp.action !== 'shorten_term' && pp.action !== 'reduce_payment') {
+          issues.push(`prepayments[${i}].action 必须是 "shorten_term" 或 "reduce_payment"`); break;
+        }
+      }
+    }
+  }
+  return issues;
+}
+
+function validateIOText() {
+  const ta = document.getElementById('ioText');
+  const status = document.getElementById('ioStatus');
+  const raw = ta.value.trim();
+  if (!raw) { status.textContent = ''; status.className = 'io-status'; return; }
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (e) {
+    status.textContent = '✗ JSON 语法错误：' + e.message;
+    status.className = 'io-status invalid';
+    return;
+  }
+  const issues = validateConfigShape(data);
+  if (issues.length === 0) {
+    const rc = Array.isArray(data.rateChanges) ? data.rateChanges.length : 0;
+    const pp = Array.isArray(data.prepayments) ? data.prepayments.length : 0;
+    status.textContent = `✓ 格式正确（${rc} 条利率调整、${pp} 条提前还款）`;
+    status.className = 'io-status valid';
+  } else {
+    status.textContent = '⚠ ' + issues[0];
+    status.className = 'io-status warn';
+  }
+}
+
+function importEvents() {
+  const raw = document.getElementById('ioText').value.trim();
+  if (!raw) { showIOHint('文本框为空，请先粘贴 JSON', 'error'); return; }
+  let data;
+  try { data = JSON.parse(raw); }
+  catch (e) { showIOHint('JSON 语法错误：' + e.message, 'error'); return; }
+
+  const issues = validateConfigShape(data);
+  if (issues.length > 0) {
+    showIOHint('未导入，存在格式问题：' + issues[0], 'error');
+    return;
+  }
+
+  // Top-level loan params (only set if present, so partial JSON also works)
+  if (data.totalAmount != null && data.totalAmount !== '') document.getElementById('totalAmount').value = data.totalAmount;
+  if (data.loanStartMonth) document.getElementById('loanStartMonth').value = data.loanStartMonth;
+  if (data.annualRate != null && data.annualRate !== '') document.getElementById('annualRate').value = data.annualRate;
+  if (data.totalYears != null && data.totalYears !== '') document.getElementById('totalYears').value = data.totalYears;
+  if (data.method) {
+    const radio = document.querySelector(`input[name="method"][value="${data.method}"]`);
+    if (radio) radio.checked = true;
+  }
+
+  // Replace events
+  document.getElementById('rateList').innerHTML = '';
+  document.getElementById('prepayList').innerHTML = '';
+  let rcCount = 0, ppCount = 0;
+  if (Array.isArray(data.rateChanges)) {
+    data.rateChanges.forEach(rc => { addRateChangeWithData(rc.month, rc.rate); rcCount++; });
+  }
+  if (Array.isArray(data.prepayments)) {
+    data.prepayments.forEach(pp => { addPrepaymentWithData(pp.month, pp.amount, pp.action); ppCount++; });
+  }
+  showIOHint(`已导入完整配置（${rcCount} 条利率调整、${ppCount} 条提前还款）`, 'success');
+  saveConfig();
+}
+
+function copyIOText() {
+  const ta = document.getElementById('ioText');
+  if (!ta.value) { showIOHint('文本框为空，请先点"导出当前配置"', 'error'); return; }
+  const fallback = () => { ta.select(); try { document.execCommand('copy'); showIOHint('已复制到剪贴板', 'success'); } catch (e) { showIOHint('复制失败，请手动选中复制', 'error'); } };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(ta.value).then(() => showIOHint('已复制到剪贴板', 'success')).catch(fallback);
+  } else { fallback(); }
+}
+
+function showIOHint(msg, type) {
+  const hint = document.getElementById('ioHint');
+  hint.textContent = msg;
+  hint.className = 'io-hint ' + (type || '');
+  clearTimeout(showIOHint._t);
+  showIOHint._t = setTimeout(() => { hint.textContent = ''; hint.className = 'io-hint'; }, 3500);
+}
+
+// Load saved config on page open
+document.addEventListener('DOMContentLoaded', loadConfig);
+</script>
+</body>
+</html>
