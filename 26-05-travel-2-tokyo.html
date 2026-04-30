@@ -98,7 +98,8 @@ body{
   display:inline-flex;
   flex-direction:column;
   align-items:center;
-  padding:6px 12px;
+  justify-content:center;
+  padding:8px 12px;
   border:1px solid var(--line);
   background:var(--bg);
   color:var(--ink-soft);
@@ -106,13 +107,14 @@ body{
   letter-spacing:0.05em;
   cursor:pointer;
   transition:all 0.18s ease;
-  min-width:48px;
-  text-decoration:none
+  min-width:64px;
+  text-decoration:none;
+  border-radius:4px
 }
 .day-nav-pill:active{transform:scale(0.96)}
 .day-nav-pill .pill-num{
   font-family:'Noto Serif SC',serif;
-  font-size:15px;
+  font-size:16px;
   font-weight:600;
   color:var(--ink);
   line-height:1
@@ -124,12 +126,28 @@ body{
   letter-spacing:0.15em;
   margin-top:2px
 }
+.day-nav-pill .pill-place{
+  font-size:11px;
+  font-weight:500;
+  color:var(--ink-soft);
+  margin-top:5px;
+  letter-spacing:0;
+  white-space:nowrap;
+  border-top:1px solid var(--line);
+  padding-top:5px;
+  width:100%;
+  text-align:center
+}
 .day-nav-pill.active{
   background:var(--accent);
   border-color:var(--accent)
 }
 .day-nav-pill.active .pill-num,
-.day-nav-pill.active .pill-day{color:var(--bg-card)}
+.day-nav-pill.active .pill-day,
+.day-nav-pill.active .pill-place{color:var(--bg-card)}
+.day-nav-pill.active .pill-place{
+  border-top-color:rgba(250,247,242,0.3)
+}
 
 /* Desktop: vertical sidebar nav (hidden on mobile) */
 .day-nav-desktop{display:none}
@@ -269,8 +287,8 @@ body{
 .day-date{font-family:'Noto Serif SC',serif}
 .day-date .num{font-size:28px;font-weight:600;letter-spacing:-0.02em;color:var(--ink)}
 .day-date .month{font-size:11px;color:var(--ink-muted);letter-spacing:0.2em;margin-left:6px;text-transform:uppercase}
-.day-meta{text-align:right;font-size:11px;color:var(--ink-soft);letter-spacing:0.1em}
-.day-meta .weekday{font-family:'Shippori Mincho',serif;color:var(--accent);margin-bottom:2px}
+.day-meta{text-align:right;font-size:12px;color:var(--ink);letter-spacing:0.05em;font-weight:500}
+.day-meta .weekday{font-family:'Shippori Mincho',serif;color:var(--accent);margin-bottom:3px;font-size:10px;letter-spacing:0.2em;font-weight:400}
 .day-body{padding:4px 0}
 
 .schedule{padding:16px 22px 4px}
@@ -563,13 +581,13 @@ body{
 <!-- MOBILE: STICKY DAY NAV -->
 <nav class="day-nav-mobile" id="dayNavMobile">
   <div class="day-nav-mobile-inner">
-    <a class="day-nav-pill" href="#day-3" data-day="3"><span class="pill-num">03</span><span class="pill-day">日</span></a>
-    <a class="day-nav-pill" href="#day-4" data-day="4"><span class="pill-num">04</span><span class="pill-day">月</span></a>
-    <a class="day-nav-pill" href="#day-5" data-day="5"><span class="pill-num">05</span><span class="pill-day">火</span></a>
-    <a class="day-nav-pill" href="#day-6" data-day="6"><span class="pill-num">06</span><span class="pill-day">水</span></a>
-    <a class="day-nav-pill" href="#day-7" data-day="7"><span class="pill-num">07</span><span class="pill-day">木</span></a>
-    <a class="day-nav-pill" href="#day-8" data-day="8"><span class="pill-num">08</span><span class="pill-day">金</span></a>
-    <a class="day-nav-pill" href="#day-9" data-day="9"><span class="pill-num">09</span><span class="pill-day">土</span></a>
+    <a class="day-nav-pill" href="#day-3" data-day="3"><span class="pill-num">03</span><span class="pill-day">日</span><span class="pill-place">赤坂</span></a>
+    <a class="day-nav-pill" href="#day-4" data-day="4"><span class="pill-num">04</span><span class="pill-day">月</span><span class="pill-place">筑地·银座</span></a>
+    <a class="day-nav-pill" href="#day-5" data-day="5"><span class="pill-num">05</span><span class="pill-day">火</span><span class="pill-place">横浜见友</span></a>
+    <a class="day-nav-pill" href="#day-6" data-day="6"><span class="pill-num">06</span><span class="pill-day">水</span><span class="pill-place">→ 镰仓</span></a>
+    <a class="day-nav-pill" href="#day-7" data-day="7"><span class="pill-num">07</span><span class="pill-day">木</span><span class="pill-place">江ノ島</span></a>
+    <a class="day-nav-pill" href="#day-8" data-day="8"><span class="pill-num">08</span><span class="pill-day">金</span><span class="pill-place">东京最后</span></a>
+    <a class="day-nav-pill" href="#day-9" data-day="9"><span class="pill-num">09</span><span class="pill-day">土</span><span class="pill-place">→ 成田</span></a>
   </div>
 </nav>
 
