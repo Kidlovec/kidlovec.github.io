@@ -6,8 +6,10 @@ logo: 'assets/images/ghost.png'
 current: about
 ---
 
-This is a demo blog for Ghost, it contains dummy content which allows you to click around and see what a Ghost blog running the default theme looks like.
+## Hi, I'm 浪心.
 
-We use this for testing and for reference!
+A Chinese coder based in Shanghai.
 
-If you'd like to set up your own blog, head on over to [https://ghost.org](https://ghost.org) and sign up.
+Currently focused on **Backend**, **AI Agents**, and **LLM** — building reliable systems and exploring how agents can do real work.
+
+Reach me at [kidlovec@gmail.com](mailto:kidlovec@gmail.com) · [GitHub](https://github.com/Kidlovec)
