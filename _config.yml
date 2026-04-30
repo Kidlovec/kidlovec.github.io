@@ -4,7 +4,7 @@
 markdown: kramdown
 highlighter:  Rouge
 paginate: 5
-language: 'en-uk'
+language: 'zh-CN'
 
 kramdown:
   input: GFM
@@ -29,12 +29,12 @@ source:               .
 destination:          _site
 
 short_url: 'kidlovec.github.io'
-ga_track_id: 'UA-117990631-1'            # Format: UA-xxxxxx-xx
+google_analytics: 'G-JG8SFYTY2D'         # GA4 Measurement ID
 
 disqus: username
 # edit baseurl to simply '/' if using as your personal page (instead of a project page)
 
-url: "http://kidlovec.github.io" # the base hostname & protocol for your site
+url: "https://kidlovec.github.io" # the base hostname & protocol for your site
 baseurl: ""
 
 # Permalinks
