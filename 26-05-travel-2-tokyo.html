@@ -254,7 +254,9 @@ body{
   .options[data-group="airport-in"],
   .options[data-group="airport-out"],
   .options[data-group="hakone-pass"],
-  .options[data-group="romance-car"]{
+  .options[data-group="romance-car"],
+  .options[data-group="extra-night"],
+  .options[data-group="yokohama-transport"]{
     grid-template-columns:1fr
   }
 }
@@ -536,7 +538,7 @@ body{
     <div class="day-nav-desktop-label">— 日程 —</div>
     <a class="day-nav-item" href="#day-3" data-day="3"><span class="nav-num">03</span><span class="nav-text">抵达·赤坂</span></a>
     <a class="day-nav-item" href="#day-4" data-day="4"><span class="nav-num">04</span><span class="nav-text">筑地·银座</span></a>
-    <a class="day-nav-item" href="#day-5" data-day="5"><span class="nav-num">05</span><span class="nav-text">→ 箱根</span></a>
+    <a class="day-nav-item" href="#day-5" data-day="5"><span class="nav-num">05</span><span class="nav-text">横浜日归</span></a>
     <a class="day-nav-item" href="#day-6" data-day="6"><span class="nav-num">06</span><span class="nav-text">→ 镰仓</span></a>
     <a class="day-nav-item" href="#day-7" data-day="7"><span class="nav-num">07</span><span class="nav-text">江之岛</span></a>
     <a class="day-nav-item" href="#day-8" data-day="8"><span class="nav-num">08</span><span class="nav-text">东京最后</span></a>
@@ -574,9 +576,9 @@ body{
 <div class="presets">
   <div class="presets-label">— 一键方案 —</div>
   <div class="preset-row">
-    <button class="preset-btn" data-preset="economy"><div class="preset-name">省钱型</div><div class="preset-amt">~¥150K</div></button>
-    <button class="preset-btn active" data-preset="balanced"><div class="preset-name">平衡型</div><div class="preset-amt">~¥285K</div></button>
-    <button class="preset-btn" data-preset="luxury"><div class="preset-name">奢华型</div><div class="preset-amt">~¥460K</div></button>
+    <button class="preset-btn" data-preset="economy"><div class="preset-name">省钱型</div><div class="preset-amt">~¥130K</div></button>
+    <button class="preset-btn active" data-preset="balanced"><div class="preset-name">平衡型</div><div class="preset-amt">~¥260K</div></button>
+    <button class="preset-btn" data-preset="luxury"><div class="preset-name">奢华型</div><div class="preset-amt">~¥440K</div></button>
   </div>
 </div>
 
@@ -735,82 +737,136 @@ body{
 
   <!-- 5/5 -->
   <div class="day-card" id="day-5">
-    <div class="day-header"><div class="day-date"><span class="num">05</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">火曜日</div><div>东京 → 箱根</div></div></div>
+    <div class="day-header"><div class="day-date"><span class="num">05</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">火曜日</div><div>横浜 日归 · 见友</div></div></div>
     <div class="day-body">
       <div class="schedule">
-        <div class="schedule-row"><div class="schedule-time">10:00</div><div class="schedule-text">Romance Car 新宿→箱根汤本</div></div>
-        <div class="schedule-row"><div class="schedule-time">12:00</div><div class="schedule-text">汤本午餐</div></div>
-        <div class="schedule-row"><div class="schedule-time">14:00</div><div class="schedule-text">箱根黄金路线 · 大涌谷 · 芦之湖</div></div>
-        <div class="schedule-row"><div class="schedule-time">17:00</div><div class="schedule-text">入住旅馆 + 部屋食怀石</div></div>
+        <div class="schedule-row"><div class="schedule-time">10:30</div><div class="schedule-text">赤坂 → 品川 → 横浜 (45分钟)</div></div>
+        <div class="schedule-row"><div class="schedule-time">11:30</div><div class="schedule-text">中华街午餐 (与朋友碰头)</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:00</div><div class="schedule-text">山下公园 + 玫瑰园 (5月盛开 · 免费)</div></div>
+        <div class="schedule-row"><div class="schedule-time">15:00</div><div class="schedule-text">下午景点 (杯面博物馆 / 缆车 / 红砖仓库)</div></div>
+        <div class="schedule-row"><div class="schedule-time">17:30</div><div class="schedule-text">Landmark Tower 69F 看夕阳 + 富士山</div></div>
+        <div class="schedule-row"><div class="schedule-time">19:00</div><div class="schedule-text">晚餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">21:30</div><div class="schedule-text">横浜 → 赤坂 (返 the b)</div></div>
       </div>
 
       <div class="choice">
-        <div class="choice-label"><span class="choice-icon special">宿</span><span class="choice-title">5/5 箱根温泉旅馆</span><span class="choice-hint">含1泊2食</span></div>
-        <div class="options" data-group="ryokan">
-          <div class="option" data-price="70000" data-name="強羅花扇 円かの杜" data-cat="住宿" data-detail="hanaogi">
-            <div class="option-main"><div class="option-name">強羅花扇 円かの杜 <span class="option-tag red">顶级</span></div><div class="option-desc">全室客室温泉 · 京风怀石公认前列</div></div>
-            <div class="option-right"><div class="option-price">¥70,000<small>2人1泊2食</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option selected" data-price="50000" data-name="月の宿 紗ら" data-cat="住宿" data-detail="sara">
-            <div class="option-main"><div class="option-name">月の宿 紗ら <span class="option-tag gold">推荐</span></div><div class="option-desc">汤本徒步5分 · 全室露天 · 设计感</div></div>
-            <div class="option-right"><div class="option-price">¥50,000<small>2人1泊2食</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option" data-price="40000" data-name="箱根湯本 開雲" data-cat="住宿" data-detail="kaiun">
-            <div class="option-main"><div class="option-name">箱根湯本 開雲</div><div class="option-desc">含飲み放題 · 性价比好</div></div>
-            <div class="option-right"><div class="option-price">¥40,000<small>2人1泊2食</small></div><button class="option-info">i</button></div>
+        <div class="choice-label"><span class="choice-icon special">宿</span><span class="choice-title">5/5 加订 the b 一晚</span><span class="choice-hint">原箱根改回东京</span></div>
+        <div class="options" data-group="extra-night">
+          <div class="option selected" data-price="18000" data-name="the b 加订 1 晚" data-cat="住宿" data-detail="extra-b">
+            <div class="option-main"><div class="option-name">the b akasaka 加订 5/5 一晚</div><div class="option-desc">原箱根 ¥50,000 节省 ¥30,000+ · 行李不用搬</div></div>
+            <div class="option-right"><div class="option-price">¥18,000<small>2人1晚</small></div><button class="option-info">i</button></div>
           </div>
         </div>
       </div>
 
       <div class="choice">
-        <div class="choice-label"><span class="choice-icon lunch">午</span><span class="choice-title">5/5 午餐 · 箱根汤本</span></div>
+        <div class="choice-label"><span class="choice-icon special">交</span><span class="choice-title">5/5 赤坂 ↔ 横浜 交通</span><span class="choice-hint">来回</span></div>
+        <div class="options" data-group="yokohama-transport">
+          <div class="option selected" data-price="2000" data-name="JR · 品川→横浜" data-cat="交通" data-detail="jr-yokohama">
+            <div class="option-main"><div class="option-name">JR 东海道线 · 品川↔横浜</div><div class="option-desc">15分钟直达 · 来回 ¥1,000/人</div></div>
+            <div class="option-right"><div class="option-price">¥2,000<small>2人来回</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="1800" data-name="京急 · 品川→横浜" data-cat="交通" data-detail="keikyu-yokohama">
+            <div class="option-main"><div class="option-name">京急本线 · 品川↔横浜</div><div class="option-desc">17分钟 · 比 JR 略便宜</div></div>
+            <div class="option-right"><div class="option-price">¥1,800<small>2人来回</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon lunch">午</span><span class="choice-title">5/5 中华街午餐</span><span class="choice-hint">与朋友 · 必预约</span></div>
         <div class="options" data-group="d3-lunch">
-          <div class="option selected" data-price="6000" data-name="田むら銀かつ亭" data-cat="午餐" data-detail="ginkatsutei">
-            <div class="option-main"><div class="option-name">田むら 銀かつ亭 <span class="option-tag gold">名物</span></div><div class="option-desc">豆腐猪排煮 · 排队</div></div>
+          <div class="option selected" data-price="12000" data-name="菜香新館 · 广东" data-cat="午餐" data-detail="saiko">
+            <div class="option-main"><div class="option-name">菜香新館 <span class="option-tag gold">推荐</span></div><div class="option-desc">广东 + 飲茶 · 朋友聚会氛围最佳</div></div>
+            <div class="option-right"><div class="option-price">¥12,000<small>人均6,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="8000" data-name="京華樓 本館 · 四川" data-cat="午餐" data-detail="kyokaro">
+            <div class="option-main"><div class="option-name">京華樓 本館 <span class="option-tag red">麻婆豆腐</span></div><div class="option-desc">当地人公认麻婆第一 · 性价比好</div></div>
+            <div class="option-right"><div class="option-price">¥8,000<small>人均4,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="20000" data-name="重慶飯店 · 四川老铺" data-cat="午餐" data-detail="jukei">
+            <div class="option-main"><div class="option-name">重慶飯店 <span class="option-tag red">老铺</span></div><div class="option-desc">1959 创业 · 接待档次 · Rose Hotel 内</div></div>
+            <div class="option-right"><div class="option-price">¥20,000<small>人均10,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="7400" data-name="皇朝レストラン · 食べ放題" data-cat="午餐" data-detail="kocho">
+            <div class="option-main"><div class="option-name">皇朝レストラン</div><div class="option-desc">120 品 buffet · 世界点心冠军 · 量大热闹</div></div>
+            <div class="option-right"><div class="option-price">¥7,400<small>人均3,700</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon attr">景</span><span class="choice-title">5/5 横浜下午景点</span><span class="choice-hint">2人 · 选 1-2 个</span></div>
+        <div class="options" data-group="yokohama-pm">
+          <div class="option selected" data-price="2000" data-name="Landmark Tower 69F 展望" data-cat="景点" data-detail="landmark">
+            <div class="option-main"><div class="option-name">Landmark Tower 69F <span class="option-tag teal">夕阳</span></div><div class="option-desc">看富士山 + 港夜景 · 黄昏最佳</div></div>
+            <div class="option-right"><div class="option-price">¥2,000<small>2人</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="2000" data-name="Cup Noodle Museum 杯面博物馆" data-cat="景点" data-detail="cupnoodle">
+            <div class="option-main"><div class="option-name">Cup Noodle Museum <span class="option-tag teal">DIY</span></div><div class="option-desc">DIY 杯面 · 适合朋友一起 · GW 需 WEB 预约</div></div>
+            <div class="option-right"><div class="option-price">¥2,000<small>2人</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="2000" data-name="横浜 Air Cabin 缆车" data-cat="景点" data-detail="aircabin">
+            <div class="option-main"><div class="option-name">横浜 Air Cabin <span class="option-tag teal">缆车</span></div><div class="option-desc">日本首座都市缆车 · 港景 5 分钟</div></div>
+            <div class="option-right"><div class="option-price">¥2,000<small>2人单程</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="0" data-name="山下公园 + 红砖仓库 (免费)" data-cat="景点" data-detail="yamashita">
+            <div class="option-main"><div class="option-name">山下公园 + 红砖仓库</div><div class="option-desc">免费 · 玫瑰园 5 月盛 · 海边散步</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>免费</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon">晚</span><span class="choice-title">5/5 晚餐</span></div>
+        <div class="options" data-group="d3-dinner">
+          <div class="option selected" data-price="14000" data-name="MILANO|GRILL 横浜港景" data-cat="晚餐" data-detail="milano-grill">
+            <div class="option-main"><div class="option-name">MILANO|GRILL <span class="option-tag gold">港景</span></div><div class="option-desc">Hyatt Regency 内 · 意法料理 + 海景</div></div>
+            <div class="option-right"><div class="option-price">¥14,000<small>人均7,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="20000" data-name="Hotel New Grand · ル・ノルマンディ" data-cat="晚餐" data-detail="newgrand">
+            <div class="option-main"><div class="option-name">Hotel New Grand · ル・ノルマンディ</div><div class="option-desc">1927 老铺洋食 · 海军咖喱发祥地</div></div>
+            <div class="option-right"><div class="option-price">¥20,000<small>人均10,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="6000" data-name="回东京 · 简餐" data-cat="晚餐" data-detail="back-tokyo">
+            <div class="option-main"><div class="option-name">回东京吃简餐(中午吃饱)</div><div class="option-desc">21 点回赤坂 · 一兰拉面 / 篝拉面</div></div>
             <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
           </div>
-          <div class="option" data-price="15000" data-name="菊華荘 怀石" data-cat="午餐" data-detail="kikkasou">
-            <div class="option-main"><div class="option-name">菊華荘 怀石</div><div class="option-desc">富士屋系 · 大正浪漫午市</div></div>
-            <div class="option-right"><div class="option-price">¥15,000<small>人均7,500</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option" data-price="4000" data-name="はつ花そば 本店" data-cat="午餐" data-detail="hatsuhana">
-            <div class="option-main"><div class="option-name">はつ花そば 本店</div><div class="option-desc">自然薯荞麦 · 清淡</div></div>
-            <div class="option-right"><div class="option-price">¥4,000<small>人均2,000</small></div><button class="option-info">i</button></div>
-          </div>
         </div>
       </div>
 
-      <div class="choice">
-        <div class="choice-label"><span class="choice-icon special">交</span><span class="choice-title">箱根周游券 + Romance Car</span></div>
-        <div class="options" data-group="hakone-pass">
-          <div class="option selected" data-price="12200" data-name="Hakone Free Pass · 2日券" data-cat="交通" data-detail="hakone-pass">
-            <div class="option-main"><div class="option-name">Hakone Free Pass</div><div class="option-desc">登山电车+缆车+海贼船+巴士</div></div>
-            <div class="option-right"><div class="option-price">¥12,200<small>2人2日</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option" data-price="8000" data-name="单买票 估算" data-cat="交通">
-            <div class="option-main"><div class="option-name">不买周游券 · 单买</div><div class="option-desc">如果只玩1-2项划算</div></div>
-            <div class="option-right"><div class="option-price">¥8,000<small>2人估算</small></div></div>
-          </div>
-        </div>
-        <div class="options" data-group="romance-car" style="margin-top:8px">
-          <div class="option selected" data-price="5000" data-name="Romance Car 指定席" data-cat="交通" data-detail="romance-car">
-            <div class="option-main"><div class="option-name">Romance Car 指定席</div><div class="option-desc">85分钟直达 · 4/5 上午10点开抢</div></div>
-            <div class="option-right"><div class="option-price">¥5,000<small>2人</small></div><button class="option-info">i</button></div>
-          </div>
-        </div>
-      </div>
+      <div class="hotel-fixed"><span class="hotel-name">the b akasaka-mitsuke</span><span class="hotel-tag">加订 1 晚 · 计入预算</span></div>
     </div>
   </div>
 
   <!-- 5/6 -->
   <div class="day-card" id="day-6">
-    <div class="day-header"><div class="day-date"><span class="num">06</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">水曜日</div><div>箱根 → 镰仓</div></div></div>
+    <div class="day-header"><div class="day-date"><span class="num">06</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">水曜日</div><div>东京 → 镰仓</div></div></div>
     <div class="day-body">
       <div class="schedule">
-        <div class="schedule-row"><div class="schedule-time">07:30</div><div class="schedule-text">旅馆早餐 + 晨汤</div></div>
-        <div class="schedule-row"><div class="schedule-time">10:30</div><div class="schedule-text">POLA美术馆 / 箱根神社·平和鸟居</div></div>
-        <div class="schedule-row"><div class="schedule-time">14:00</div><div class="schedule-text">汤本→小田原→大船→镰仓</div></div>
-        <div class="schedule-row"><div class="schedule-time">17:00</div><div class="schedule-text">七里浜看夕阳 (日落 18:30)</div></div>
+        <div class="schedule-row"><div class="schedule-time">10:00</div><div class="schedule-text">退房 the b · 赤坂 → 品川 → 镰仓 (1小时 JR 横須賀线)</div></div>
+        <div class="schedule-row"><div class="schedule-time">12:30</div><div class="schedule-text">镰仓午餐 + 寄存行李</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:30</div><div class="schedule-text">镰仓大佛 + 长谷寺 (Hase 区域)</div></div>
+        <div class="schedule-row"><div class="schedule-time">17:00</div><div class="schedule-text">七里浜看夕阳 (日落 18:30) + 入住镰仓王子</div></div>
+        <div class="schedule-row"><div class="schedule-time">19:00</div><div class="schedule-text">晚餐</div></div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon lunch">午</span><span class="choice-title">5/6 镰仓午餐</span></div>
+        <div class="options" data-group="d4-lunch">
+          <div class="option selected" data-price="10000" data-name="鎌倉 松原庵 · 午餐" data-cat="午餐" data-detail="matsubaran">
+            <div class="option-main"><div class="option-name">鎌倉 松原庵 <span class="option-tag gold">推荐</span></div><div class="option-desc">古民家荞麦 · 庭院氛围一流</div></div>
+            <div class="option-right"><div class="option-price">¥10,000<small>人均5,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="5000" data-name="Garden House" data-cat="午餐" data-detail="gardenhouse">
+            <div class="option-main"><div class="option-name">Garden House</div><div class="option-desc">Café 风 · 镰仓站旁</div></div>
+            <div class="option-right"><div class="option-price">¥5,000<small>人均2,500</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="3000" data-name="しらすや 镰仓駅前" data-cat="午餐" data-detail="shirasuya">
+            <div class="option-main"><div class="option-name">しらすや 镰仓 <span class="option-tag gold">名物</span></div><div class="option-desc">镰仓名物魩仔鱼丼 · 5 月正季</div></div>
+            <div class="option-right"><div class="option-price">¥3,000<small>人均1,500</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
       </div>
 
       <div class="choice">
@@ -1664,6 +1720,169 @@ const details = {
     ],
     mapUrl: gmap('品川プリンスホテル リムジンバス乗り場')},
 
+  // ============= 5/5 横浜 日归 =============
+  'extra-b': {kicker:'5/5 加订住宿',name:'the b akasaka 加订 1 晚',tagline:'原箱根改回东京 · 行李不用搬',
+    book:'<span class="em">直接联系酒店前台或 Booking.com</span> 加订 5/5 一晚 · 同房型继续住最简单。',
+    go:'已经在住的酒店,不用动。',
+    hours:'入住时间不变',
+    tip:'¥15,000-20,000 / 晚(2人) · 比箱根温泉旅馆 ¥50,000 节省 ¥30K+ · 不用 check-out 重 check-in,行李留房间方便。',
+    bookLinks:[
+      {label:'Booking.com 查空房', url:booking('the b akasaka mitsuke')},
+      {label:'Agoda', url:`https://www.agoda.com/search?q=${enc('the b akasaka mitsuke')}`},
+      {label:'酒店官网', url:'https://www.theb-hotels.com/the-b/akasaka-mitsuke/'}
+    ],
+    mapUrl: gmap('the b akasaka mitsuke')},
+
+  'jr-yokohama': {kicker:'5/5 交通',name:'JR 东海道线 · 品川 ↔ 横浜',tagline:'15 分钟直达',
+    book:'Suica/PASMO 刷卡进站 · 无需提前订票。',
+    go:'<span class="em">赤坂見附 → 银座线/南北线到品川 → JR 东海道线 1 站到横浜</span> · 总用时约 35-45 分钟。',
+    hours:'始发车 5:00,末班 24:00 后',
+    tip:'¥500/人 单程 · 来回 ¥1,000/人 · GW 周二夜班车很挤,21:30 前回避高峰。',
+    bookLinks:[
+      {label:'JR EAST 路线查询', url:'https://www.jreast.co.jp/tc/'},
+      {label:'Google 路线', url:'https://www.google.com/maps/dir/Akasaka-mitsuke+Station/Yokohama+Station'}
+    ],
+    mapUrl: gmap('JR 横浜駅')},
+
+  'keikyu-yokohama': {kicker:'5/5 交通',name:'京急本线 · 品川 ↔ 横浜',tagline:'17 分钟 · 略便宜',
+    book:'Suica/PASMO 刷卡 · 无需订票。',
+    go:'赤坂見附 → 银座线品川 → 京急本线 1 站到横浜。',
+    hours:'始发车 5:00,末班 24:00 后',
+    tip:'¥330/人 单程 · 比 JR 便宜 · 班次比 JR 略少。坐快特/特急更快。',
+    bookLinks:[
+      {label:'京急官网中文', url:'https://www.haneda-tokyo-access.com/cn/'}
+    ],
+    mapUrl: gmap('京急 横浜駅')},
+
+  'saiko': {kicker:'5/5 午餐 · 横浜中华街',name:'菜香新館',tagline:'广东 + 飲茶 · 朋友聚会氛围最佳',
+    book:'<span class="em">官网 / 一休餐厅 / Hot Pepper</span> · 提前 1-2 周 · GW 必早订。',
+    go:'<span class="em">みなとみらい线「元町・中華街」徒歩 3 分</span> · 横浜駅 → 元町中華街 8 分钟。',
+    hours:'11:30-15:00 / 17:00-22:00',
+    tip:'¥4,000-7,000 / 人 午餐套餐 · 飲茶 + 名物大虾蛋黄酱 · 个室可订,适合朋友聚 · 服务比观光区多家好。',
+    bookLinks:[
+      {label:'菜香官网', url:'https://saikoshinkan.com/'},
+      {label:'一休餐厅', url:ikyu('菜香新館')},
+      {label:'Hot Pepper', url:`https://www.hotpepper.jp/CSP/yyd010/desKwd/?keyword=${enc('菜香新館 横浜')}`}
+    ],
+    mapUrl: gmap('菜香新館 横浜中華街')},
+
+  'kyokaro': {kicker:'5/5 午餐 · 横浜中华街',name:'京華樓 本館',tagline:'四川 · 麻婆豆腐当地人公认第一',
+    book:'<span class="em">Hot Pepper / 电话 045-651-1411</span> · 提前 1-2 周。',
+    go:'<span class="em">みなとみらい线「元町・中華街」徒歩 5 分</span> · 山下町 124-12。',
+    hours:'11:30-22:00',
+    tip:'¥3,000-5,000 / 人 · 麻婆豆腐花椒劲足 · 担担面/口水鸡也强 · 性价比高,适合不想花太多吃饭的朋友聚。',
+    bookLinks:[
+      {label:'Hot Pepper 订位', url:`https://www.hotpepper.jp/CSP/yyd010/desKwd/?keyword=${enc('京華樓 本館')}`},
+      {label:'Tabelog', url:tabelog('京華樓 本館 横浜')}
+    ],
+    mapUrl: gmap('京華樓 本館 横浜中華街')},
+
+  'jukei': {kicker:'5/5 午餐 · 横浜中华街',name:'重慶飯店',tagline:'1959 创业 · 接待档次',
+    book:'<span class="em">官网 / 一休餐厅</span> · 提前 1-2 周 · 黄金周必订。',
+    go:'<span class="em">みなとみらい线「元町・中華街」徒歩 4 分</span> · Rose Hotel 横浜内。',
+    hours:'11:30-15:00 / 17:00-22:00',
+    tip:'¥6,000-12,000 / 人 · 鱼翅汤、麻婆豆腐、东坡肉 · 个室充实 · 比中华街其他店上档次。',
+    bookLinks:[
+      {label:'重慶飯店官网', url:'https://www.jukei.com/'},
+      {label:'一休餐厅', url:ikyu('重慶飯店 横浜')}
+    ],
+    mapUrl: gmap('重慶飯店 横浜中華街')},
+
+  'kocho': {kicker:'5/5 午餐 · 横浜中华街',name:'皇朝レストラン',tagline:'120 品 buffet · 世界点心冠军',
+    book:'<span class="em">官网 / Hot Pepper</span> · 提前 1 周 · GW 中午满座。',
+    go:'<span class="em">みなとみらい线「元町・中華街」徒歩 5 分</span>。',
+    hours:'11:00-22:00',
+    tip:'¥3,680/人 平日 · ¥3,980/人 周末 · 北京烤鸭+鱼翅汤+点心都吃到饱 · 量大热闹,适合朋友聚。',
+    bookLinks:[
+      {label:'皇朝官网', url:'https://www.kocho.jp/restaurant/'},
+      {label:'Hot Pepper', url:`https://www.hotpepper.jp/CSP/yyd010/desKwd/?keyword=${enc('皇朝レストラン 横浜')}`}
+    ],
+    mapUrl: gmap('皇朝レストラン 横浜中華街')},
+
+  'landmark': {kicker:'5/5 景点',name:'Landmark Tower 69F Sky Garden',tagline:'296m 展望 · 看富士山',
+    book:'<span class="em">现场购票或 Klook</span> · 黄金周可提前网购免排队。',
+    go:'<span class="em">JR 桜木町站徒步 5 分 / みなとみらい站徒步 3 分</span>。',
+    hours:'10:00-21:00 (周六延至 22:00)',
+    tip:'¥1,000/人 · 日落 18:30 前到最佳 · 富士山方向晴天 4-5 月可见 · 配备情侣座位。',
+    bookLinks:[
+      {label:'官网', url:'https://www.yokohama-landmark.jp/skygarden/'},
+      {label:'Klook 电子票', url:klook('Landmark Tower Sky Garden')}
+    ],
+    mapUrl: gmap('横浜ランドマークタワー スカイガーデン')},
+
+  'cupnoodle': {kicker:'5/5 景点',name:'Cup Noodle Museum 杯面博物馆',tagline:'DIY 杯面 · 朋友互动',
+    book:'<span class="em">官网 WEB 整理券</span> · GW 期间必预约 · 不预约现场拿不到号。',
+    go:'<span class="em">みなとみらい线「みなとみらい」徒歩 8 分</span> · 红砖仓库附近。',
+    hours:'10:00-18:00 · 周二休',
+    tip:'¥500/人 入场 + ¥500/份 DIY 杯面体验 · 自选 4 种配料绘制专属杯面 · 1.5-2 小时玩完 · 评分 4.5。',
+    bookLinks:[
+      {label:'CN 博物馆官网', url:'https://www.cupnoodles-museum.jp/zh-cn/yokohama/'},
+      {label:'WEB 预约', url:'https://www.cupnoodles-museum.jp/zh-cn/yokohama/visiting/'}
+    ],
+    mapUrl: gmap('カップヌードルミュージアム 横浜')},
+
+  'aircabin': {kicker:'5/5 景点',name:'横浜 Air Cabin 缆车',tagline:'日本首座都市循环型缆车',
+    book:'现场购票即可。',
+    go:'<span class="em">JR 桜木町站东口徒步 1 分</span> · 连接桜木町到红砖仓库的运河公园。',
+    hours:'10:00-22:00 (周六-23:00)',
+    tip:'¥1,000/人 单程 / ¥1,800 来回 · 5 分钟 · 全 36 个 cabin 都装有空调 · 黄昏黄金时段排队 30 分,白天没什么人。',
+    bookLinks:[
+      {label:'Air Cabin 官网', url:'https://yokohama-air-cabin.jp/'},
+      {label:'Klook 票', url:klook('横浜 Air Cabin')}
+    ],
+    mapUrl: gmap('YOKOHAMA AIR CABIN 桜木町')},
+
+  'yamashita': {kicker:'5/5 景点',name:'山下公园 + 红砖仓库',tagline:'免费海边散步 + 玫瑰园',
+    book:'无需。',
+    go:'<span class="em">みなとみらい线「元町・中華街」徒歩 3 分</span> · 紧邻中华街。',
+    hours:'24 小时开放',
+    tip:'<span class="em">5 月玫瑰园盛开</span>(未来玫瑰园 4 月下-6 月上)· 看停泊的氷川丸 · 海边散步 · 红砖仓库走 10 分钟可达,有店铺、餐饮、季节市集。',
+    bookLinks:[
+      {label:'横浜观光官网', url:'https://www.welcome.city.yokohama.jp/spot/details.php?bbid=42'}
+    ],
+    mapUrl: gmap('山下公園 横浜')},
+
+  'milano-grill': {kicker:'5/5 晚餐',name:'MILANO|GRILL (Hyatt Regency 横浜)',tagline:'港景意法料理',
+    book:'<span class="em">一休餐厅 / OpenTable / 官网</span> · 提前 1-2 周。',
+    go:'<span class="em">みなとみらい线「みなとみらい」徒歩 1 分</span> · Hyatt Regency 横浜 5F。',
+    hours:'11:30-15:00 / 17:30-22:00',
+    tip:'¥6,000-9,000 / 人 · 国产牛烤肉 + 海鲜 + 港景 · 5 月晚 7 点天还亮,可看夜景渐变 · 预约时说"窗边席"。',
+    bookLinks:[
+      {label:'Hyatt 官网', url:'https://www.hyatt.com/en-US/hotel/japan/hyatt-regency-yokohama/dining'},
+      {label:'一休餐厅', url:ikyu('MILANO GRILL ハイアット リージェンシー 横浜')},
+      {label:'OpenTable', url:opentable('MILANO GRILL Yokohama')}
+    ],
+    mapUrl: gmap('MILANO GRILL Hyatt Regency Yokohama')},
+
+  'newgrand': {kicker:'5/5 晚餐',name:'Hotel New Grand · ル・ノルマンディ',tagline:'1927 老铺洋食 · 海景',
+    book:'<span class="em">官网 / 电话 045-681-1841</span> · 提前 2 周。',
+    go:'<span class="em">みなとみらい线「元町・中華街」1 出口徒步 1 分</span> · 山下公园对面。',
+    hours:'11:30-14:30 / 17:30-21:00',
+    tip:'¥7,000-15,000 / 人 · 海军咖喱、Spaghetti Napolitan(意面拿坡里发祥地)、Doria(焗饭发祥地)· 麦克阿瑟将军蜜月住过 · 怀旧氛围一流。',
+    bookLinks:[
+      {label:'Hotel New Grand 官网', url:'https://www.hotel-newgrand.co.jp/cn/'},
+      {label:'一休餐厅', url:ikyu('ル ノルマンディ ニューグランド')}
+    ],
+    mapUrl: gmap('Hotel New Grand 横浜 ル・ノルマンディ')},
+
+  'back-tokyo': {kicker:'5/5 晚餐',name:'回东京吃简餐',tagline:'中午吃饱了的备选方案',
+    book:'各家无需预约。',
+    go:'横浜 → 品川 (15分) → 赤坂見附 银座线。',
+    hours:'各店见详情',
+    tip:'21 点回赤坂 · 一兰拉面 24h、銀座篝(日比谷站换 4 站)· 时间晚的话直接酒店附近便利店买点心。预算 ¥3K/人。',
+    bookLinks:[],
+    mapUrl: gmap('赤坂見附駅')},
+
+  'shirasuya': {kicker:'5/6 午餐 · 镰仓',name:'しらすや 鎌倉駅前店',tagline:'镰仓名物魩仔鱼 · 5 月正季',
+    book:'无需预约 · 排队制。',
+    go:'<span class="em">JR 鎌倉站东口徒步 2 分</span>。',
+    hours:'11:00-21:00',
+    tip:'¥1,500-2,500 / 人 · <span class="em">5 月 3 日生魩仔鱼解禁</span> · 镰仓季节限定,本季限定吃 · 生 + 釜揚げ两吃丼最受欢迎。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('しらすや 鎌倉駅前')}
+    ],
+    mapUrl: gmap('しらすや 鎌倉駅前店')},
+
   // ============= ZARA'S TOKYO LIST 推荐 =============
   'bellavista': {kicker:'5/3 晚餐 · Zara推荐',name:'Bella Vista (New Otani)',tagline:'40 楼意餐 · 庭院夜景 · Tabelog 4.6',
     book:'<span class="em">官网或电话 03-3221-7252</span> · 提前 1-2 周 · 周末旺位需更早。',
@@ -1851,9 +2070,9 @@ const presets = {
   economy: {
     'airport-in':'电车 · 京急→银座线','d1-dinner':'一兰拉面赤坂',
     'd2-bfast':'きつねや 牛丼','d2-lunch':'资生堂Parlour 银座','d2-dinner':'銀座 篝 拉面',
-    'ryokan':'箱根湯本 開雲','d3-lunch':'はつ花そば 本店',
-    'hakone-pass':'单买票 估算','romance-car':'Romance Car 指定席',
-    'd4-dinner':'bills 七里ヶ浜',
+    'extra-night':'the b 加订 1 晚','yokohama-transport':'京急 · 品川→横浜',
+    'd3-lunch':'皇朝レストラン · 食べ放題','yokohama-pm':'山下公园 + 红砖仓库 (免费)','d3-dinner':'回东京 · 简餐',
+    'd4-lunch':'しらすや 镰仓駅前','d4-dinner':'bills 七里ヶ浜',
     'd5-attr':'江之岛展望塔 Sea Candle','d5-bfast':'酒店早餐 (含)','d5-lunch':'イワタコーヒー','d5-dinner':'五反田 鳥かど 烧鸟',
     'd6-route':'C · 横浜中华街','d6-aquarium':'不加水族馆','d6-dinner':'銀座 篝 拉面',
     'airport-out':"N'EX 成田特快"
@@ -1861,9 +2080,9 @@ const presets = {
   balanced: {
     'airport-in':'电车 · 京急→银座线','d1-dinner':'人形町今半 紀尾井町店',
     'd2-bfast':'大江戸 寿司','d2-lunch':'银座久兵衛','d2-dinner':'鳥福 銀座',
-    'ryokan':'月の宿 紗ら','d3-lunch':'田むら銀かつ亭',
-    'hakone-pass':'Hakone Free Pass · 2日券','romance-car':'Romance Car 指定席',
-    'd4-dinner':'AMALFI DELLA SERA',
+    'extra-night':'the b 加订 1 晚','yokohama-transport':'JR · 品川→横浜',
+    'd3-lunch':'菜香新館 · 广东','yokohama-pm':'Landmark Tower 69F 展望','d3-dinner':'MILANO|GRILL 横浜港景',
+    'd4-lunch':'鎌倉 松原庵 · 午餐','d4-dinner':'AMALFI DELLA SERA',
     'd5-attr':'新江ノ島水族館','d5-bfast':'bills 七里ヶ浜 早餐','d5-lunch':'鎌倉松原庵','d5-dinner':'鮨いち兆 五反田',
     'd6-route':'A · 东京美食日','d6-aquarium':'不加水族馆','d6-dinner':'Den · 米其林2星',
     'airport-out':"N'EX 成田特快"
@@ -1871,9 +2090,9 @@ const presets = {
   luxury: {
     'airport-in':'打车 · 羽田→赤坂','d1-dinner':'赤坂浅田 · 怀石',
     'd2-bfast':'寿司大 筑地店','d2-lunch':'天ぷら近藤','d2-dinner':'鮨 銀座おのでら 本店',
-    'ryokan':'強羅花扇 円かの杜','d3-lunch':'菊華荘 怀石',
-    'hakone-pass':'Hakone Free Pass · 2日券','romance-car':'Romance Car 指定席',
-    'd4-dinner':'AMALFI DELLA SERA',
+    'extra-night':'the b 加订 1 晚','yokohama-transport':'JR · 品川→横浜',
+    'd3-lunch':'重慶飯店 · 四川老铺','yokohama-pm':'Landmark Tower 69F 展望','d3-dinner':'Hotel New Grand · ル・ノルマンディ',
+    'd4-lunch':'鎌倉 松原庵 · 午餐','d4-dinner':'AMALFI DELLA SERA',
     'd5-attr':'新江ノ島水族館','d5-bfast':'bills 七里ヶ浜 早餐','d5-lunch':'鎌倉松原庵','d5-dinner':'TTOAHISU · 米其林1星法餐',
     'd6-route':'B · 日光当日往返','d6-aquarium':'アクアパーク品川','d6-dinner':'鮨さいとう 六本木分店',
     'airport-out':"N'EX 成田特快"
