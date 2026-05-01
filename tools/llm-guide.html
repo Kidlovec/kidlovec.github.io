@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LLM 物理 × 逻辑 全景图解</title>
+<meta name="description" content="从显卡到神经网络，从训练到推理，8 个维度完整拆解 LLM 的物理硬件与逻辑算法" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #08080f; overflow-x: hidden; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ─── CONSTANTS ──────────────────────────────────────────────────────
+const C={blue:”#5B8DEF”,orange:”#F5A623”,green:”#7EC8A0”,red:”#E85D75”,purple:”#AB47BC”,cyan:”#26C6DA”,pink:”#F48FB1”,yellow:”#FFD54F”};
+const M={fontFamily:”‘IBM Plex Mono’,monospace”};
+const PROMPT=“请用一句话解释什么是KV Cache”;
+const P_TOKENS=[“请”,“用”,“一”,“句”,“话”,“解释”,“什么”,“是”,“KV”,” Cache”];
+const O_TOKENS=[“KV”,” Cache”,“是”,“推理”,“时”,“缓存”,“已”,“算过”,“的”,“Key”,”/”,“Value”,”，”,“避免”,“重复”,“计算”,”。”];
+
+const TABS=[
+{id:“arch”,label:“全局架构”,icon:“🗺️”},
+{id:“journey”,label:“一次推理”,icon:“🚀”},
+{id:“attn”,label:“Attention”,icon:“🔍”},
+{id:“memory”,label:“存储金字塔”,icon:“🏔️”},
+{id:“tvsi”,label:“训练vs推理”,icon:“⚖️”},
+{id:“parallel”,label:“多卡并行”,icon:“🔗”},
+{id:“kv”,label:“KV Cache”,icon:“📦”},
+{id:“opt”,label:“优化全景”,icon:“⚡”},
+];
+
+// ─── SHARED ─────────────────────────────────────────────────────────
+const Card=({children,color,style:sx,…p})=>{
+const base={background:color?color+“08”:“rgba(255,255,255,0.025)”,borderRadius:12,border:“1px solid “+(color?color+“25”:“rgba(255,255,255,0.06)”),padding:16,marginBottom:14};
+return <div style={sx?Object.assign({},base,sx):base}>{children}</div>;
+};
+const Label=({children})=><div style={{fontSize:10,fontWeight:600,letterSpacing:1,color:”#888”,marginBottom:6}}>{children}</div>;
+const Tag=({c,children})=><span style={{display:“inline-block”,fontSize:9,padding:“2px 7px”,borderRadius:4,background:c+“18”,color:c,fontWeight:600,marginRight:4,marginBottom:3}}>{children}</span>;
+const Acc=({c,children})=><span style={{color:c,fontWeight:600}}>{children}</span>;
+const Row=({l,v,c})=><div style={{display:“flex”,justifyContent:“space-between”,padding:“5px 0”,borderBottom:“1px solid rgba(255,255,255,0.04)”}}><span style={{fontSize:11,color:”#888”}}>{l}</span><span style={{fontSize:11,fontWeight:600,color:c||”#ccc”,…M}}>{v}</span></div>;
+const Chip=({t,hl,c,idx})=><span style={{display:“inline-flex”,alignItems:“center”,padding:“2px 6px”,borderRadius:5,fontSize:10,fontWeight:500,background:hl?(c||C.orange)+“25”:“rgba(255,255,255,0.06)”,color:hl?(c||C.orange):”#aaa”,border:hl?“1px solid “+(c||C.orange)+“40”:“1px solid rgba(255,255,255,0.08)”,margin:“2px”,…M}}>{idx!=null&&<span style={{fontSize:7,opacity:0.5,marginRight:3}}>{idx}</span>}{t}</span>;
+
+const Code=({children})=><div style={{fontSize:10,…M,background:“rgba(0,0,0,0.3)”,padding:“10px 12px”,borderRadius:8,lineHeight:2.2,overflowX:“auto”}}>{children}</div>;
+
+// ─── 1. GLOBAL ARCHITECTURE ─────────────────────────────────────────
+function ArchDiagram() {
+const [mode,setMode]=useState(“infer_prefill”);
+const modes={infer_prefill:“推理·Prefill”,infer_decode:“推理·Decode”,train:“训练”};
+const isD=mode===“infer_decode”,isT=mode===“train”,isI=!isT;
+
+return <div>
+<div style={{display:“flex”,gap:6,marginBottom:14,flexWrap:“wrap”}}>
+{Object.entries(modes).map(([k,v])=><button key={k} onClick={()=>setMode(k)} style={{padding:“6px 12px”,borderRadius:7,fontSize:11,fontWeight:600,cursor:“pointer”,border:mode===k?“1.5px solid “+C.blue:“1.5px solid #333”,background:mode===k?C.blue+“15”:“transparent”,color:mode===k?C.blue:”#888”}}>{v}</button>)}
+</div>
+
+```
+<Card>
+  <svg viewBox="0 0 720 540" style={{width:"100%",height:"auto"}}>
+    <defs>
+      <marker id="aO" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill={C.orange}/></marker>
+      <marker id="aG" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill={C.green}/></marker>
+      <marker id="aP" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill={C.purple}/></marker>
+      <marker id="aR" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill={C.red}/></marker>
+    </defs>
+
+    <text x="360" y="16" textAnchor="middle" fill="#555" fontSize="9" fontWeight="600">
+      {isT?"训练：前向→Loss→反向→更新权重（无 KV Cache）":isD?"推理·Decode：逐 token 生成，每步读整个 KV Cache（Memory-bound）":"推理·Prefill：并行处理全部 Prompt，填充 KV Cache（Compute-bound）"}
+    </text>
+
+    {/* ═══ LEFT: PHYSICAL ═══ */}
+    <rect x="8" y="28" width="340" height="505" rx="12" fill="rgba(91,141,239,0.02)" stroke={C.blue+"30"} strokeWidth="1" strokeDasharray="4,3"/>
+    <text x="18" y="46" fill={C.blue} fontSize="10" fontWeight="700">🖥️ 物理世界（硬件）</text>
+
+    {/* User */}
+    <rect x="20" y="58" width="135" height="48" rx="8" fill={C.green+"10"} stroke={C.green} strokeWidth="1"/>
+    <text x="87" y="78" textAnchor="middle" fill={C.green} fontSize="10" fontWeight="600">{isT?"📂 训练数据集":"👤 用户请求"}</text>
+    <text x="87" y="94" textAnchor="middle" fill={C.green} fontSize="7" opacity="0.6">{isT?"磁盘/对象存储 → DataLoader":"HTTP API / WebSocket"}</text>
+
+    {/* NVMe */}
+    <rect x="170" y="58" width="168" height="48" rx="8" fill="rgba(255,255,255,0.03)" stroke="#555" strokeWidth="0.8"/>
+    <text x="254" y="78" textAnchor="middle" fill="#aaa" fontSize="9" fontWeight="600">💿 磁盘 / NVMe SSD</text>
+    <text x="254" y="94" textAnchor="middle" fill="#666" fontSize="7">{isT?"数据集 · checkpoint 存取":"模型文件冷存储 · ~7 GB/s"}</text>
+
+    {/* CPU */}
+    <rect x="20" y="124" width="318" height="72" rx="8" fill="rgba(100,181,246,0.05)" stroke="#64B5F6" strokeWidth="1"/>
+    <text x="30" y="142" fill="#64B5F6" fontSize="10" fontWeight="700">🧠 CPU + 系统内存 (DDR5 RAM)</text>
+    <text x="30" y="157" fill="#64B5F6" fontSize="8" opacity="0.7">• Tokenizer（BPE / SentencePiece）· 请求调度 · batch 管理</text>
+    <text x="30" y="170" fill="#64B5F6" fontSize="8" opacity="0.7">{isT?"• 数据预处理（shuffle / padding / collate）":"• 采样策略（temperature / top-p / top-k）"}</text>
+    <text x="30" y="183" fill="#64B5F6" fontSize="8" opacity="0.7">• 带宽 ~50 GB/s · 容量 256-1024 GB</text>
+
+    {/* PCIe */}
+    <rect x="80" y="210" width="180" height="28" rx="6" fill={C.purple+"10"} stroke={C.purple} strokeWidth="1">
+      <animate attributeName="stroke-opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/>
+    </rect>
+    <text x="170" y="228" textAnchor="middle" fill={C.purple} fontSize="9" fontWeight="600">⇅ PCIe 5.0 (64GB/s) / NVLink (900GB/s)</text>
+
+    {/* GPU */}
+    <rect x="20" y="252" width="318" height="268" rx="10" fill="rgba(245,166,35,0.03)" stroke={C.orange+"40"} strokeWidth="1.5"/>
+    <text x="30" y="272" fill={C.orange} fontSize="11" fontWeight="700">⚡ GPU（{isT?"H100 × 8 · DGX":"A100 80GB / H100"}）</text>
+
+    {/* SM */}
+    <rect x="30" y="282" width="150" height="70" rx="6" fill={C.orange+"06"} stroke={C.orange+"25"} strokeWidth="0.8"/>
+    <text x="38" y="296" fill={C.orange} fontSize="8" fontWeight="600">Tensor Cores / SM</text>
+    <text x="38" y="310" fill={C.orange} fontSize="7" opacity="0.5">FP16: 312 TFLOPS (A100)</text>
+    <text x="38" y="322" fill={C.orange} fontSize="7" opacity="0.5">FP8: 1979 TFLOPS (H100)</text>
+    {Array.from({length:20}).map((_,i)=>{
+      const on=!isD;
+      return <rect key={i} x={38+(i%10)*13} y={330+(Math.floor(i/10))*11} width={10} height={8} rx={2} fill={C.orange} opacity={on?0.15+(i%4)*0.12:0.08}>
+        {on&&<animate attributeName="opacity" values={`${0.15+(i%3)*0.1};${0.5+(i%3)*0.1};${0.15+(i%3)*0.1}`} dur={`${0.4+(i%4)*0.15}s`} repeatCount="indefinite"/>}
+      </rect>;
+    })}
+
+    {/* SRAM */}
+    <rect x="30" y="360" width="150" height="34" rx="5" fill={C.yellow+"08"} stroke={C.yellow+"30"} strokeWidth="0.5"/>
+    <text x="38" y="374" fill={C.yellow} fontSize="7" fontWeight="600">L1/L2 SRAM（片上缓存）</text>
+    <text x="38" y="386" fill={C.yellow} fontSize="6" opacity="0.6">~40MB · ~19TB/s · Flash Attention 利用这里</text>
+
+    {/* HBM */}
+    <rect x="190" y="282" width="140" height="226" rx="6" fill={C.red+"05"} stroke={C.red} strokeWidth="1"/>
+    <text x="198" y="298" fill={C.red} fontSize="9" fontWeight="700">HBM 显存</text>
+    <text x="198" y="310" fill={C.red} fontSize="7" opacity="0.5">80GB · 3.35 TB/s (A100)</text>
+
+    {/* HBM内部 */}
+    <rect x="198" y="318" width="124" height={isT?28:34} rx="4" fill={C.blue} opacity="0.7"/>
+    <text x="206" y={isT?336:340} fill="#fff" fontSize="8" fontWeight="600">模型权重</text>
+
+    {isI?<>
+      <rect x="198" y={358} width={isD?124:90} height={isD?50:34} rx="4" fill={C.orange} opacity="0.8">
+        <animate attributeName="opacity" values="0.65;0.9;0.65" dur="2s" repeatCount="indefinite"/>
+      </rect>
+      <text x="206" y={isD?378:378} fill="#fff" fontSize="8" fontWeight="700">KV Cache {isD?"↑增长":"(填充中)"}</text>
+      {isD&&<text x="206" y="396" fill="#fff" fontSize="7" opacity="0.7">每步读全部+追加1条</text>}
+      <rect x="198" y={isD?414:398} width="60" height="20" rx="4" fill={C.green} opacity="0.5"/>
+      <text x="206" y={isD?428:412} fill="#fff" fontSize="7">激活值</text>
+      <rect x="198" y={isD?440:424} width="124" height={isD?60:80} rx="4" fill="#2a2a3a" opacity="0.4"/>
+      <text x="206" y={isD?465:460} fill="#666" fontSize="7">空闲（决定并发数）</text>
+    </>:<>
+      <rect x="198" y="350" width="124" height="30" rx="4" fill={C.red} opacity="0.6"/>
+      <text x="206" y="370" fill="#fff" fontSize="8">梯度（≈权重大小）</text>
+      <rect x="198" y="384" width="124" height="44" rx="4" fill={C.purple} opacity="0.6">
+        <animate attributeName="opacity" values="0.4;0.7;0.4" dur="2.5s" repeatCount="indefinite"/>
+      </rect>
+      <text x="206" y="404" fill="#fff" fontSize="8" fontWeight="600">优化器状态</text>
+      <text x="206" y="418" fill="#fff" fontSize="7" opacity="0.7">Adam: m + v ≈ 2×权重</text>
+      <rect x="198" y="432" width="124" height="34" rx="4" fill={C.green} opacity="0.5"/>
+      <text x="206" y="452" fill="#fff" fontSize="7">激活值（反向传播用）</text>
+      <rect x="198" y="470" width="124" height="30" rx="4" fill="#2a2a3a" opacity="0.3"/>
+      <text x="206" y="488" fill="#555" fontSize="7">空闲（很少）</text>
+    </>}
+
+    {/* SM↔HBM */}
+    <line x1="180" y1="330" x2="188" y2="330" stroke={C.orange} strokeWidth="2" opacity="0.5">
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="1s" repeatCount="indefinite"/>
+    </line>
+
+    {/* ═══ RIGHT: LOGICAL ═══ */}
+    <rect x="370" y="28" width="342" height="505" rx="12" fill="rgba(245,166,35,0.02)" stroke={C.orange+"30"} strokeWidth="1" strokeDasharray="4,3"/>
+    <text x="380" y="46" fill={C.orange} fontSize="10" fontWeight="700">🧩 逻辑世界（算法 / 神经网络）</text>
+
+    {/* Tokenizer */}
+    <rect x="385" y="58" width="160" height="40" rx="8" fill={C.green+"10"} stroke={C.green} strokeWidth="1"/>
+    <text x="393" y="74" fill={C.green} fontSize="9" fontWeight="700">① Tokenizer</text>
+    <text x="393" y="88" fill={C.green} fontSize="7" opacity="0.7">文本 → token IDs (BPE)</text>
+    <text x="550" y="82" fill="#555" fontSize="6">← CPU 执行</text>
+
+    {/* Embedding */}
+    <rect x="385" y="108" width="160" height="36" rx="8" fill={C.cyan+"10"} stroke={C.cyan} strokeWidth="1"/>
+    <text x="393" y="124" fill={C.cyan} fontSize="9" fontWeight="700">② Embedding</text>
+    <text x="393" y="136" fill={C.cyan} fontSize="7" opacity="0.7">token ID → 向量 [N, d_model]</text>
+
+    {/* Transformer */}
+    <rect x="385" y="158" width="318" height="230" rx="10" fill={C.orange+"04"} stroke={C.orange+"30"} strokeWidth="1"/>
+    <text x="393" y="176" fill={C.orange} fontSize="10" fontWeight="700">③ Transformer × L 层</text>
+
+    {/* Attention sub-block */}
+    <rect x="395" y="186" width="298" height="108" rx="8" fill="rgba(255,255,255,0.02)" stroke={C.purple+"30"} strokeWidth="0.8"/>
+    <text x="403" y="200" fill={C.purple} fontSize="8" fontWeight="700">Multi-Head Attention</text>
+
+    {/* QKV */}
+    <rect x="403" y="208" width="68" height="40" rx="5" fill={C.blue+"10"} stroke={C.blue+"40"} strokeWidth="0.8"/>
+    <text x="437" y="222" textAnchor="middle" fill={C.blue} fontSize="7" fontWeight="600">Linear</text>
+    <text x="437" y="234" textAnchor="middle" fill={C.blue} fontSize="6" opacity="0.7">→ Q, K, V</text>
+    <text x="437" y="244" textAnchor="middle" fill="#555" fontSize="5">W_q, W_k, W_v</text>
+
+    {/* KV Cache */}
+    <rect x="484" y="208" width="88" height="40" rx="5" fill={isI?C.orange+"12":"#1a1a2a"} stroke={isI?C.orange:"#444"} strokeWidth={isI?1.5:0.8}>
+      {isI&&<animate attributeName="stroke-opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite"/>}
+    </rect>
+    <text x="528" y="222" textAnchor="middle" fill={isI?C.orange:"#555"} fontSize="8" fontWeight="700">{isI?"KV Cache":"(无 Cache)"}</text>
+    <text x="528" y="234" textAnchor="middle" fill={isI?C.orange:"#555"} fontSize="6">{isI?(isD?"读全部+追加":"一次写入"):"训练不需要"}</text>
+    <text x="528" y="244" textAnchor="middle" fill="#555" fontSize="5">{isI?"→ HBM 显存":""}</text>
+
+    {/* Attention compute */}
+    <rect x="585" y="208" width="100" height="40" rx="5" fill={C.purple+"10"} stroke={C.purple+"40"} strokeWidth="0.8"/>
+    <text x="635" y="222" textAnchor="middle" fill={C.purple} fontSize="7" fontWeight="600">Attention</text>
+    <text x="635" y="234" textAnchor="middle" fill={C.purple} fontSize="6" opacity="0.7">softmax(QK<tspan baselineShift="super" fontSize="4">T</tspan>/√d)·V</text>
+    <text x="635" y="244" textAnchor="middle" fill="#555" fontSize="5">→ Tensor Core 计算</text>
+
+    {/* arrows inside attention */}
+    <line x1="471" y1="224" x2="482" y2="224" stroke={C.blue} strokeWidth="0.8" markerEnd="url(#aO)"/>
+    <line x1="572" y1="228" x2="583" y2="228" stroke={C.purple} strokeWidth="0.8" markerEnd="url(#aP)"/>
+
+    {/* RoPE note */}
+    <text x="403" y="263" fill={C.pink} fontSize="7" fontWeight="600">RoPE 位置编码</text>
+    <text x="403" y="275" fill="#666" fontSize="6">嵌入到 K 中 → KV Cache 与位置绑定 → 不能随意插入/删除</text>
+
+    {/* Output projection */}
+    <rect x="403" y="282" width="288" height="20" rx="4" fill="rgba(255,255,255,0.03)" stroke="#444" strokeWidth="0.5"/>
+    <text x="547" y="296" textAnchor="middle" fill="#888" fontSize="7">Output Projection → Add & LayerNorm (残差连接)</text>
+
+    {/* FFN */}
+    <rect x="395" y="310" width="298" height="34" rx="6" fill="rgba(255,255,255,0.02)" stroke={C.cyan+"30"} strokeWidth="0.8"/>
+    <text x="403" y="324" fill={C.cyan} fontSize="8" fontWeight="600">Feed-Forward Network (FFN)</text>
+    <text x="403" y="338" fill="#666" fontSize="7">两层线性变换 + 激活函数（SwiGLU）· 参数量占模型 2/3</text>
+
+    {/* LN */}
+    <rect x="395" y="350" width="298" height="22" rx="4" fill="rgba(255,255,255,0.02)" stroke="#444" strokeWidth="0.5"/>
+    <text x="544" y="365" textAnchor="middle" fill="#888" fontSize="7">RMSNorm → 输出给下一层（重复 L 次）</text>
+
+    {/* Step 4 */}
+    <rect x="385" y="400" width="160" height="52" rx="8" fill={C.green+"10"} stroke={C.green} strokeWidth="1"/>
+    <text x="393" y="418" fill={C.green} fontSize="9" fontWeight="700">{isT?"④ Loss + 反向传播":"④ LM Head → 采样"}</text>
+    <text x="393" y="432" fill={C.green} fontSize="7" opacity="0.7">{isT?"cross-entropy → 反向求梯度":"logits [vocab_size] → softmax"}</text>
+    <text x="393" y="444" fill={C.green} fontSize="7" opacity="0.7">{isT?"→ Adam 更新 → 保存 checkpoint":"→ top-p/top-k/temperature → token"}</text>
+
+    {/* Decode loop */}
+    {isD&&<>
+      <path d="M 545 435 Q 570 470 540 480 Q 510 490 440 490 Q 405 490 405 460 L 405 454" fill="none" stroke={C.orange} strokeWidth="1" strokeDasharray="4,3" markerEnd="url(#aO)">
+        <animate attributeName="stroke-dashoffset" from="14" to="0" dur="1s" repeatCount="indefinite"/>
+      </path>
+      <text x="490" y="488" textAnchor="middle" fill={C.orange} fontSize="7" opacity="0.6">循环直到 EOS</text>
+    </>}
+
+    {/* Vertical arrows */}
+    <line x1="465" y1="98" x2="465" y2="106" stroke={C.green} strokeWidth="1" markerEnd="url(#aG)"/>
+    <line x1="465" y1="144" x2="465" y2="156" stroke={C.cyan} strokeWidth="1" markerEnd="url(#aO)"/>
+    <line x1="465" y1="380" x2="465" y2="398" stroke={C.green} strokeWidth="1" markerEnd="url(#aG)"/>
+
+    {/* Physical ↔ Logical mapping */}
+    <path d="M 338 85 L 383 75" fill="none" stroke="#555" strokeWidth="0.8" strokeDasharray="3,3"/>
+    <path d="M 338 300 L 383 300" fill="none" stroke="#555" strokeWidth="0.8" strokeDasharray="3,3"/>
+    <text x="361" y="296" textAnchor="middle" fill="#555" fontSize="5">GPU 执行</text>
+
+    {/* KV Cache → HBM mapping */}
+    {isI&&<>
+      <line x1="528" y1="248" x2="528" y2="510" stroke={C.orange} strokeWidth="1" strokeDasharray="3,2" opacity="0.3"/>
+      <line x1="528" y1="510" x2="330" y2="510" stroke={C.orange} strokeWidth="1" strokeDasharray="3,2" opacity="0.3"/>
+      <line x1="330" y1="510" x2="330" y2={isD?400:380} stroke={C.orange} strokeWidth="1" strokeDasharray="3,2" opacity="0.3" markerEnd="url(#aO)">
+        <animate attributeName="stroke-dashoffset" from="10" to="0" dur="0.8s" repeatCount="indefinite"/>
+      </line>
+      <text x="430" y="518" textAnchor="middle" fill={C.orange} fontSize="6" opacity="0.5">KV Cache 物理存储位置</text>
+    </>}
+
+    {/* Key insight */}
+    <rect x="560" y="400" width="145" height="52" rx="6" fill={isI?C.orange+"08":C.purple+"08"} stroke={isI?C.orange+"20":C.purple+"20"} strokeWidth="0.8"/>
+    <text x="568" y="418" fill={isI?C.orange:C.purple} fontSize="8" fontWeight="600">
+      {mode==="infer_prefill"?"⚡ Compute-bound":isD?"📖 Memory-bound":"📚 Compute-bound"}
+    </text>
+    <text x="568" y="432" fill="#777" fontSize="7">
+      {mode==="infer_prefill"?"大矩阵乘法·TFLOPS 是瓶颈":isD?"每步读 KV·带宽是瓶颈":"前向+反向·大量 GEMM"}
+    </text>
+    <text x="568" y="444" fill="#777" fontSize="7">
+      {mode==="infer_prefill"?"→ 决定 TTFT":isD?"→ 决定 tokens/s":"→ 需要多卡并行"}
+    </text>
+  </svg>
+</Card>
+
+{/* Key callout */}
+<Card color={isI?C.orange:C.purple}>
+  <div style={{fontSize:11,color:"#ccc",lineHeight:1.8}}>
+    {mode==="infer_prefill"&&<>💡 <Acc c={C.blue}>Prefill</Acc> 一次性处理全部 prompt，填满 KV Cache。GPU 算力决定 <Acc c={C.orange}>TTFT（首 token 延迟）</Acc>。prompt 越长越慢。</>}
+    {isD&&<>💡 <Acc c={C.orange}>Decode</Acc> 每步只算 1 token 的 Q/K/V，但要从 HBM <Acc c={C.red}>读取整个 KV Cache</Acc>。序列越长每步越慢，瓶颈在内存带宽（3.35 TB/s）而非算力。</>}
+    {isT&&<>💡 <Acc c={C.purple}>训练</Acc>不需要 KV Cache。显存被权重、梯度、优化器状态（Adam m+v ≈ 2× 权重）、激活值占满。通常需要 <Acc c={C.purple}>多卡并行</Acc>（TP + DP + ZeRO）。</>}
+  </div>
+</Card>
+```
+
+  </div>;
+}
+
+// ─── 2. INFERENCE JOURNEY ───────────────────────────────────────────
+function Journey() {
+const timeline = [
+{ phase:“网络”, time:“~5ms”, ms:5, desc:“用户通过 API 发送请求到推理服务器”, where:“互联网 → 负载均衡”, icon:“🌐”, color:C.green },
+{ phase:“调度”, time:“~1ms”, ms:1, desc:“推理框架（vLLM/TGI）接收请求，分配给空闲 GPU”, where:“CPU · RAM”, icon:“📋”, color:”#64B5F6” },
+{ phase:“Tokenize”, time:“~0.5ms”, ms:0.5, desc:`"${PROMPT}" → [${P_TOKENS.length} tokens]`, where:“CPU”, icon:“✂️”, color:C.cyan },
+{ phase:“传输”, time:“~0.01ms”, ms:0.01, desc:“token IDs 通过 PCIe 送入 GPU 显存”, where:“PCIe 5.0”, icon:“⇅”, color:C.purple },
+{ phase:“Prefill”, time:“~100ms”, ms:100, desc:`${P_TOKENS.length} tokens 并行过 80 层，填充 KV Cache`, where:“GPU SM + HBM”, icon:“⚡”, color:C.blue,
+detail:“矩阵乘法 [N,d]×[d,d] → Tensor Core 高利用率 → Compute-bound” },
+{ phase:“首 token”, time:”= TTFT”, ms:0, desc:“Prefill 结束，采样出第一个 token → 返回用户”, where:“GPU → CPU → 网络”, icon:“1️⃣”, color:C.orange },
+{ phase:“Decode ×17”, time:“~30ms/tok”, ms:510, desc:“每步读 KV Cache + 生成 1 token，重复 17 次”, where:“GPU SM ← HBM”, icon:“🔄”, color:C.orange,
+detail:“每步 [1,d]×[seq,d] → SM 吃不满 → Memory-bound” },
+{ phase:“流式返回”, time:“持续”, ms:0, desc:“每个 token 立刻 stream 回去”, where:“CPU → SSE/WS”, icon:“📡”, color:C.green },
+{ phase:“释放”, time:“~0.01ms”, ms:0, desc:“生成完毕，释放 KV Cache 显存”, where:“GPU HBM”, icon:“🗑️”, color:C.gray },
+];
+
+const [active,setActive]=useState(-1);
+const [playing,setPlaying]=useState(false);
+const tr=useRef(null);
+
+const play=()=>{setActive(-1);setPlaying(true);let s=-1;tr.current=setInterval(()=>{s++;if(s>=timeline.length){clearInterval(tr.current);setPlaying(false);return;}setActive(s);},700);};
+const stop=()=>{clearInterval(tr.current);setPlaying(false);};
+useEffect(()=>()=>clearInterval(tr.current),[]);
+
+const totalMs=timeline.reduce((a,t)=>a+t.ms,0);
+
+return <div>
+<Card color={C.orange}>
+<div style={{display:“flex”,justifyContent:“space-between”,alignItems:“center”}}>
+<div><div style={{fontSize:12,fontWeight:600,color:C.orange,marginBottom:4}}>完整推理链路</div>
+<div style={{fontSize:10,color:”#888”}}>从按下回车到看到回答</div></div>
+<button onClick={playing?stop:play} style={{padding:“7px 16px”,borderRadius:8,fontSize:12,fontWeight:700,cursor:“pointer”,border:“1.5px solid “+C.orange,background:playing?C.orange+“25”:C.orange+“10”,color:C.orange,animation:playing?“btnPulse 1s ease-in-out infinite”:undefined}}>{playing?“⏸ 暂停”:“▶ 播放”}</button>
+</div>
+</Card>
+
+```
+{/* Time bar */}
+<Card style={{padding:12}}>
+  <div style={{display:"flex",gap:1,height:20,borderRadius:6,overflow:"hidden"}}>
+    {timeline.filter(t=>t.ms>0).map((t,i)=>{
+      const pct=Math.max(3,t.ms/totalMs*100);
+      return <div key={i} style={{width:pct+"%",background:t.color,opacity:active>=timeline.indexOf(t)?0.8:0.2,transition:"opacity 0.4s",display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <span style={{fontSize:6,color:"#fff",fontWeight:700,whiteSpace:"nowrap"}}>{pct>8?t.phase:""}</span>
+      </div>;
+    })}
+  </div>
+  <div style={{display:"flex",justifyContent:"space-between",marginTop:4,fontSize:9,color:"#666"}}>
+    <span>0 ms</span><span>总延迟 ≈ {totalMs.toFixed(0)} ms ({(totalMs/1000).toFixed(1)}s)</span>
+  </div>
+</Card>
+
+{timeline.map((s,i)=>{
+  const isAct=i===active;
+  const isPast=i<active;
+  return <div key={i} style={{display:"flex",gap:10,marginBottom:2,transition:"all 0.3s",opacity:active===-1||isPast||isAct?1:0.4,transform:isAct?"translateX(4px)":"translateX(0)"}}>
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",width:28,flexShrink:0}}>
+      <div style={{width:24,height:24,borderRadius:"50%",background:isAct?s.color:s.color+"20",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,transition:"all 0.3s",boxShadow:isAct?`0 0 12px ${s.color}50`:"none"}}>{s.icon}</div>
+      {i<timeline.length-1&&<div style={{flex:1,width:2,background:isPast?s.color+"60":s.color+"20",minHeight:16,transition:"background 0.3s"}}/>}
+    </div>
+    <Card style={{flex:1,marginBottom:4,padding:10,borderColor:isAct?s.color+"50":"rgba(255,255,255,0.06)",background:isAct?s.color+"0a":"rgba(255,255,255,0.025)"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}}>
+        <span style={{fontSize:12,fontWeight:isAct?700:600,color:isAct?"#fff":s.color,transition:"all 0.3s"}}>{s.phase}</span>
+        <span style={{fontSize:10,...M,color:s.color,background:isAct?s.color+"20":"transparent",padding:"1px 6px",borderRadius:4,transition:"all 0.3s"}}>{s.time}</span>
+      </div>
+      <div style={{fontSize:10,color:isAct?"#ccc":"#888",lineHeight:1.6,transition:"color 0.3s"}}>{s.desc}</div>
+      <div style={{fontSize:9,color:"#555",marginTop:2}}>📍 {s.where}</div>
+      {s.detail&&<div style={{maxHeight:isAct?40:0,overflow:"hidden",transition:"max-height 0.3s"}}><div style={{fontSize:9,color:"#777",marginTop:4,padding:"4px 8px",background:"rgba(0,0,0,0.2)",borderRadius:4}}>{s.detail}</div></div>}
+    </Card>
+  </div>;
+})}
+```
+
+  </div>;
+}
+
+// ─── 3. ATTENTION INTERNALS ─────────────────────────────────────────
+function AttnDetail() {
+const [tab,setTab]=useState(“mha”);
+const [heatStep,setHeatStep]=useState(0);
+const heatRef=useRef(null);
+
+// Auto-animate attention heatmap
+useEffect(()=>{
+heatRef.current=setInterval(()=>setHeatStep(p=>(p+1)%5),800);
+return ()=>clearInterval(heatRef.current);
+},[]);
+
+// 5x5 attention scores (row=query, col=key, causal masked)
+const attnScores=[
+[1.0, 0,   0,   0,   0  ],
+[0.6, 0.4, 0,   0,   0  ],
+[0.2, 0.3, 0.5, 0,   0  ],
+[0.1, 0.1, 0.3, 0.5, 0  ],
+[0.1, 0.2, 0.1, 0.2, 0.4],
+];
+const toks=[“请”,“用”,“一句”,“话”,“解释”];
+
+return <div>
+<Card color={C.purple}>
+<div style={{fontSize:13,fontWeight:700,color:C.purple,marginBottom:8}}>Self-Attention: 让每个 token “看到” 其他 token</div>
+<div style={{fontSize:11,color:”#bbb”,lineHeight:1.8}}>对于当前位置，算出它应该”关注”序列中哪些位置，然后把那些位置的信息加权求和。</div>
+</Card>
+
+```
+{/* Animated attention heatmap */}
+<Card>
+  <Label>🔥 Attention 权重热力图（自动播放 · 逐行高亮）</Label>
+  <div style={{fontSize:9,color:"#666",marginBottom:8}}>第 <span style={{color:C.purple,fontWeight:700,...M}}>{heatStep+1}</span> 个 token "<span style={{color:C.purple}}>{toks[heatStep]}</span>" 在关注谁？（causal mask: 只能看左边）</div>
+  <div style={{display:"flex",gap:2,alignItems:"flex-end"}}>
+    {/* Y label */}
+    <div style={{display:"flex",flexDirection:"column",gap:2,paddingTop:22}}>
+      {toks.map((t,i)=><div key={i} style={{height:32,display:"flex",alignItems:"center",justifyContent:"flex-end",paddingRight:4}}>
+        <span style={{fontSize:9,color:i===heatStep?C.purple:"#555",fontWeight:i===heatStep?700:400,transition:"all 0.3s",...M}}>{t}</span>
+      </div>)}
+    </div>
+    {/* Grid */}
+    <div>
+      {/* X labels */}
+      <div style={{display:"flex",gap:2,marginBottom:2}}>
+        {toks.map((t,j)=><div key={j} style={{width:32,textAlign:"center",fontSize:8,color:j<=heatStep?C.orange:"#444",transition:"color 0.3s",...M}}>{t}</div>)}
+      </div>
+      {/* Cells */}
+      {attnScores.map((row,i)=><div key={i} style={{display:"flex",gap:2,marginBottom:2}}>
+        {row.map((v,j)=>{
+          const masked=j>i;
+          const isActiveRow=i===heatStep;
+          const isActiveCell=isActiveRow&&!masked;
+          return <div key={j} style={{
+            width:32,height:32,borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",
+            fontSize:9,fontWeight:isActiveCell?700:400,...M,
+            background:masked?"rgba(255,255,255,0.02)":`rgba(245,166,35,${isActiveRow?v*0.9:v*0.25})`,
+            color:masked?"#333":isActiveCell?"#fff":"#888",
+            border:isActiveCell?`1.5px solid ${C.orange}`:"1.5px solid transparent",
+            transition:"all 0.4s",
+            boxShadow:isActiveCell&&v>0.3?`0 0 8px ${C.orange}40`:"none",
+          }}>{masked?"✕":(v*100).toFixed(0)+"%"}</div>;
+        })}
+      </div>)}
+    </div>
+  </div>
+  <div style={{fontSize:9,color:"#555",marginTop:8}}>Q (行) × K<sup>T</sup> (列) → softmax → 权重。✕ = causal mask（不能看未来）</div>
+</Card>
+
+<Card>
+  <Label>完整计算步骤</Label>
+  <Code>
+    <div><span style={{color:C.green}}>输入 X</span> <span style={{color:"#555"}}>[seq_len, d_model]</span></div>
+    <div style={{color:"#555"}}>────────────</div>
+    <div><Acc c={C.blue}>Q</Acc> = X · <Acc c={C.blue}>W_q</Acc> <span style={{color:"#555"}}>[seq, n_heads × head_dim]</span></div>
+    <div><Acc c={C.orange}>K</Acc> = X · <Acc c={C.orange}>W_k</Acc> <span style={{color:"#555"}}>[seq, n_kv_heads × head_dim]</span></div>
+    <div><Acc c={C.orange}>V</Acc> = X · <Acc c={C.orange}>W_v</Acc> <span style={{color:"#555"}}>[seq, n_kv_heads × head_dim]</span></div>
+    <div style={{color:"#555"}}>────────────</div>
+    <div><Acc c={C.pink}>+ RoPE</Acc> 旋转位置编码嵌入到 Q 和 K</div>
+    <div>scores = <Acc c={C.blue}>Q</Acc> · <Acc c={C.orange}>K<sup>T</sup></Acc> / √d + <Acc c={C.red}>causal mask</Acc></div>
+    <div>weights = <Acc c={C.purple}>softmax</Acc>(scores)</div>
+    <div>output = weights · <Acc c={C.orange}>V</Acc></div>
+    <div>→ concat heads → <Acc c={C.green}>W_o</Acc> → residual + norm</div>
+  </Code>
+</Card>
+
+{/* MHA vs GQA vs MQA */}
+<Label>Attention 变体对比（点击切换）</Label>
+<div style={{display:"flex",gap:6,marginBottom:12}}>
+  {[["mha","MHA"],["gqa","GQA"],["mqa","MQA"]].map(([k,v])=><button key={k} onClick={()=>setTab(k)} style={{padding:"6px 14px",borderRadius:6,fontSize:11,fontWeight:600,cursor:"pointer",border:tab===k?`1.5px solid ${C.purple}`:"1.5px solid #333",background:tab===k?C.purple+"15":"transparent",color:tab===k?C.purple:"#888"}}>{v}</button>)}
+</div>
+
+<Card color={C.purple}>
+  <svg viewBox="0 0 360 120" style={{width:"100%",height:"auto"}}>
+    {Array.from({length:8}).map((_,i)=><rect key={"q"+i} x={10+i*22} y={20} width={18} height={30} rx={3} fill={C.blue} opacity="0.7"><animate attributeName="opacity" values="0.5;0.8;0.5" dur={`${1+i*0.15}s`} repeatCount="indefinite"/></rect>)}
+    {Array.from({length:8}).map((_,i)=><text key={"qt"+i} x={19+i*22} y={40} textAnchor="middle" fill="#fff" fontSize="6">Q{i}</text>)}
+    <text x="10" y="15" fill={C.blue} fontSize="8" fontWeight="600">Q heads</text>
+
+    <text x="10" y="72" fill={C.orange} fontSize="8" fontWeight="600">KV heads</text>
+    {tab==="mha"&&Array.from({length:8}).map((_,i)=><rect key={i} x={10+i*22} y={77} width={18} height={30} rx={3} fill={C.orange} opacity="0.7"><animate attributeName="opacity" values="0.5;0.8;0.5" dur={`${1.2+i*0.12}s`} repeatCount="indefinite"/></rect>)}
+    {tab==="gqa"&&Array.from({length:2}).map((_,i)=><rect key={i} x={10+i*88} y={77} width={80} height={30} rx={3} fill={C.orange} opacity="0.7"><animate attributeName="opacity" values="0.5;0.85;0.5" dur={`${1.5+i*0.3}s`} repeatCount="indefinite"/></rect>)}
+    {tab==="mqa"&&<rect x={10} y={77} width={176} height={30} rx={3} fill={C.orange} opacity="0.7"><animate attributeName="opacity" values="0.5;0.85;0.5" dur="2s" repeatCount="indefinite"/></rect>}
+
+    {tab==="mha"&&Array.from({length:8}).map((_,i)=><text key={i} x={19+i*22} y={97} textAnchor="middle" fill="#fff" fontSize="6">KV{i}</text>)}
+    {tab==="gqa"&&<><text x={50} y={97} textAnchor="middle" fill="#fff" fontSize="7">KV0 (共享4Q)</text><text x={138} y={97} textAnchor="middle" fill="#fff" fontSize="7">KV1 (共享4Q)</text></>}
+    {tab==="mqa"&&<text x={98} y={97} textAnchor="middle" fill="#fff" fontSize="7">KV0（全部 8Q 共享）</text>}
+
+    {tab==="mha"&&Array.from({length:8}).map((_,i)=><line key={i} x1={19+i*22} y1={50} x2={19+i*22} y2={77} stroke={C.purple} strokeWidth="0.8" opacity="0.4" strokeDasharray="2,2"><animate attributeName="stroke-dashoffset" from="8" to="0" dur="0.6s" repeatCount="indefinite"/></line>)}
+    {tab==="gqa"&&Array.from({length:8}).map((_,i)=><line key={i} x1={19+i*22} y1={50} x2={i<4?50:138} y2={77} stroke={C.purple} strokeWidth="0.8" opacity="0.4" strokeDasharray="2,2"><animate attributeName="stroke-dashoffset" from="8" to="0" dur="0.6s" repeatCount="indefinite"/></line>)}
+    {tab==="mqa"&&Array.from({length:8}).map((_,i)=><line key={i} x1={19+i*22} y1={50} x2={98} y2={77} stroke={C.purple} strokeWidth="0.8" opacity="0.4" strokeDasharray="2,2"><animate attributeName="stroke-dashoffset" from="8" to="0" dur="0.6s" repeatCount="indefinite"/></line>)}
+
+    <text x="210" y="30" fill="#999" fontSize="9" fontWeight="600">{tab==="mha"?"Multi-Head Attention":tab==="gqa"?"Grouped-Query Attention":"Multi-Query Attention"}</text>
+    <text x="210" y="48" fill="#777" fontSize="8">Q heads: 8　KV heads: {tab==="mha"?8:tab==="gqa"?2:1}</text>
+    <text x="210" y="64" fill={C.orange} fontSize="8" fontWeight="600">KV Cache: {tab==="mha"?"1×（基准）":tab==="gqa"?"0.25×（省 75%）":"0.125×（省 87.5%）"}</text>
+    <text x="210" y="82" fill="#666" fontSize="7">{tab==="mha"?"GPT-2/3 时代":tab==="gqa"?"Llama 3 / Qwen 2 / Claude":"Falcon / PaLM"}</text>
+  </svg>
+</Card>
+
+<Card color={C.cyan}>
+  <div style={{fontSize:12,fontWeight:600,color:C.cyan,marginBottom:6}}>Flash Attention：算法 × 硬件协同</div>
+  <div style={{fontSize:11,color:"#bbb",lineHeight:1.8}}>
+    标准 Attention 存 <Acc c={C.red}>[seq,seq]</Acc> attention 矩阵到 HBM → 长序列显存爆炸。
+    Flash Attention 利用 <Acc c={C.yellow}>GPU 片上 SRAM</Acc>（~40MB, 19TB/s）分块计算（tiling），
+    不写回完整矩阵 → <Acc c={C.green}>显存 O(N)，速度更快</Acc>。
+  </div>
+</Card>
+```
+
+  </div>;
+}
+
+// ─── 4. MEMORY HIERARCHY ────────────────────────────────────────────
+function MemPyramid() {
+const [anim,setAnim]=useState(false);
+useEffect(()=>{setTimeout(()=>setAnim(true),300);},[]);
+
+const layers = [
+{ name:“GPU 寄存器/SRAM”, cap:“~40 MB”, bw:19000, bwLabel:“~19 TB/s”, lat:“~1 ns”, color:C.yellow, what:“Flash Attention tiling 中间结果” },
+{ name:“GPU HBM (显存)”, cap:“80 GB”, bw:3350, bwLabel:“3.35 TB/s”, lat:“~100 ns”, color:C.red, what:“模型权重 · KV Cache · 激活值 · 梯度” },
+{ name:“CPU DDR5 RAM”, cap:“256-1024 GB”, bw:50, bwLabel:“~50 GB/s”, lat:“~100 ns”, color:”#64B5F6”, what:“请求队列 · tokenizer · batch 状态” },
+{ name:“NVMe SSD”, cap:“1-16 TB”, bw:7, bwLabel:“~7 GB/s”, lat:“~10 μs”, color:C.gray, what:“模型文件 · checkpoint · 训练数据” },
+];
+const maxBw=19000;
+
+return <div>
+<Card color={C.red}>
+<div style={{fontSize:13,fontWeight:700,color:C.red,marginBottom:6}}>越上层越快越小越贵</div>
+<div style={{fontSize:11,color:”#bbb”,lineHeight:1.7}}>LLM 性能瓶颈往往在<Acc c={C.red}>数据搬运</Acc>而非计算。</div>
+</Card>
+
+```
+{layers.map((l,i)=>(
+  <Card key={i} style={{marginBottom:8}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+      <span style={{fontSize:12,fontWeight:600,color:l.color}}>{l.name}</span>
+      <span style={{fontSize:10,...M,color:l.color}}>{l.cap}</span>
+    </div>
+    {/* Animated bandwidth bar */}
+    <div style={{height:20,background:"rgba(255,255,255,0.04)",borderRadius:6,overflow:"hidden",position:"relative",marginBottom:4}}>
+      <div style={{
+        height:"100%",borderRadius:6,
+        background:`linear-gradient(90deg, ${l.color}80, ${l.color})`,
+        width:anim?Math.max(4,Math.log10(l.bw)/Math.log10(maxBw)*100)+"%":"0%",
+        transition:"width 1.2s cubic-bezier(0.4,0,0.2,1)",
+        transitionDelay:(i*200)+"ms",
+        display:"flex",alignItems:"center",paddingLeft:8,
+      }}>
+        <span style={{fontSize:9,color:"#fff",fontWeight:700,whiteSpace:"nowrap"}}>{l.bwLabel}</span>
+      </div>
+    </div>
+    <div style={{fontSize:9,color:"#666"}}>{l.what} · 延迟 {l.lat}</div>
+  </Card>
+))}
+
+<Card>
+  <Label>📊 带宽差距有多大？</Label>
+  <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",fontSize:10,color:"#999",lineHeight:1.8}}>
+    <span>SRAM → HBM: <Acc c={C.yellow}>5.7×</Acc></span>
+    <span>HBM → RAM: <Acc c={C.red}>67×</Acc></span>
+    <span>RAM → SSD: <Acc c={"#64B5F6"}>7×</Acc></span>
+    <span>SRAM → SSD: <Acc c={C.yellow}>2714×</Acc></span>
+  </div>
+  <div style={{fontSize:10,color:"#bbb",marginTop:8,lineHeight:1.8}}>
+    <Acc c={C.blue}>Prefill</Acc> Compute-bound → <Acc c={C.yellow}>TFLOPS</Acc> 决定速度<br/>
+    <Acc c={C.orange}>Decode</Acc> Memory-bound → <Acc c={C.red}>HBM 带宽</Acc> 是瓶颈<br/>
+    <Acc c={C.yellow}>Flash Attention</Acc> 利用 SRAM 19TB/s 分块，减少 HBM 读写
+  </div>
+</Card>
+```
+
+  </div>;
+}
+
+// ─── 5. TRAIN vs INFER ──────────────────────────────────────────────
+function TrainVsInfer() {
+const [mode,setMode]=useState(“infer”);
+const [filled,setFilled]=useState(false);
+useEffect(()=>{setFilled(false);setTimeout(()=>setFilled(true),100);},[mode]);
+
+const trainMem=[
+{label:“模型权重”,gb:140,color:C.blue},
+{label:“梯度”,gb:140,color:C.red},
+{label:“优化器 Adam (m+v)”,gb:280,color:C.purple},
+{label:“激活值”,gb:100,color:C.green},
+];
+const inferMem=[
+{label:“模型权重”,gb:140,color:C.blue},
+{label:“KV Cache (128K×1req)”,gb:40,color:C.orange},
+{label:“激活值”,gb:1,color:C.green},
+];
+const mem=mode===“train”?trainMem:inferMem;
+const total=mem.reduce((a,m)=>a+m.gb,0);
+const maxGB=660;
+
+return <div>
+<div style={{display:“flex”,gap:6,marginBottom:14}}>
+<button onClick={()=>setMode(“train”)} style={{flex:1,padding:“10px”,borderRadius:8,fontSize:12,fontWeight:700,cursor:“pointer”,border:mode===“train”?`2px solid ${C.purple}`:“2px solid #333”,background:mode===“train”?C.purple+“15”:“transparent”,color:mode===“train”?C.purple:”#888”,transition:“all 0.3s”}}>📚 训练</button>
+<button onClick={()=>setMode(“infer”)} style={{flex:1,padding:“10px”,borderRadius:8,fontSize:12,fontWeight:700,cursor:“pointer”,border:mode===“infer”?`2px solid ${C.orange}`:“2px solid #333”,background:mode===“infer”?C.orange+“15”:“transparent”,color:mode===“infer”?C.orange:”#888”,transition:“all 0.3s”}}>🚀 推理</button>
+</div>
+
+```
+{/* Animated memory fill */}
+<Card>
+  <Label>70B 模型 FP16 · GPU 显存占用（动画）</Label>
+  <div style={{display:"flex",gap:2,height:30,borderRadius:6,overflow:"hidden",marginBottom:8,background:"rgba(255,255,255,0.03)"}}>
+    {mem.map((m,i)=>(
+      <div key={m.label} style={{
+        width:filled?(m.gb/maxGB*100)+"%":"0%",
+        background:m.color,opacity:0.8,
+        transition:`width 0.8s cubic-bezier(0.4,0,0.2,1) ${i*150}ms`,
+        display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",
+      }}>
+        <span style={{fontSize:7,color:"#fff",fontWeight:600,whiteSpace:"nowrap"}}>{m.gb>30?m.label:""}</span>
+      </div>
+    ))}
+  </div>
+  {mem.map((m,i)=>(
+    <div key={i} style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+      <div style={{width:10,height:10,borderRadius:2,background:m.color,opacity:0.8,flexShrink:0}}/>
+      <span style={{fontSize:10,color:"#aaa",flex:1}}>{m.label}</span>
+      <span style={{fontSize:10,fontWeight:600,color:m.color,...M}}>{m.gb} GB</span>
+    </div>
+  ))}
+  <div style={{borderTop:"1px solid rgba(255,255,255,0.06)",marginTop:6,paddingTop:6,display:"flex",justifyContent:"space-between",fontSize:11}}>
+    <span style={{color:"#888"}}>总计</span>
+    <span style={{fontWeight:700,color:mode==="train"?C.purple:C.orange,...M}}>{total} GB → {mode==="train"?`需 ${Math.ceil(total/80)} × A100`:"1-2 × A100"}</span>
+  </div>
+</Card>
+
+{/* Side by side comparison */}
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
+  <Card color={C.purple} style={{opacity:mode==="train"?1:0.5,transition:"opacity 0.3s"}}>
+    <div style={{fontSize:12,fontWeight:700,color:C.purple,marginBottom:6}}>📚 训练</div>
+    <div style={{fontSize:10,color:"#999",lineHeight:1.9}}>
+      目标：更新权重<br/>数据流：前向→Loss→反向→更新<br/>KV Cache：❌<br/>瓶颈：Compute-bound<br/>显存大头：优化器状态<br/>精度：BF16/FP32<br/>卡数：8~thousands
+    </div>
+  </Card>
+  <Card color={C.orange} style={{opacity:mode==="infer"?1:0.5,transition:"opacity 0.3s"}}>
+    <div style={{fontSize:12,fontWeight:700,color:C.orange,marginBottom:6}}>🚀 推理</div>
+    <div style={{fontSize:10,color:"#999",lineHeight:1.9}}>
+      目标：快速生成回答<br/>数据流：Prefill→Decode循环<br/>KV Cache：✅ 核心<br/>瓶颈：Decode Memory-bound<br/>显存大头：KV Cache<br/>精度：INT8/INT4/FP8<br/>卡数：1~8
+    </div>
+  </Card>
+</div>
+
+<Card color={C.green}>
+  <div style={{fontSize:12,fontWeight:600,color:C.green,marginBottom:6}}>为什么训练不需要 KV Cache？</div>
+  <div style={{fontSize:11,color:"#bbb",lineHeight:1.8}}>
+    训练时<Acc c={C.green}>所有 token 同时已知</Acc>（teacher forcing），一次矩阵乘法并行算 Q·K<sup>T</sup>，用 causal mask 遮住未来即可。推理时必须逐 token 生成（自回归），所以需要 KV Cache 避免重复计算。
+  </div>
+</Card>
+```
+
+  </div>;
+}
+
+// ─── 6. MULTI-GPU PARALLEL ──────────────────────────────────────────
+function Parallel() {
+const [view,setView]=useState(“tp”);
+const gpuColors=[C.blue,C.orange,C.green,C.red];
+const gpuLabels=[“GPU 0”,“GPU 1”,“GPU 2”,“GPU 3”];
+
+function GPUBox({i,children,w}){
+return <div style={{flex:w||1,background:gpuColors[i]+“10”,borderRadius:8,border:`1px solid ${gpuColors[i]}30`,padding:“8px 6px”,textAlign:“center”,position:“relative”,overflow:“hidden”}}>
+<div style={{fontSize:9,fontWeight:700,color:gpuColors[i],marginBottom:4}}>{gpuLabels[i]}</div>
+{children}
+{/* Subtle activity pulse */}
+<div style={{position:“absolute”,bottom:0,left:0,right:0,height:3,background:`linear-gradient(90deg,transparent,${gpuColors[i]}40,transparent)`,animation:“scanAnim 2s ease-in-out infinite”,animationDelay:(i*300)+“ms”}}/>
+</div>;
+}
+
+return <div>
+<div style={{display:“flex”,gap:5,marginBottom:12,flexWrap:“wrap”}}>
+{[[“tp”,“张量并行 TP”],[“pp”,“流水线 PP”],[“dp”,“数据并行 DP”],[“zero”,“ZeRO/FSDP”]].map(([k,v])=>
+<button key={k} onClick={()=>setView(k)} style={{padding:“6px 11px”,borderRadius:6,fontSize:11,fontWeight:600,cursor:“pointer”,border:view===k?`1.5px solid ${C.purple}`:“1.5px solid #333”,background:view===k?C.purple+“15”:“transparent”,color:view===k?C.purple:”#888”,transition:“all 0.2s”}}>{v}</button>
+)}
+</div>
+
+```
+{/* Animated GPU diagram */}
+<Card>
+  <div style={{display:"flex",gap:6,marginBottom:10}}>
+    {view==="tp"&&<>{gpuLabels.map((_,i)=><GPUBox key={i} i={i}>
+      <div style={{fontSize:8,color:"#aaa",lineHeight:1.5}}>W_q 列<br/>{i*8}-{i*8+7}</div>
+      <div style={{fontSize:7,color:gpuColors[i],marginTop:4,...M}}>head {i*8}-{i*8+7}</div>
+    </GPUBox>)}</>}
+    {view==="pp"&&<>{gpuLabels.map((_,i)=><GPUBox key={i} i={i}>
+      <div style={{fontSize:8,color:"#aaa",lineHeight:1.5}}>Layer<br/>{i*20}-{i*20+19}</div>
+      <div style={{fontSize:7,color:gpuColors[i],marginTop:4,...M}}>20 层</div>
+    </GPUBox>)}</>}
+    {view==="dp"&&<>{gpuLabels.map((_,i)=><GPUBox key={i} i={i}>
+      <div style={{fontSize:8,color:"#aaa",lineHeight:1.5}}>完整模型<br/>+ batch_{i}</div>
+      <div style={{fontSize:7,color:gpuColors[i],marginTop:4,...M}}>→ grad_{i}</div>
+    </GPUBox>)}</>}
+    {view==="zero"&&<>{gpuLabels.map((_,i)=><GPUBox key={i} i={i}>
+      <div style={{fontSize:8,color:"#aaa",lineHeight:1.5}}>权重 1/{4}<br/>grad 1/{4}<br/>opt 1/{4}</div>
+      <div style={{fontSize:7,color:gpuColors[i],marginTop:4,...M}}>+ batch_{i}</div>
+    </GPUBox>)}</>}
+  </div>
+
+  {/* Communication arrow */}
+  <svg viewBox="0 0 300 30" style={{width:"100%",height:30}}>
+    {view==="tp"&&<>
+      <line x1="30" y1="15" x2="270" y2="15" stroke={C.purple} strokeWidth="2" strokeDasharray="6,4">
+        <animate attributeName="stroke-dashoffset" from="20" to="0" dur="0.8s" repeatCount="indefinite"/>
+      </line>
+      <text x="150" y="12" textAnchor="middle" fill={C.purple} fontSize="8" fontWeight="600">← AllReduce (NVLink 900GB/s) →</text>
+    </>}
+    {view==="pp"&&<>
+      <line x1="30" y1="15" x2="270" y2="15" stroke={C.green} strokeWidth="1.5" strokeDasharray="4,3" markerEnd="url(#aG)">
+        <animate attributeName="stroke-dashoffset" from="14" to="0" dur="0.6s" repeatCount="indefinite"/>
+      </line>
+      <text x="150" y="12" textAnchor="middle" fill={C.green} fontSize="8" fontWeight="600">激活值逐卡传递 →</text>
+    </>}
+    {view==="dp"&&<>
+      <line x1="30" y1="15" x2="270" y2="15" stroke={C.orange} strokeWidth="2" strokeDasharray="6,4">
+        <animate attributeName="stroke-dashoffset" from="20" to="0" dur="0.8s" repeatCount="indefinite"/>
+      </line>
+      <text x="150" y="12" textAnchor="middle" fill={C.orange} fontSize="8" fontWeight="600">← AllReduce 平均梯度 →</text>
+    </>}
+    {view==="zero"&&<>
+      <line x1="30" y1="15" x2="270" y2="15" stroke={C.purple} strokeWidth="2" strokeDasharray="4,2">
+        <animate attributeName="stroke-dashoffset" from="12" to="0" dur="0.5s" repeatCount="indefinite"/>
+      </line>
+      <text x="150" y="12" textAnchor="middle" fill={C.purple} fontSize="8" fontWeight="600">← AllGather 权重 / ReduceScatter 梯度 →</text>
+    </>}
+  </svg>
+</Card>
+
+<Card color={C.purple}>
+  {view==="tp"&&<div>
+    <div style={{fontSize:13,fontWeight:700,color:C.purple,marginBottom:6}}>张量并行：同一层切到多卡</div>
+    <div style={{fontSize:11,color:"#bbb",lineHeight:1.8}}>
+      把<Acc c={C.purple}>权重矩阵按列/行切分</Acc>，每卡算一部分 head，通过 NVLink AllReduce 聚合。每层 2 次通信。
+    </div>
+    <div style={{marginTop:8}}><Tag c={C.green}>推理也常用</Tag><Tag c={C.orange}>要求卡间高带宽</Tag><Tag c={C.purple}>每层 2× AllReduce</Tag></div>
+  </div>}
+  {view==="pp"&&<div>
+    <div style={{fontSize:13,fontWeight:700,color:C.purple,marginBottom:6}}>流水线并行：不同层放不同卡</div>
+    <div style={{fontSize:11,color:"#bbb",lineHeight:1.8}}>
+      GPU 0 跑 0-19 层，GPU 1 跑 20-39 层...数据像流水线逐卡传递。通信量小（只传激活值），但有<Acc c={C.red}>流水线气泡</Acc>（GPU 空闲等待）。用 micro-batch 1F1B 调度缓解。
+    </div>
+    <div style={{marginTop:8}}><Tag c={C.green}>通信量最小</Tag><Tag c={C.red}>有 bubble 开销</Tag><Tag c={C.purple}>适合超大模型</Tag></div>
+  </div>}
+  {view==="dp"&&<div>
+    <div style={{fontSize:13,fontWeight:700,color:C.purple,marginBottom:6}}>数据并行：每卡全量模型</div>
+    <div style={{fontSize:11,color:"#bbb",lineHeight:1.8}}>
+      每卡持有<Acc c={C.purple}>完整模型副本</Acc>，各自处理不同 batch，然后 AllReduce 平均梯度同步更新。最简单但每卡要放完整模型+优化器。
+    </div>
+    <div style={{marginTop:8}}><Tag c={C.green}>实现最简单</Tag><Tag c={C.red}>每卡需完整模型</Tag><Tag c={C.orange}>等效 batch ×N</Tag></div>
+  </div>}
+  {view==="zero"&&<div>
+    <div style={{fontSize:13,fontWeight:700,color:C.purple,marginBottom:6}}>ZeRO/FSDP：切分一切</div>
+    <div style={{fontSize:11,color:"#bbb",lineHeight:1.8}}>
+      在 DP 基础上把<Acc c={C.purple}>优化器状态、梯度、权重</Acc>也切分。ZeRO-3 每卡只存 1/N。70B 训练 8卡: 560GB ÷ 8 = <Acc c={C.green}>70GB/卡 ✓</Acc>
+    </div>
+    <div style={{marginTop:8}}><Tag c={C.green}>显存效率最高</Tag><Tag c={C.orange}>通信量更大</Tag><Tag c={C.purple}>DeepSpeed / FSDP</Tag></div>
+  </div>}
+</Card>
+```
+
+  </div>;
+}
+
+// ─── 7. KV CACHE DEMO ──────────────────────────────────────────────
+function KVDemo() {
+const [ph,setPh]=useState(“idle”);
+const [pp,setPP]=useState(0);
+const [dt,setDT]=useState([]);
+const [kv,setKv]=useState(0);
+const [ds,setDS]=useState(-1);
+const t=useRef(null);
+const reset=()=>{clearInterval(t.current);setPh(“idle”);setPP(0);setDT([]);setKv(0);setDS(-1);};
+const start=()=>{reset();setPh(“pf”);let p=0;t.current=setInterval(()=>{p++;setPP(p);if(p>=P_TOKENS.length){clearInterval(t.current);setKv(P_TOKENS.length);setTimeout(()=>{setPh(“dc”);let d=0;t.current=setInterval(()=>{if(d>=O_TOKENS.length){clearInterval(t.current);setPh(“done”);return;}setDT(pr=>[…pr,O_TOKENS[d]]);setKv(P_TOKENS.length+d+1);setDS(d);d++;},350);},500);}},80);};
+useEffect(()=>()=>clearInterval(t.current),[]);
+
+return <div>
+<Card color={C.orange}>
+<div style={{fontSize:12,fontWeight:600,color:C.orange,marginBottom:4}}>实例：”{PROMPT}”</div>
+<div style={{fontSize:11,color:”#bbb”}}>点击播放，观察 Prefill 填充 KV Cache → Decode 逐 token 生成</div>
+</Card>
+<div style={{display:“flex”,gap:8,marginBottom:14}}>
+<button onClick={start} disabled={ph===“pf”||ph===“dc”} style={{padding:“8px 18px”,borderRadius:8,fontSize:12,fontWeight:700,cursor:“pointer”,border:“1.5px solid “+C.orange,background:C.orange+“15”,color:C.orange,opacity:ph===“pf”||ph===“dc”?0.5:1}}>▶ 播放</button>
+<button onClick={reset} style={{padding:“8px 14px”,borderRadius:8,fontSize:12,fontWeight:600,cursor:“pointer”,border:“1.5px solid #444”,background:“rgba(255,255,255,0.03)”,color:”#888”}}>重置</button>
+{ph!==“idle”&&<Tag c={ph===“pf”?C.blue:ph===“dc”?C.orange:C.green}>{ph===“pf”?“⚡ PREFILL”:(ph===“dc”?“🔄 DECODE”:“✅ 完成”)}</Tag>}
+</div>
+<Card><Label>Prompt tokens</Label><div>{P_TOKENS.map((tk,i)=><Chip key={i} t={tk} idx={i} hl={pp>i} c={C.blue}/>)}</div></Card>
+{ph!==“idle”&&<Card color={C.orange}>
+<div style={{display:“flex”,justifyContent:“space-between”}}><Label>KV Cache</Label><span style={{fontSize:10,color:C.orange,...M}}>{kv} slots</span></div>
+<div style={{height:16,background:“rgba(255,255,255,0.04)”,borderRadius:6,overflow:“hidden”,marginTop:4}}>
+<div style={{height:“100%”,borderRadius:6,background:“linear-gradient(90deg,”+C.blue+”,”+C.orange+”)”,width:String(kv/(P_TOKENS.length+O_TOKENS.length)*100)+”%”,transition:“width 0.3s”}}/>
+</div>
+</Card>}
+{(ph===“dc”||ph===“done”)&&<Card color={C.green}>
+<Label>输出</Label>
+<div style={{minHeight:30}}>
+{dt.map((tk,i)=><Chip key={i} t={tk} hl={true} c={C.green}/>)}
+{ph===“dc”&&<span style={{display:“inline-block”,width:8,height:14,background:C.orange,borderRadius:2,verticalAlign:“middle”,marginLeft:2,animation:“blink 0.8s step-end infinite”}}/>}
+</div>
+{(ph===“dc”&&ds>=0)&&<div style={{fontSize:10,color:”#888”,marginTop:6,padding:“6px 8px”,background:C.orange+“08”,borderRadius:6}}>{“第”+(ds+1)+“步：Q×KV[”+(kv-1)+“条] → "”+O_TOKENS[ds]+”" → Cache=”+kv+“条”}</div>}
+</Card>}
+
+  </div>;
+}
+
+// ─── 8. OPTIMIZATION ────────────────────────────────────────────────
+function Opt() {
+const tips=[
+{t:“PagedAttention”,c:C.blue,i:“📄”,d:“像虚拟内存管理 KV Cache，按页分配消除碎片”,x:“vLLM 核心技术。block size=16 tokens，用页表映射。利用率 90%+。”},
+{t:“Prompt Caching”,c:C.orange,i:“♻️”,d:“共享 system prompt 的 KV Cache，跳过重复 prefill”,x:“把不变内容放前面。Anthropic API / vLLM / SGLang RadixAttention 都支持。”},
+{t:“连续 Batching”,c:C.cyan,i:“📦”,d:“请求到了就插入 batch，完成了就移除，不等整批完”,x:“传统 static batch：等最长序列完成。Continuous batch：GPU 永远在干活。吞吐提升 10×+。”},
+{t:“Flash Attention”,c:C.yellow,i:“⚡”,d:“利用 SRAM tiling 做 attention，内存 O(N) 速度更快”,x:“避免 [seq,seq] attention 矩阵写回 HBM。Tri Dao 论文。现已是标配。”},
+{t:“量化 (INT8/INT4/FP8)”,c:C.green,i:“🗜️”,d:“权重和/或 KV Cache 量化，显存砍半甚至 1/4”,x:“GPTQ/AWQ 权重量化 + vLLM FP8 KV Cache。INT8 几乎无损。”},
+{t:“GQA / MQA”,c:C.purple,i:“🎯”,d:“减少 KV heads 数量，KV Cache 缩小 4-8×”,x:“GQA(32Q+8KV) → Cache 缩小4×。Llama3/Qwen2/Claude 都在用。”},
+{t:“Speculative Decoding”,c:C.red,i:“🏃”,d:“小模型猜 N token，大模型一次验证，吞吐 2-3×”,x:“验证是并行的（类似 prefill），猜错无额外成本。”},
+{t:“Sliding Window”,c:C.pink,i:“🪟”,d:“只保留最近 N 个 KV + sink tokens，支持无限长生成”,x:“Mistral 4096 window。StreamingLLM 保留开头 4 token + 窗口。”},
+];
+const [exp,setExp]=useState(null);
+return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} style={{background:“rgba(255,255,255,0.025)”,borderRadius:12,border:“1px solid “+(exp===i?t.c+“40”:“rgba(255,255,255,0.06)”),padding:“12px 14px”,marginBottom:8,cursor:“pointer”,transition:“all 0.3s”}}>
+<div style={{display:“flex”,alignItems:“flex-start”,gap:10}}>
+<span style={{fontSize:16}}>{t.i}</span>
+<div style={{flex:1}}><div style={{fontSize:12,fontWeight:600,color:t.c,marginBottom:3}}>{t.t}</div><div style={{fontSize:11,color:”#999”,lineHeight:1.6}}>{t.d}</div>
+<div style={{maxHeight:exp===i?80:0,overflow:“hidden”,transition:“max-height 0.3s”}}><div style={{fontSize:10,color:”#777”,marginTop:6,padding:“6px 8px”,background:“rgba(0,0,0,0.3)”,borderRadius:4,lineHeight:1.6}}>{t.x}</div></div>
+</div>
+<span style={{fontSize:11,color:”#555”,transform:exp===i?“rotate(180deg)”:””,transition:“transform 0.2s”}}>▼</span>
+</div>
+
+  </div>)}</div>;
+}
+
+// ─── MAIN APP ───────────────────────────────────────────────────────
+function App() {
+const [sec,setSec]=useState(“arch”);
+const ref=useRef(null);
+const go=id=>{setSec(id);ref.current?.scrollIntoView({behavior:“smooth”});};
+
+return <div style={{minHeight:“100vh”,background:”#08080f”,color:”#d8d8e0”,fontFamily:”‘IBM Plex Sans’,‘Noto Sans SC’,system-ui,sans-serif”}}>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<div style={{padding:“24px 16px 12px”,textAlign:“center”}}>
+<div style={{position:“absolute”,inset:0,background:“radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)”,pointerEvents:“none”}}/>
+<h1 style={{fontSize:20,fontWeight:700,margin:0,background:“linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)”,WebkitBackgroundClip:“text”,WebkitTextFillColor:“transparent”,position:“relative”}}>LLM 物理 × 逻辑 全景图解</h1>
+<p style={{fontSize:11,color:”#666”,marginTop:5,position:“relative”}}>从显卡到神经网络 · 从训练到推理 · 8 个维度完整拆解</p>
+</div>
+<div style={{position:“sticky”,top:0,zIndex:10,background:”#08080f”,borderBottom:“1px solid rgba(255,255,255,0.06)”,padding:“6px 0”,marginBottom:14}}>
+<div style={{maxWidth:740,margin:“0 auto”,padding:“0 8px”,display:“flex”,gap:3,overflowX:“auto”,WebkitOverflowScrolling:“touch”}}>
+{TABS.map(s=><button key={s.id} onClick={()=>go(s.id)} style={{padding:“5px 8px”,borderRadius:6,fontSize:10,fontWeight:600,cursor:“pointer”,border:sec===s.id?“1.5px solid #5B8DEF”:“1.5px solid transparent”,background:sec===s.id?“rgba(91,141,239,0.12)”:“transparent”,color:sec===s.id?”#5B8DEF”:”#777”,whiteSpace:“nowrap”,flexShrink:0}}>{s.icon} {s.label}</button>)}
+</div>
+</div>
+<div ref={ref} style={{maxWidth:740,margin:“0 auto”,padding:“0 16px”}}>
+{sec===“arch”&&<><div style={{fontSize:16,fontWeight:700,color:C.blue,marginBottom:12}}>🗺️ 全局架构：物理 × 逻辑</div><ArchDiagram/></>}
+{sec===“journey”&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>🚀 一次推理的完整旅程</div><Journey/></>}
+{sec===“attn”&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔍 Attention 机制内部</div><AttnDetail/></>}
+{sec===“memory”&&<><div style={{fontSize:16,fontWeight:700,color:C.red,marginBottom:12}}>🏔️ 存储金字塔</div><MemPyramid/></>}
+{sec===“tvsi”&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>⚖️ 训练 vs 推理</div><TrainVsInfer/></>}
+{sec===“parallel”&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔗 多卡并行策略</div><Parallel/></>}
+{sec===“kv”&&<><div style={{fontSize:16,fontWeight:700,color:C.orange,marginBottom:12}}>📦 KV Cache 实例演示</div><KVDemo/></>}
+{sec===“opt”&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>⚡ 优化全景</div><Opt/></>}
+</div>
+<div style={{textAlign:“center”,padding:“24px 0”,fontSize:9,color:”#333”}}>Built with Claude · LLM Physical × Logical Guide</div>
+<style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}@keyframes blink{50%{opacity:0}}@keyframes btnPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0.3)}50%{box-shadow:0 0 12px 2px rgba(245,166,35,0.2)}}@keyframes scanAnim{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}`}</style>
+
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById(“root”)).render(<App />);
+</script>
+
+</body>
+</html>
