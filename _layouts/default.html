@@ -13,11 +13,23 @@
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('kidlovec-theme');
+          var theme = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.style.colorScheme = theme;
+        } catch (e) {}
+      })();
+    </script>
+
     <!-- Brand icon -->
     <link rel="shortcut icon" href="{{ base_url }}assets/images/favicon.ico" >
 
     <!-- Styles'n'Scripts -->
     <link rel="stylesheet" type="text/css" href="{{ base_url }}assets/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="{{ base_url }}assets/css/theme-toggle.css" />
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
   
     <link class="codestyle" href="{{ base_url }}assets/css/mono-blue.css" rel="stylesheet">
@@ -58,6 +70,7 @@
     <script type="text/javascript" src="{{ base_url }}assets/js/jquery.fitvids.js"></script>
     <!-- The main JavaScript file for Casper -->
     <script type="text/javascript" src="{{ base_url }}assets/js/index.js"></script>
+    <script type="text/javascript" src="{{ base_url }}assets/js/theme-toggle.js"></script>
 
 </body>
 </html>
