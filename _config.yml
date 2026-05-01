@@ -31,7 +31,7 @@ destination:          _site
 short_url: 'kidlovec.github.io'
 google_analytics: 'G-JG8SFYTY2D'         # GA4 Measurement ID
 
-disqus: username
+disqus: kidlovec-github-io
 # edit baseurl to simply '/' if using as your personal page (instead of a project page)
 
 url: "https://kidlovec.github.io" # the base hostname & protocol for your site
