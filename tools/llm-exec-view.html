@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM 物理×逻辑全景可视化</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自定义动画与过渡效果 */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-out forwards; }
+        
+        .nav-btn.active { background-color: #2563eb; color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        
+        /* 推理时间线动画 */
+        .timeline-dot { transition: all 0.5s ease; }
+        .progress-bar-fill { transition: width 0.5s linear; }
+
+        /* 金字塔形状 */
+        .pyramid-level { clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%); }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans h-screen flex overflow-hidden selection:bg-blue-500 selection:text-white">
+
+    <aside class="w-64 bg-gray-800 border-r border-gray-700 flex flex-col z-10">
+        <div class="p-6">
+            <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                LLM 全景可视化
+            </h1>
+            <p class="text-xs text-gray-400 mt-1">物理硬件 × 逻辑算法</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto px-4 pb-6 space-y-1" id="nav-menu">
+            <button onclick="switchTab('tab-1')" class="nav-btn active w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 transition text-sm font-medium">1. 全局架构 (物理×逻辑)</button>
+            <button onclick="switchTab('tab-2')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 transition text-sm font-medium">2. 一次推理之旅</button>
+            <button onclick="switchTab('tab-3')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 transition text-sm font-medium">3. Attention 内部</button>
+            <button onclick="switchTab('tab-4')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 transition text-sm font-medium">4. 存储金字塔</button>
+            <button onclick="switchTab('tab-5')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 transition text-sm font-medium">5. 训练 vs 推理</button>
+            <button onclick="switchTab('tab-6')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 transition text-sm font-medium">6. 多卡并行拓扑</button>
+            <button onclick="switchTab('tab-7')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 transition text-sm font-medium flex justify-between items-center">7. KV Cache 演示 <span class="flex h-2 w-2 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span></button>
+            <button onclick="switchTab('tab-8')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-700 transition text-sm font-medium">8. 优化全景与量化</button>
+        </nav>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto bg-gray-900 relative">
+        
+        <section id="tab-1" class="tab-content active p-8">
+            <h2 class="text-3xl font-bold mb-6">1. 全局架构：物理硬件 vs 逻辑算法</h2>
+            <div class="grid grid-cols-2 gap-8">
+                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                    <h3 class="text-xl font-semibold text-blue-400 mb-4 border-b border-gray-700 pb-2">逻辑视图 (算法层)</h3>
+                    <div class="space-y-4">
+                        <div class="bg-gray-700 p-3 rounded text-center text-sm border-l-4 border-blue-500">Input Tokens / Tokenizer</div>
+                        <div class="bg-gray-700 p-3 rounded text-center text-sm border-l-4 border-blue-500">Token & Positional Embeddings (RoPE)</div>
+                        <div class="border-2 border-dashed border-gray-600 p-4 rounded-lg relative">
+                            <span class="absolute -top-3 left-4 bg-gray-800 px-2 text-xs text-gray-400">Transformer Block (× N 层)</span>
+                            <div class="bg-indigo-900/50 p-3 rounded mb-2 text-center text-sm">Self-Attention (MHA/GQA)</div>
+                            <div class="bg-purple-900/50 p-3 rounded text-center text-sm">Feed Forward Network (占 2/3 参数)</div>
+                        </div>
+                        <div class="bg-gray-700 p-3 rounded text-center text-sm border-l-4 border-blue-500">LM Head & Softmax</div>
+                        <div class="bg-gray-700 p-3 rounded text-center text-sm border-l-4 border-green-500">Output Probability</div>
+                    </div>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                    <h3 class="text-xl font-semibold text-green-400 mb-4 border-b border-gray-700 pb-2">物理视图 (硬件层)</h3>
+                    <div class="space-y-4">
+                        <div class="bg-gray-700 p-4 rounded-lg flex items-center justify-between border-l-4 border-green-500">
+                            <div>
+                                <div class="font-bold">HBM (High Bandwidth Memory)</div>
+                                <div class="text-xs text-gray-400">存权重、KV Cache、激活值</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-mono text-green-300">80GB</div>
+                                <div class="text-xs text-gray-400">带宽: 3.35 TB/s</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-center text-gray-500">↑↓ 数据搬运瓶颈 (Memory Bound)</div>
+                        <div class="border-2 border-gray-600 p-4 rounded-lg relative bg-gray-800">
+                            <span class="absolute -top-3 left-4 bg-gray-800 px-2 text-xs text-gray-400">GPU Compute (SMs)</span>
+                            <div class="flex gap-4">
+                                <div class="flex-1 bg-yellow-900/40 p-3 rounded text-center border border-yellow-700/50">
+                                    <div class="font-bold text-sm">L2 Cache</div>
+                                    <div class="text-xs text-gray-400">50MB | 5 TB/s</div>
+                                </div>
+                                <div class="flex-1 bg-red-900/40 p-3 rounded text-center border border-red-700/50">
+                                    <div class="font-bold text-sm">SRAM (L1/Shared)</div>
+                                    <div class="text-xs text-gray-400">19 TB/s</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 bg-gray-700 p-3 rounded text-center text-sm font-mono text-gray-300">
+                                Tensor Cores (矩阵乘法 FMA 计算)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-2" class="tab-content p-8">
+            <h2 class="text-3xl font-bold mb-6">2. 一次推理之旅：全链路时间线</h2>
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 mb-6">
+                <p class="text-gray-300 mb-4">请求：<span class="bg-gray-700 px-2 py-1 rounded text-blue-300 font-mono">"请用一句话解释KV Cache"</span></p>
+                
+                <div class="relative pt-8 pb-4">
+                    <div class="absolute top-12 left-0 w-full h-1 bg-gray-700 rounded"></div>
+                    <div id="timeline-progress" class="absolute top-12 left-0 h-1 bg-blue-500 rounded progress-bar-fill w-0"></div>
+                    
+                    <div class="flex justify-between relative z-10">
+                        <div class="text-center w-24">
+                            <div class="w-6 h-6 mx-auto bg-gray-900 border-2 border-gray-500 rounded-full mb-2" id="step-1"></div>
+                            <div class="text-xs font-bold text-gray-300">网络接收</div>
+                            <div class="text-[10px] text-gray-500">5ms</div>
+                        </div>
+                        <div class="text-center w-24">
+                            <div class="w-6 h-6 mx-auto bg-gray-900 border-2 border-gray-500 rounded-full mb-2" id="step-2"></div>
+                            <div class="text-xs font-bold text-gray-300">Tokenize</div>
+                            <div class="text-[10px] text-gray-500">0.5ms (CPU)</div>
+                        </div>
+                        <div class="text-center w-24">
+                            <div class="w-6 h-6 mx-auto bg-gray-900 border-2 border-gray-500 rounded-full mb-2" id="step-3"></div>
+                            <div class="text-xs font-bold text-blue-400">Prefill 阶段</div>
+                            <div class="text-[10px] text-gray-500">Compute Bound<br>100ms</div>
+                        </div>
+                        <div class="text-center w-24">
+                            <div class="w-6 h-6 mx-auto bg-gray-900 border-2 border-gray-500 rounded-full mb-2" id="step-4"></div>
+                            <div class="text-xs font-bold text-green-400">首字返回 TTFT</div>
+                            <div class="text-[10px] text-gray-500">"K"</div>
+                        </div>
+                        <div class="text-center w-24">
+                            <div class="w-6 h-6 mx-auto bg-gray-900 border-2 border-gray-500 rounded-full mb-2" id="step-5"></div>
+                            <div class="text-xs font-bold text-purple-400">Decode 阶段</div>
+                            <div class="text-[10px] text-gray-500">Memory Bound<br>30ms/tok</div>
+                        </div>
+                        <div class="text-center w-24">
+                            <div class="w-6 h-6 mx-auto bg-gray-900 border-2 border-gray-500 rounded-full mb-2" id="step-6"></div>
+                            <div class="text-xs font-bold text-gray-300">释放资源</div>
+                            <div class="text-[10px] text-gray-500">KV Cache 清理</div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="runTimeline()" class="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-sm font-bold transition">播放时间线动画</button>
+            </div>
+        </section>
+
+        <section id="tab-4" class="tab-content p-8">
+            <h2 class="text-3xl font-bold mb-6">4. 存储金字塔：容量与带宽的权衡</h2>
+            <div class="flex flex-col items-center max-w-2xl mx-auto space-y-2 mt-10">
+                <div class="w-1/3 bg-red-900/60 border border-red-500 p-4 text-center rounded-t-xl pyramid-level hover:scale-105 transition cursor-pointer">
+                    <h3 class="font-bold text-red-300">SRAM (GPU 片上)</h3>
+                    <p class="text-xs mt-1 text-gray-300">容量: ~50 MB</p>
+                    <p class="text-xs text-gray-300">带宽: 19 TB/s</p>
+                    <p class="text-[10px] text-gray-400 mt-2">存：当前计算的中间块</p>
+                </div>
+                <div class="w-2/3 bg-green-900/60 border border-green-500 p-4 text-center pyramid-level hover:scale-105 transition cursor-pointer">
+                    <h3 class="font-bold text-green-300">HBM (显存)</h3>
+                    <p class="text-xs mt-1 text-gray-300">容量: 24GB - 80GB</p>
+                    <p class="text-xs text-gray-300">带宽: 1.5 - 3.35 TB/s</p>
+                    <p class="text-[10px] text-gray-400 mt-2">存：模型权重, KV Cache, 激活值</p>
+                </div>
+                <div class="w-full bg-blue-900/60 border border-blue-500 p-4 text-center pyramid-level hover:scale-105 transition cursor-pointer">
+                    <h3 class="font-bold text-blue-300">DDR RAM (系统内存)</h3>
+                    <p class="text-xs mt-1 text-gray-300">容量: 256GB - 2TB</p>
+                    <p class="text-xs text-gray-300">带宽: ~50 - 100 GB/s</p>
+                    <p class="text-[10px] text-gray-400 mt-2">存：CPU 计算数据, Offload 权重</p>
+                </div>
+                <div class="w-full bg-gray-800 border border-gray-600 p-4 text-center rounded-b-xl hover:scale-105 transition cursor-pointer" style="width: 120%;">
+                    <h3 class="font-bold text-gray-300">NVMe SSD (硬盘)</h3>
+                    <p class="text-xs mt-1 text-gray-400">容量: 1TB - 30TB+</p>
+                    <p class="text-xs text-gray-400">带宽: ~7 GB/s (PCIe 4.0)</p>
+                    <p class="text-[10px] text-gray-500 mt-2">存：模型检查点 (Checkpoints), 数据集</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-7" class="tab-content p-8">
+            <h2 class="text-3xl font-bold mb-2">7. KV Cache 动态模拟</h2>
+            <p class="text-gray-400 mb-6">直观感受 Prefill (预填充) 和 Decode (解码) 阶段中，HBM 里显存块的堆叠过程，这是解决 Memory Bound 的核心。</p>
+            
+            <div class="grid grid-cols-2 gap-8">
+                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-300">逻辑层：Token 流</h3>
+                    <div class="mb-4">
+                        <span class="text-gray-400 text-sm">Prompt (Prefill Phase):</span>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <span class="px-3 py-1 bg-purple-900/80 text-purple-200 border border-purple-700 rounded text-sm">大</span>
+                            <span class="px-3 py-1 bg-purple-900/80 text-purple-200 border border-purple-700 rounded text-sm">模型</span>
+                            <span class="px-3 py-1 bg-purple-900/80 text-purple-200 border border-purple-700 rounded text-sm">原</span>
+                            <span class="px-3 py-1 bg-purple-900/80 text-purple-200 border border-purple-700 rounded text-sm">理</span>
+                        </div>
+                    </div>
+                    <div class="mt-8 border-t border-gray-700 pt-4">
+                        <span class="text-gray-400 text-sm">Generation (Decode Phase):</span>
+                        <div class="flex flex-wrap gap-2 mt-2 min-h-[50px]" id="kv-output-container">
+                            </div>
+                    </div>
+                    <button id="start-kv-btn" onclick="startKVDemo()" class="mt-8 px-6 py-2 bg-green-600 hover:bg-green-500 rounded font-bold transition w-full shadow-[0_0_15px_rgba(34,197,94,0.4)]">🚀 启动自回归生成</button>
+                </div>
+
+                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-green-300">物理层：HBM 中的 KV Cache</h3>
+                    <div class="flex gap-4 h-[350px]">
+                        <div class="flex-1 flex flex-col">
+                            <div class="text-center mb-2 text-sm text-gray-400">Key Cache Matrix</div>
+                            <div id="key-cache-box" class="flex-1 flex flex-col justify-end gap-1 border-2 border-dashed border-gray-600 p-2 rounded bg-gray-900/50 overflow-hidden">
+                                </div>
+                        </div>
+                        <div class="flex-1 flex flex-col">
+                            <div class="text-center mb-2 text-sm text-gray-400">Value Cache Matrix</div>
+                            <div id="val-cache-box" class="flex-1 flex flex-col justify-end gap-1 border-2 border-dashed border-gray-600 p-2 rounded bg-gray-900/50 overflow-hidden">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-3" class="tab-content p-8"><div class="flex items-center justify-center h-full text-gray-500 flex-col"><div class="text-4xl mb-4">🧮</div><h2 class="text-2xl">Attention 内部机制板块构建中...</h2><p class="mt-2">包含 QKV 矩阵乘法、MHA/MQA/GQA 显存对比。</p></div></section>
+        <section id="tab-5" class="tab-content p-8"><div class="flex items-center justify-center h-full text-gray-500 flex-col"><div class="text-4xl mb-4">⚖️</div><h2 class="text-2xl">训练 vs 推理板块构建中...</h2><p class="mt-2">包含 70B 模型在两种模式下的显存占用精算表格。</p></div></section>
+        <section id="tab-6" class="tab-content p-8"><div class="flex items-center justify-center h-full text-gray-500 flex-col"><div class="text-4xl mb-4">🔗</div><h2 class="text-2xl">多卡并行拓扑板块构建中...</h2><p class="mt-2">包含 TP, PP, DP 的切分策略与 NVLink 通信流。</p></div></section>
+        <section id="tab-8" class="tab-content p-8"><div class="flex items-center justify-center h-full text-gray-500 flex-col"><div class="text-4xl mb-4">⚡</div><h2 class="text-2xl">优化全景与量化构建中...</h2><p class="mt-2">包含 PagedAttention, Flash Attention, W4A16 量化原理。</p></div></section>
+
+    </main>
+
+    <script>
+        // --- 导航与 Tab 切换逻辑 ---
+        function switchTab(tabId) {
+            // 隐藏所有内容
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            // 移除所有按钮的激活状态
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // 激活选中项
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- 时间线动画逻辑 (Tab 2) ---
+        function runTimeline() {
+            const bar = document.getElementById('timeline-progress');
+            const steps = [
+                document.getElementById('step-1'),
+                document.getElementById('step-2'),
+                document.getElementById('step-3'),
+                document.getElementById('step-4'),
+                document.getElementById('step-5'),
+                document.getElementById('step-6')
+            ];
+            
+            // 重置
+            bar.style.width = '0%';
+            steps.forEach(s => {
+                s.className = 'w-6 h-6 mx-auto bg-gray-900 border-2 border-gray-500 rounded-full mb-2 transition-colors duration-300';
+            });
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                bar.style.width = `${progress}%`;
+                
+                // 点亮节点
+                if(progress === 10) steps[0].classList.replace('border-gray-500', 'border-blue-500');
+                if(progress === 10) steps[0].classList.replace('bg-gray-900', 'bg-blue-500');
+                
+                if(progress === 30) steps[1].classList.replace('border-gray-500', 'border-blue-500');
+                if(progress === 30) steps[1].classList.replace('bg-gray-900', 'bg-blue-500');
+                
+                if(progress === 50) steps[2].classList.replace('border-gray-500', 'border-blue-500');
+                if(progress === 50) steps[2].classList.replace('bg-gray-900', 'bg-blue-500');
+                
+                if(progress === 70) steps[3].classList.replace('border-gray-500', 'border-green-500');
+                if(progress === 70) steps[3].classList.replace('bg-gray-900', 'bg-green-500');
+                
+                if(progress === 90) steps[4].classList.replace('border-gray-500', 'border-purple-500');
+                if(progress === 90) steps[4].classList.replace('bg-gray-900', 'bg-purple-500');
+                
+                if(progress >= 100) {
+                    steps[5].classList.replace('border-gray-500', 'border-gray-300');
+                    steps[5].classList.replace('bg-gray-900', 'bg-gray-500');
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+
+        // --- KV Cache 演示逻辑 (Tab 7) ---
+        const decodeTokens = ["很", "复", "杂", "，", "但", "很", "迷", "人", "。"];
+        const kBox = document.getElementById('key-cache-box');
+        const vBox = document.getElementById('val-cache-box');
+        const outBox = document.getElementById('kv-output-container');
+        let kvInterval = null;
+
+        function createCacheBlock(text, colorClass) {
+            const block = document.createElement('div');
+            block.className = `w-full h-8 ${colorClass} rounded flex items-center justify-center text-xs font-mono fade-in border border-black/20`;
+            block.innerText = text;
+            return block;
+        }
+
+        function initPrefill() {
+            kBox.innerHTML = ''; vBox.innerHTML = ''; outBox.innerHTML = '';
+            // 模拟 4 个 Prefill token 产生的 Cache
+            const prefillBlockK = createCacheBlock('K_Vec [Prefill 4 Toks]', 'bg-purple-700 h-16');
+            const prefillBlockV = createCacheBlock('V_Vec [Prefill 4 Toks]', 'bg-purple-700 h-16');
+            kBox.appendChild(prefillBlockK);
+            vBox.appendChild(prefillBlockV);
+        }
+        
+        // 页面加载即初始化 Prefill 状态
+        initPrefill();
+
+        function startKVDemo() {
+            const btn = document.getElementById('start-kv-btn');
+            if (btn.disabled) return;
+            btn.disabled = true;
+            btn.innerText = "⏳ 推理进行中 (Decoding)...";
+            btn.classList.replace('bg-green-600', 'bg-gray-600');
+            
+            initPrefill();
+            let step = 0;
+
+            kvInterval = setInterval(() => {
+                if (step >= decodeTokens.length) {
+                    clearInterval(kvInterval);
+                    btn.disabled = false;
+                    btn.innerText = "🔄 重新运行";
+                    btn.classList.replace('bg-gray-600', 'bg-green-600');
+                    return;
+                }
+
+                // 1. 生成输出 Token
+                const tokenSpan = document.createElement('span');
+                tokenSpan.className = 'px-3 py-1 bg-green-900/80 text-green-200 border border-green-700 rounded text-sm fade-in shadow-[0_0_8px_rgba(34,197,94,0.3)]';
+                tokenSpan.innerText = decodeTokens[step];
+                outBox.appendChild(tokenSpan);
+
+                // 2. 累加物理层 Cache
+                const kBlock = createCacheBlock(`K [Tok_${step+1}]`, 'bg-green-700');
+                const vBlock = createCacheBlock(`V [Tok_${step+1}]`, 'bg-green-700');
+                kBox.appendChild(kBlock);
+                vBox.appendChild(vBlock);
+
+                step++;
+            }, 600); // 模拟 600ms/token 的延迟
+        }
+    </script>
+</body>
+</html>
