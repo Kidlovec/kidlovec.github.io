@@ -1,0 +1,206 @@
+/* Site theme toggle: light / dark / system-aware */
+:root {
+    color-scheme: light dark;
+    --theme-bg: #ffffff;
+    --theme-surface: #ffffff;
+    --theme-surface-soft: #f5f8fa;
+    --theme-text: #3A4145;
+    --theme-heading: #2E2E2E;
+    --theme-muted: #9EABB3;
+    --theme-link: #4A4A4A;
+    --theme-link-hover: #111111;
+    --theme-border: #EBF2F6;
+    --theme-code-bg: #F7FAFB;
+    --theme-code-border: #E3EDF3;
+    --theme-nav-bg: #111111;
+    --theme-nav-text: #B8B8B8;
+    --theme-accent: #5ba4e5;
+}
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+    --theme-bg: #080d16;
+    --theme-surface: #0d1420;
+    --theme-surface-soft: #111b2b;
+    --theme-text: #dbe7f3;
+    --theme-heading: #f2f7ff;
+    --theme-muted: #91a4ba;
+    --theme-link: #9cc8ff;
+    --theme-link-hover: #d7ecff;
+    --theme-border: rgba(255,255,255,0.10);
+    --theme-code-bg: #101a2a;
+    --theme-code-border: rgba(148, 163, 184, 0.30);
+    --theme-nav-bg: #050914;
+    --theme-nav-text: #b8c4d6;
+    --theme-accent: #75f0c6;
+}
+
+html[data-theme="dark"] body {
+    background: var(--theme-bg);
+    color: var(--theme-text);
+}
+
+html[data-theme="dark"] .site-wrapper {
+    background: var(--theme-bg);
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6,
+html[data-theme="dark"] .post-title,
+html[data-theme="dark"] .post-title a,
+html[data-theme="dark"] .post-content h1,
+html[data-theme="dark"] .post-content h2,
+html[data-theme="dark"] .post-content h3,
+html[data-theme="dark"] .post-content h4,
+html[data-theme="dark"] .post-content h5,
+html[data-theme="dark"] .post-content h6 {
+    color: var(--theme-heading);
+}
+
+html[data-theme="dark"] a {
+    color: var(--theme-link);
+}
+
+html[data-theme="dark"] a:hover {
+    color: var(--theme-link-hover);
+}
+
+html[data-theme="dark"] .post,
+html[data-theme="dark"] .read-next,
+html[data-theme="dark"] .author-profile,
+html[data-theme="dark"] .pagination {
+    border-color: var(--theme-border);
+}
+
+html[data-theme="dark"] .post:after {
+    background: var(--theme-bg);
+    border-color: var(--theme-border);
+    box-shadow: var(--theme-bg) 0 0 0 5px;
+}
+
+html[data-theme="dark"] .post-meta,
+html[data-theme="dark"] .post-date,
+html[data-theme="dark"] .post-footer,
+html[data-theme="dark"] .site-footer,
+html[data-theme="dark"] .author-meta,
+html[data-theme="dark"] .page-description {
+    color: var(--theme-muted);
+}
+
+html[data-theme="dark"] .site-footer {
+    background: #050914;
+    border-top: 1px solid var(--theme-border);
+}
+
+html[data-theme="dark"] .no-cover.main-header {
+    background: var(--theme-surface-soft);
+}
+
+html[data-theme="dark"] .no-cover .page-title {
+    color: var(--theme-heading);
+}
+
+html[data-theme="dark"] .no-cover .page-description {
+    color: var(--theme-muted);
+}
+
+html[data-theme="dark"] code,
+html[data-theme="dark"] tt,
+html[data-theme="dark"] pre {
+    background: var(--theme-code-bg);
+    border-color: var(--theme-code-border);
+    color: #dbeafe;
+}
+
+html[data-theme="dark"] blockquote {
+    border-left-color: #56708f;
+}
+
+html[data-theme="dark"] hr,
+html[data-theme="dark"] table th,
+html[data-theme="dark"] table td,
+html[data-theme="dark"] table tbody + tbody {
+    border-color: var(--theme-border);
+}
+
+html[data-theme="dark"] table th {
+    color: var(--theme-heading);
+}
+
+html[data-theme="dark"] table tbody > tr:nth-child(odd) > td,
+html[data-theme="dark"] table tbody > tr:nth-child(odd) > th {
+    background-color: rgba(255,255,255,0.045);
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+    background: #0f1726;
+    color: var(--theme-text);
+    border-color: var(--theme-border);
+}
+
+html[data-theme="dark"] .nav {
+    background: var(--theme-nav-bg);
+}
+
+html[data-theme="dark"] .nav a:link,
+html[data-theme="dark"] .nav a:visited {
+    color: var(--theme-nav-text);
+}
+
+html[data-theme="dark"] .nav li.nav-current a,
+html[data-theme="dark"] .nav a:hover,
+html[data-theme="dark"] .nav a:active,
+html[data-theme="dark"] .nav a:focus {
+    color: #ffffff;
+}
+
+.theme-toggle-item {
+    margin: 1.2rem 0 0;
+    padding: 0 4%;
+}
+
+.theme-toggle {
+    width: 100%;
+    min-height: 38px;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: .5px;
+    text-transform: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: all .2s ease;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus {
+    border-color: rgba(117,240,198,.55);
+    background: rgba(117,240,198,.10);
+    outline: none;
+}
+
+.theme-toggle-icon {
+    font-size: 14px;
+}
+
+html[data-theme="dark"] .theme-toggle {
+    border-color: rgba(117,240,198,.35);
+    background: rgba(117,240,198,.10);
+}
+
+/* Let standalone tools keep their own immersive dark UI. */
+html[data-theme="dark"] body[class*="tool-standalone"] .site-wrapper {
+    background: transparent;
+}
