@@ -14,4 +14,4 @@ current: tools
 - **LLM 可视化** - [LLM 全景演示](/tools/llm-panorama.html) - 全局架构、推理链路、Attention、KV Cache、多卡并行与优化全景
 - **LLM 可视化** - [LLM KV可视化](/tools/llm-exec-view.html)
 - **LLM 可视化** - [LLM exec可视化](/tools/llm-exec-view2.html)
-- **LLM 可视化guide** - [LLM 可视化GUIDE](/tools/llm-guide.html)
+- **LLM 可视化guide** - [LLM 可视化GUIDE](/tools/llm-guide-mobile.html)
