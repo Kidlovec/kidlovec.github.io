@@ -22,45 +22,45 @@
 const { useState, useEffect, useRef } = React;
 
 // ─── CONSTANTS ──────────────────────────────────────────────────────
-const C={blue:”#5B8DEF”,orange:”#F5A623”,green:”#7EC8A0”,red:”#E85D75”,purple:”#AB47BC”,cyan:”#26C6DA”,pink:”#F48FB1”,yellow:”#FFD54F”};
-const M={fontFamily:”‘IBM Plex Mono’,monospace”};
-const PROMPT=“请用一句话解释什么是KV Cache”;
-const P_TOKENS=[“请”,“用”,“一”,“句”,“话”,“解释”,“什么”,“是”,“KV”,” Cache”];
-const O_TOKENS=[“KV”,” Cache”,“是”,“推理”,“时”,“缓存”,“已”,“算过”,“的”,“Key”,”/”,“Value”,”，”,“避免”,“重复”,“计算”,”。”];
+const C={blue:"#5B8DEF",orange:"#F5A623",green:"#7EC8A0",red:"#E85D75",purple:"#AB47BC",cyan:"#26C6DA",pink:"#F48FB1",yellow:"#FFD54F"};
+const M={fontFamily:"'IBM Plex Mono',monospace"};
+const PROMPT="请用一句话解释什么是KV Cache";
+const P_TOKENS=["请","用","一","句","话","解释","什么","是","KV"," Cache"];
+const O_TOKENS=["KV"," Cache","是","推理","时","缓存","已","算过","的","Key","/","Value","，","避免","重复","计算","。"];
 
 const TABS=[
-{id:“arch”,label:“全局架构”,icon:“🗺️”},
-{id:“journey”,label:“一次推理”,icon:“🚀”},
-{id:“attn”,label:“Attention”,icon:“🔍”},
-{id:“memory”,label:“存储金字塔”,icon:“🏔️”},
-{id:“tvsi”,label:“训练vs推理”,icon:“⚖️”},
-{id:“parallel”,label:“多卡并行”,icon:“🔗”},
-{id:“kv”,label:“KV Cache”,icon:“📦”},
-{id:“opt”,label:“优化全景”,icon:“⚡”},
+{id:"arch",label:"全局架构",icon:"🗺️"},
+{id:"journey",label:"一次推理",icon:"🚀"},
+{id:"attn",label:"Attention",icon:"🔍"},
+{id:"memory",label:"存储金字塔",icon:"🏔️"},
+{id:"tvsi",label:"训练vs推理",icon:"⚖️"},
+{id:"parallel",label:"多卡并行",icon:"🔗"},
+{id:"kv",label:"KV Cache",icon:"📦"},
+{id:"opt",label:"优化全景",icon:"⚡"},
 ];
 
 // ─── SHARED ─────────────────────────────────────────────────────────
-const Card=({children,color,style:sx,…p})=>{
-const base={background:color?color+“08”:“rgba(255,255,255,0.025)”,borderRadius:12,border:“1px solid “+(color?color+“25”:“rgba(255,255,255,0.06)”),padding:16,marginBottom:14};
+const Card=({children,color,style:sx,...p})=>{
+const base={background:color?color+"08":"rgba(255,255,255,0.025)",borderRadius:12,border:"1px solid "+(color?color+"25":"rgba(255,255,255,0.06)"),padding:16,marginBottom:14};
 return <div style={sx?Object.assign({},base,sx):base}>{children}</div>;
 };
-const Label=({children})=><div style={{fontSize:10,fontWeight:600,letterSpacing:1,color:”#888”,marginBottom:6}}>{children}</div>;
-const Tag=({c,children})=><span style={{display:“inline-block”,fontSize:9,padding:“2px 7px”,borderRadius:4,background:c+“18”,color:c,fontWeight:600,marginRight:4,marginBottom:3}}>{children}</span>;
+const Label=({children})=><div style={{fontSize:10,fontWeight:600,letterSpacing:1,color:"#888",marginBottom:6}}>{children}</div>;
+const Tag=({c,children})=><span style={{display:"inline-block",fontSize:9,padding:"2px 7px",borderRadius:4,background:c+"18",color:c,fontWeight:600,marginRight:4,marginBottom:3}}>{children}</span>;
 const Acc=({c,children})=><span style={{color:c,fontWeight:600}}>{children}</span>;
-const Row=({l,v,c})=><div style={{display:“flex”,justifyContent:“space-between”,padding:“5px 0”,borderBottom:“1px solid rgba(255,255,255,0.04)”}}><span style={{fontSize:11,color:”#888”}}>{l}</span><span style={{fontSize:11,fontWeight:600,color:c||”#ccc”,…M}}>{v}</span></div>;
-const Chip=({t,hl,c,idx})=><span style={{display:“inline-flex”,alignItems:“center”,padding:“2px 6px”,borderRadius:5,fontSize:10,fontWeight:500,background:hl?(c||C.orange)+“25”:“rgba(255,255,255,0.06)”,color:hl?(c||C.orange):”#aaa”,border:hl?“1px solid “+(c||C.orange)+“40”:“1px solid rgba(255,255,255,0.08)”,margin:“2px”,…M}}>{idx!=null&&<span style={{fontSize:7,opacity:0.5,marginRight:3}}>{idx}</span>}{t}</span>;
+const Row=({l,v,c})=><div style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,0.04)"}}><span style={{fontSize:11,color:"#888"}}>{l}</span><span style={{fontSize:11,fontWeight:600,color:c||"#ccc",...M}}>{v}</span></div>;
+const Chip=({t,hl,c,idx})=><span style={{display:"inline-flex",alignItems:"center",padding:"2px 6px",borderRadius:5,fontSize:10,fontWeight:500,background:hl?(c||C.orange)+"25":"rgba(255,255,255,0.06)",color:hl?(c||C.orange):"#aaa",border:hl?"1px solid "+(c||C.orange)+"40":"1px solid rgba(255,255,255,0.08)",margin:"2px",...M}}>{idx!=null&&<span style={{fontSize:7,opacity:0.5,marginRight:3}}>{idx}</span>}{t}</span>;
 
-const Code=({children})=><div style={{fontSize:10,…M,background:“rgba(0,0,0,0.3)”,padding:“10px 12px”,borderRadius:8,lineHeight:2.2,overflowX:“auto”}}>{children}</div>;
+const Code=({children})=><div style={{fontSize:10,...M,background:"rgba(0,0,0,0.3)",padding:"10px 12px",borderRadius:8,lineHeight:2.2,overflowX:"auto"}}>{children}</div>;
 
 // ─── 1. GLOBAL ARCHITECTURE ─────────────────────────────────────────
 function ArchDiagram() {
-const [mode,setMode]=useState(“infer_prefill”);
-const modes={infer_prefill:“推理·Prefill”,infer_decode:“推理·Decode”,train:“训练”};
-const isD=mode===“infer_decode”,isT=mode===“train”,isI=!isT;
+const [mode,setMode]=useState("infer_prefill");
+const modes={infer_prefill:"推理·Prefill",infer_decode:"推理·Decode",train:"训练"};
+const isD=mode==="infer_decode",isT=mode==="train",isI=!isT;
 
 return <div>
-<div style={{display:“flex”,gap:6,marginBottom:14,flexWrap:“wrap”}}>
-{Object.entries(modes).map(([k,v])=><button key={k} onClick={()=>setMode(k)} style={{padding:“6px 12px”,borderRadius:7,fontSize:11,fontWeight:600,cursor:“pointer”,border:mode===k?“1.5px solid “+C.blue:“1.5px solid #333”,background:mode===k?C.blue+“15”:“transparent”,color:mode===k?C.blue:”#888”}}>{v}</button>)}
+<div style={{display:"flex",gap:6,marginBottom:14,flexWrap:"wrap"}}>
+{Object.entries(modes).map(([k,v])=><button key={k} onClick={()=>setMode(k)} style={{padding:"6px 12px",borderRadius:7,fontSize:11,fontWeight:600,cursor:"pointer",border:mode===k?"1.5px solid "+C.blue:"1.5px solid #333",background:mode===k?C.blue+"15":"transparent",color:mode===k?C.blue:"#888"}}>{v}</button>)}
 </div>
 
 ```
@@ -291,17 +291,17 @@ return <div>
 // ─── 2. INFERENCE JOURNEY ───────────────────────────────────────────
 function Journey() {
 const timeline = [
-{ phase:“网络”, time:“~5ms”, ms:5, desc:“用户通过 API 发送请求到推理服务器”, where:“互联网 → 负载均衡”, icon:“🌐”, color:C.green },
-{ phase:“调度”, time:“~1ms”, ms:1, desc:“推理框架（vLLM/TGI）接收请求，分配给空闲 GPU”, where:“CPU · RAM”, icon:“📋”, color:”#64B5F6” },
-{ phase:“Tokenize”, time:“~0.5ms”, ms:0.5, desc:`"${PROMPT}" → [${P_TOKENS.length} tokens]`, where:“CPU”, icon:“✂️”, color:C.cyan },
-{ phase:“传输”, time:“~0.01ms”, ms:0.01, desc:“token IDs 通过 PCIe 送入 GPU 显存”, where:“PCIe 5.0”, icon:“⇅”, color:C.purple },
-{ phase:“Prefill”, time:“~100ms”, ms:100, desc:`${P_TOKENS.length} tokens 并行过 80 层，填充 KV Cache`, where:“GPU SM + HBM”, icon:“⚡”, color:C.blue,
-detail:“矩阵乘法 [N,d]×[d,d] → Tensor Core 高利用率 → Compute-bound” },
-{ phase:“首 token”, time:”= TTFT”, ms:0, desc:“Prefill 结束，采样出第一个 token → 返回用户”, where:“GPU → CPU → 网络”, icon:“1️⃣”, color:C.orange },
-{ phase:“Decode ×17”, time:“~30ms/tok”, ms:510, desc:“每步读 KV Cache + 生成 1 token，重复 17 次”, where:“GPU SM ← HBM”, icon:“🔄”, color:C.orange,
-detail:“每步 [1,d]×[seq,d] → SM 吃不满 → Memory-bound” },
-{ phase:“流式返回”, time:“持续”, ms:0, desc:“每个 token 立刻 stream 回去”, where:“CPU → SSE/WS”, icon:“📡”, color:C.green },
-{ phase:“释放”, time:“~0.01ms”, ms:0, desc:“生成完毕，释放 KV Cache 显存”, where:“GPU HBM”, icon:“🗑️”, color:C.gray },
+{ phase:"网络", time:"~5ms", ms:5, desc:"用户通过 API 发送请求到推理服务器", where:"互联网 → 负载均衡", icon:"🌐", color:C.green },
+{ phase:"调度", time:"~1ms", ms:1, desc:"推理框架（vLLM/TGI）接收请求，分配给空闲 GPU", where:"CPU · RAM", icon:"📋", color:"#64B5F6" },
+{ phase:"Tokenize", time:"~0.5ms", ms:0.5, desc:`"${PROMPT}" → [${P_TOKENS.length} tokens]`, where:"CPU", icon:"✂️", color:C.cyan },
+{ phase:"传输", time:"~0.01ms", ms:0.01, desc:"token IDs 通过 PCIe 送入 GPU 显存", where:"PCIe 5.0", icon:"⇅", color:C.purple },
+{ phase:"Prefill", time:"~100ms", ms:100, desc:`${P_TOKENS.length} tokens 并行过 80 层，填充 KV Cache`, where:"GPU SM + HBM", icon:"⚡", color:C.blue,
+detail:"矩阵乘法 [N,d]×[d,d] → Tensor Core 高利用率 → Compute-bound" },
+{ phase:"首 token", time:"= TTFT", ms:0, desc:"Prefill 结束，采样出第一个 token → 返回用户", where:"GPU → CPU → 网络", icon:"1️⃣", color:C.orange },
+{ phase:"Decode ×17", time:"~30ms/tok", ms:510, desc:"每步读 KV Cache + 生成 1 token，重复 17 次", where:"GPU SM ← HBM", icon:"🔄", color:C.orange,
+detail:"每步 [1,d]×[seq,d] → SM 吃不满 → Memory-bound" },
+{ phase:"流式返回", time:"持续", ms:0, desc:"每个 token 立刻 stream 回去", where:"CPU → SSE/WS", icon:"📡", color:C.green },
+{ phase:"释放", time:"~0.01ms", ms:0, desc:"生成完毕，释放 KV Cache 显存", where:"GPU HBM", icon:"🗑️", color:C.gray },
 ];
 
 const [active,setActive]=useState(-1);
@@ -316,10 +316,10 @@ const totalMs=timeline.reduce((a,t)=>a+t.ms,0);
 
 return <div>
 <Card color={C.orange}>
-<div style={{display:“flex”,justifyContent:“space-between”,alignItems:“center”}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
 <div><div style={{fontSize:12,fontWeight:600,color:C.orange,marginBottom:4}}>完整推理链路</div>
-<div style={{fontSize:10,color:”#888”}}>从按下回车到看到回答</div></div>
-<button onClick={playing?stop:play} style={{padding:“7px 16px”,borderRadius:8,fontSize:12,fontWeight:700,cursor:“pointer”,border:“1.5px solid “+C.orange,background:playing?C.orange+“25”:C.orange+“10”,color:C.orange,animation:playing?“btnPulse 1s ease-in-out infinite”:undefined}}>{playing?“⏸ 暂停”:“▶ 播放”}</button>
+<div style={{fontSize:10,color:"#888"}}>从按下回车到看到回答</div></div>
+<button onClick={playing?stop:play} style={{padding:"7px 16px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",border:"1.5px solid "+C.orange,background:playing?C.orange+"25":C.orange+"10",color:C.orange,animation:playing?"btnPulse 1s ease-in-out infinite":undefined}}>{playing?"⏸ 暂停":"▶ 播放"}</button>
 </div>
 </Card>
 
@@ -365,7 +365,7 @@ return <div>
 
 // ─── 3. ATTENTION INTERNALS ─────────────────────────────────────────
 function AttnDetail() {
-const [tab,setTab]=useState(“mha”);
+const [tab,setTab]=useState("mha");
 const [heatStep,setHeatStep]=useState(0);
 const heatRef=useRef(null);
 
@@ -383,12 +383,12 @@ const attnScores=[
 [0.1, 0.1, 0.3, 0.5, 0  ],
 [0.1, 0.2, 0.1, 0.2, 0.4],
 ];
-const toks=[“请”,“用”,“一句”,“话”,“解释”];
+const toks=["请","用","一句","话","解释"];
 
 return <div>
 <Card color={C.purple}>
-<div style={{fontSize:13,fontWeight:700,color:C.purple,marginBottom:8}}>Self-Attention: 让每个 token “看到” 其他 token</div>
-<div style={{fontSize:11,color:”#bbb”,lineHeight:1.8}}>对于当前位置，算出它应该”关注”序列中哪些位置，然后把那些位置的信息加权求和。</div>
+<div style={{fontSize:13,fontWeight:700,color:C.purple,marginBottom:8}}>Self-Attention: 让每个 token "看到" 其他 token</div>
+<div style={{fontSize:11,color:"#bbb",lineHeight:1.8}}>对于当前位置，算出它应该"关注"序列中哪些位置，然后把那些位置的信息加权求和。</div>
 </Card>
 
 ```
@@ -499,17 +499,17 @@ const [anim,setAnim]=useState(false);
 useEffect(()=>{setTimeout(()=>setAnim(true),300);},[]);
 
 const layers = [
-{ name:“GPU 寄存器/SRAM”, cap:“~40 MB”, bw:19000, bwLabel:“~19 TB/s”, lat:“~1 ns”, color:C.yellow, what:“Flash Attention tiling 中间结果” },
-{ name:“GPU HBM (显存)”, cap:“80 GB”, bw:3350, bwLabel:“3.35 TB/s”, lat:“~100 ns”, color:C.red, what:“模型权重 · KV Cache · 激活值 · 梯度” },
-{ name:“CPU DDR5 RAM”, cap:“256-1024 GB”, bw:50, bwLabel:“~50 GB/s”, lat:“~100 ns”, color:”#64B5F6”, what:“请求队列 · tokenizer · batch 状态” },
-{ name:“NVMe SSD”, cap:“1-16 TB”, bw:7, bwLabel:“~7 GB/s”, lat:“~10 μs”, color:C.gray, what:“模型文件 · checkpoint · 训练数据” },
+{ name:"GPU 寄存器/SRAM", cap:"~40 MB", bw:19000, bwLabel:"~19 TB/s", lat:"~1 ns", color:C.yellow, what:"Flash Attention tiling 中间结果" },
+{ name:"GPU HBM (显存)", cap:"80 GB", bw:3350, bwLabel:"3.35 TB/s", lat:"~100 ns", color:C.red, what:"模型权重 · KV Cache · 激活值 · 梯度" },
+{ name:"CPU DDR5 RAM", cap:"256-1024 GB", bw:50, bwLabel:"~50 GB/s", lat:"~100 ns", color:"#64B5F6", what:"请求队列 · tokenizer · batch 状态" },
+{ name:"NVMe SSD", cap:"1-16 TB", bw:7, bwLabel:"~7 GB/s", lat:"~10 μs", color:C.gray, what:"模型文件 · checkpoint · 训练数据" },
 ];
 const maxBw=19000;
 
 return <div>
 <Card color={C.red}>
 <div style={{fontSize:13,fontWeight:700,color:C.red,marginBottom:6}}>越上层越快越小越贵</div>
-<div style={{fontSize:11,color:”#bbb”,lineHeight:1.7}}>LLM 性能瓶颈往往在<Acc c={C.red}>数据搬运</Acc>而非计算。</div>
+<div style={{fontSize:11,color:"#bbb",lineHeight:1.7}}>LLM 性能瓶颈往往在<Acc c={C.red}>数据搬运</Acc>而非计算。</div>
 </Card>
 
 ```
@@ -557,29 +557,29 @@ return <div>
 
 // ─── 5. TRAIN vs INFER ──────────────────────────────────────────────
 function TrainVsInfer() {
-const [mode,setMode]=useState(“infer”);
+const [mode,setMode]=useState("infer");
 const [filled,setFilled]=useState(false);
 useEffect(()=>{setFilled(false);setTimeout(()=>setFilled(true),100);},[mode]);
 
 const trainMem=[
-{label:“模型权重”,gb:140,color:C.blue},
-{label:“梯度”,gb:140,color:C.red},
-{label:“优化器 Adam (m+v)”,gb:280,color:C.purple},
-{label:“激活值”,gb:100,color:C.green},
+{label:"模型权重",gb:140,color:C.blue},
+{label:"梯度",gb:140,color:C.red},
+{label:"优化器 Adam (m+v)",gb:280,color:C.purple},
+{label:"激活值",gb:100,color:C.green},
 ];
 const inferMem=[
-{label:“模型权重”,gb:140,color:C.blue},
-{label:“KV Cache (128K×1req)”,gb:40,color:C.orange},
-{label:“激活值”,gb:1,color:C.green},
+{label:"模型权重",gb:140,color:C.blue},
+{label:"KV Cache (128K×1req)",gb:40,color:C.orange},
+{label:"激活值",gb:1,color:C.green},
 ];
-const mem=mode===“train”?trainMem:inferMem;
+const mem=mode==="train"?trainMem:inferMem;
 const total=mem.reduce((a,m)=>a+m.gb,0);
 const maxGB=660;
 
 return <div>
-<div style={{display:“flex”,gap:6,marginBottom:14}}>
-<button onClick={()=>setMode(“train”)} style={{flex:1,padding:“10px”,borderRadius:8,fontSize:12,fontWeight:700,cursor:“pointer”,border:mode===“train”?`2px solid ${C.purple}`:“2px solid #333”,background:mode===“train”?C.purple+“15”:“transparent”,color:mode===“train”?C.purple:”#888”,transition:“all 0.3s”}}>📚 训练</button>
-<button onClick={()=>setMode(“infer”)} style={{flex:1,padding:“10px”,borderRadius:8,fontSize:12,fontWeight:700,cursor:“pointer”,border:mode===“infer”?`2px solid ${C.orange}`:“2px solid #333”,background:mode===“infer”?C.orange+“15”:“transparent”,color:mode===“infer”?C.orange:”#888”,transition:“all 0.3s”}}>🚀 推理</button>
+<div style={{display:"flex",gap:6,marginBottom:14}}>
+<button onClick={()=>setMode("train")} style={{flex:1,padding:"10px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",border:mode==="train"?`2px solid ${C.purple}`:"2px solid #333",background:mode==="train"?C.purple+"15":"transparent",color:mode==="train"?C.purple:"#888",transition:"all 0.3s"}}>📚 训练</button>
+<button onClick={()=>setMode("infer")} style={{flex:1,padding:"10px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",border:mode==="infer"?`2px solid ${C.orange}`:"2px solid #333",background:mode==="infer"?C.orange+"15":"transparent",color:mode==="infer"?C.orange:"#888",transition:"all 0.3s"}}>🚀 推理</button>
 </div>
 
 ```
@@ -640,23 +640,23 @@ return <div>
 
 // ─── 6. MULTI-GPU PARALLEL ──────────────────────────────────────────
 function Parallel() {
-const [view,setView]=useState(“tp”);
+const [view,setView]=useState("tp");
 const gpuColors=[C.blue,C.orange,C.green,C.red];
-const gpuLabels=[“GPU 0”,“GPU 1”,“GPU 2”,“GPU 3”];
+const gpuLabels=["GPU 0","GPU 1","GPU 2","GPU 3"];
 
 function GPUBox({i,children,w}){
-return <div style={{flex:w||1,background:gpuColors[i]+“10”,borderRadius:8,border:`1px solid ${gpuColors[i]}30`,padding:“8px 6px”,textAlign:“center”,position:“relative”,overflow:“hidden”}}>
+return <div style={{flex:w||1,background:gpuColors[i]+"10",borderRadius:8,border:`1px solid ${gpuColors[i]}30`,padding:"8px 6px",textAlign:"center",position:"relative",overflow:"hidden"}}>
 <div style={{fontSize:9,fontWeight:700,color:gpuColors[i],marginBottom:4}}>{gpuLabels[i]}</div>
 {children}
 {/* Subtle activity pulse */}
-<div style={{position:“absolute”,bottom:0,left:0,right:0,height:3,background:`linear-gradient(90deg,transparent,${gpuColors[i]}40,transparent)`,animation:“scanAnim 2s ease-in-out infinite”,animationDelay:(i*300)+“ms”}}/>
+<div style={{position:"absolute",bottom:0,left:0,right:0,height:3,background:`linear-gradient(90deg,transparent,${gpuColors[i]}40,transparent)`,animation:"scanAnim 2s ease-in-out infinite",animationDelay:(i*300)+"ms"}}/>
 </div>;
 }
 
 return <div>
-<div style={{display:“flex”,gap:5,marginBottom:12,flexWrap:“wrap”}}>
-{[[“tp”,“张量并行 TP”],[“pp”,“流水线 PP”],[“dp”,“数据并行 DP”],[“zero”,“ZeRO/FSDP”]].map(([k,v])=>
-<button key={k} onClick={()=>setView(k)} style={{padding:“6px 11px”,borderRadius:6,fontSize:11,fontWeight:600,cursor:“pointer”,border:view===k?`1.5px solid ${C.purple}`:“1.5px solid #333”,background:view===k?C.purple+“15”:“transparent”,color:view===k?C.purple:”#888”,transition:“all 0.2s”}}>{v}</button>
+<div style={{display:"flex",gap:5,marginBottom:12,flexWrap:"wrap"}}>
+{[["tp","张量并行 TP"],["pp","流水线 PP"],["dp","数据并行 DP"],["zero","ZeRO/FSDP"]].map(([k,v])=>
+<button key={k} onClick={()=>setView(k)} style={{padding:"6px 11px",borderRadius:6,fontSize:11,fontWeight:600,cursor:"pointer",border:view===k?`1.5px solid ${C.purple}`:"1.5px solid #333",background:view===k?C.purple+"15":"transparent",color:view===k?C.purple:"#888",transition:"all 0.2s"}}>{v}</button>
 )}
 </div>
 
@@ -748,40 +748,40 @@ return <div>
 
 // ─── 7. KV CACHE DEMO ──────────────────────────────────────────────
 function KVDemo() {
-const [ph,setPh]=useState(“idle”);
+const [ph,setPh]=useState("idle");
 const [pp,setPP]=useState(0);
 const [dt,setDT]=useState([]);
 const [kv,setKv]=useState(0);
 const [ds,setDS]=useState(-1);
 const t=useRef(null);
-const reset=()=>{clearInterval(t.current);setPh(“idle”);setPP(0);setDT([]);setKv(0);setDS(-1);};
-const start=()=>{reset();setPh(“pf”);let p=0;t.current=setInterval(()=>{p++;setPP(p);if(p>=P_TOKENS.length){clearInterval(t.current);setKv(P_TOKENS.length);setTimeout(()=>{setPh(“dc”);let d=0;t.current=setInterval(()=>{if(d>=O_TOKENS.length){clearInterval(t.current);setPh(“done”);return;}setDT(pr=>[…pr,O_TOKENS[d]]);setKv(P_TOKENS.length+d+1);setDS(d);d++;},350);},500);}},80);};
+const reset=()=>{clearInterval(t.current);setPh("idle");setPP(0);setDT([]);setKv(0);setDS(-1);};
+const start=()=>{reset();setPh("pf");let p=0;t.current=setInterval(()=>{p++;setPP(p);if(p>=P_TOKENS.length){clearInterval(t.current);setKv(P_TOKENS.length);setTimeout(()=>{setPh("dc");let d=0;t.current=setInterval(()=>{if(d>=O_TOKENS.length){clearInterval(t.current);setPh("done");return;}setDT(pr=>[...pr,O_TOKENS[d]]);setKv(P_TOKENS.length+d+1);setDS(d);d++;},350);},500);}},80);};
 useEffect(()=>()=>clearInterval(t.current),[]);
 
 return <div>
 <Card color={C.orange}>
-<div style={{fontSize:12,fontWeight:600,color:C.orange,marginBottom:4}}>实例：”{PROMPT}”</div>
-<div style={{fontSize:11,color:”#bbb”}}>点击播放，观察 Prefill 填充 KV Cache → Decode 逐 token 生成</div>
+<div style={{fontSize:12,fontWeight:600,color:C.orange,marginBottom:4}}>实例："{PROMPT}"</div>
+<div style={{fontSize:11,color:"#bbb"}}>点击播放，观察 Prefill 填充 KV Cache → Decode 逐 token 生成</div>
 </Card>
-<div style={{display:“flex”,gap:8,marginBottom:14}}>
-<button onClick={start} disabled={ph===“pf”||ph===“dc”} style={{padding:“8px 18px”,borderRadius:8,fontSize:12,fontWeight:700,cursor:“pointer”,border:“1.5px solid “+C.orange,background:C.orange+“15”,color:C.orange,opacity:ph===“pf”||ph===“dc”?0.5:1}}>▶ 播放</button>
-<button onClick={reset} style={{padding:“8px 14px”,borderRadius:8,fontSize:12,fontWeight:600,cursor:“pointer”,border:“1.5px solid #444”,background:“rgba(255,255,255,0.03)”,color:”#888”}}>重置</button>
-{ph!==“idle”&&<Tag c={ph===“pf”?C.blue:ph===“dc”?C.orange:C.green}>{ph===“pf”?“⚡ PREFILL”:(ph===“dc”?“🔄 DECODE”:“✅ 完成”)}</Tag>}
+<div style={{display:"flex",gap:8,marginBottom:14}}>
+<button onClick={start} disabled={ph==="pf"||ph==="dc"} style={{padding:"8px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",border:"1.5px solid "+C.orange,background:C.orange+"15",color:C.orange,opacity:ph==="pf"||ph==="dc"?0.5:1}}>▶ 播放</button>
+<button onClick={reset} style={{padding:"8px 14px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",border:"1.5px solid #444",background:"rgba(255,255,255,0.03)",color:"#888"}}>重置</button>
+{ph!=="idle"&&<Tag c={ph==="pf"?C.blue:ph==="dc"?C.orange:C.green}>{ph==="pf"?"⚡ PREFILL":(ph==="dc"?"🔄 DECODE":"✅ 完成")}</Tag>}
 </div>
 <Card><Label>Prompt tokens</Label><div>{P_TOKENS.map((tk,i)=><Chip key={i} t={tk} idx={i} hl={pp>i} c={C.blue}/>)}</div></Card>
-{ph!==“idle”&&<Card color={C.orange}>
-<div style={{display:“flex”,justifyContent:“space-between”}}><Label>KV Cache</Label><span style={{fontSize:10,color:C.orange,...M}}>{kv} slots</span></div>
-<div style={{height:16,background:“rgba(255,255,255,0.04)”,borderRadius:6,overflow:“hidden”,marginTop:4}}>
-<div style={{height:“100%”,borderRadius:6,background:“linear-gradient(90deg,”+C.blue+”,”+C.orange+”)”,width:String(kv/(P_TOKENS.length+O_TOKENS.length)*100)+”%”,transition:“width 0.3s”}}/>
+{ph!=="idle"&&<Card color={C.orange}>
+<div style={{display:"flex",justifyContent:"space-between"}}><Label>KV Cache</Label><span style={{fontSize:10,color:C.orange,...M}}>{kv} slots</span></div>
+<div style={{height:16,background:"rgba(255,255,255,0.04)",borderRadius:6,overflow:"hidden",marginTop:4}}>
+<div style={{height:"100%",borderRadius:6,background:"linear-gradient(90deg,"+C.blue+","+C.orange+")",width:String(kv/(P_TOKENS.length+O_TOKENS.length)*100)+"%",transition:"width 0.3s"}}/>
 </div>
 </Card>}
-{(ph===“dc”||ph===“done”)&&<Card color={C.green}>
+{(ph==="dc"||ph==="done")&&<Card color={C.green}>
 <Label>输出</Label>
 <div style={{minHeight:30}}>
 {dt.map((tk,i)=><Chip key={i} t={tk} hl={true} c={C.green}/>)}
-{ph===“dc”&&<span style={{display:“inline-block”,width:8,height:14,background:C.orange,borderRadius:2,verticalAlign:“middle”,marginLeft:2,animation:“blink 0.8s step-end infinite”}}/>}
+{ph==="dc"&&<span style={{display:"inline-block",width:8,height:14,background:C.orange,borderRadius:2,verticalAlign:"middle",marginLeft:2,animation:"blink 0.8s step-end infinite"}}/>}
 </div>
-{(ph===“dc”&&ds>=0)&&<div style={{fontSize:10,color:”#888”,marginTop:6,padding:“6px 8px”,background:C.orange+“08”,borderRadius:6}}>{“第”+(ds+1)+“步：Q×KV[”+(kv-1)+“条] → "”+O_TOKENS[ds]+”" → Cache=”+kv+“条”}</div>}
+{(ph==="dc"&&ds>=0)&&<div style={{fontSize:10,color:"#888",marginTop:6,padding:"6px 8px",background:C.orange+"08",borderRadius:6}}>{"第"+(ds+1)+"步：Q×KV["+(kv-1)+"条] → \""+O_TOKENS[ds]+"\" → Cache="+kv+"条"}</div>}
 </Card>}
 
   </div>;
@@ -790,23 +790,23 @@ return <div>
 // ─── 8. OPTIMIZATION ────────────────────────────────────────────────
 function Opt() {
 const tips=[
-{t:“PagedAttention”,c:C.blue,i:“📄”,d:“像虚拟内存管理 KV Cache，按页分配消除碎片”,x:“vLLM 核心技术。block size=16 tokens，用页表映射。利用率 90%+。”},
-{t:“Prompt Caching”,c:C.orange,i:“♻️”,d:“共享 system prompt 的 KV Cache，跳过重复 prefill”,x:“把不变内容放前面。Anthropic API / vLLM / SGLang RadixAttention 都支持。”},
-{t:“连续 Batching”,c:C.cyan,i:“📦”,d:“请求到了就插入 batch，完成了就移除，不等整批完”,x:“传统 static batch：等最长序列完成。Continuous batch：GPU 永远在干活。吞吐提升 10×+。”},
-{t:“Flash Attention”,c:C.yellow,i:“⚡”,d:“利用 SRAM tiling 做 attention，内存 O(N) 速度更快”,x:“避免 [seq,seq] attention 矩阵写回 HBM。Tri Dao 论文。现已是标配。”},
-{t:“量化 (INT8/INT4/FP8)”,c:C.green,i:“🗜️”,d:“权重和/或 KV Cache 量化，显存砍半甚至 1/4”,x:“GPTQ/AWQ 权重量化 + vLLM FP8 KV Cache。INT8 几乎无损。”},
-{t:“GQA / MQA”,c:C.purple,i:“🎯”,d:“减少 KV heads 数量，KV Cache 缩小 4-8×”,x:“GQA(32Q+8KV) → Cache 缩小4×。Llama3/Qwen2/Claude 都在用。”},
-{t:“Speculative Decoding”,c:C.red,i:“🏃”,d:“小模型猜 N token，大模型一次验证，吞吐 2-3×”,x:“验证是并行的（类似 prefill），猜错无额外成本。”},
-{t:“Sliding Window”,c:C.pink,i:“🪟”,d:“只保留最近 N 个 KV + sink tokens，支持无限长生成”,x:“Mistral 4096 window。StreamingLLM 保留开头 4 token + 窗口。”},
+{t:"PagedAttention",c:C.blue,i:"📄",d:"像虚拟内存管理 KV Cache，按页分配消除碎片",x:"vLLM 核心技术。block size=16 tokens，用页表映射。利用率 90%+。"},
+{t:"Prompt Caching",c:C.orange,i:"♻️",d:"共享 system prompt 的 KV Cache，跳过重复 prefill",x:"把不变内容放前面。Anthropic API / vLLM / SGLang RadixAttention 都支持。"},
+{t:"连续 Batching",c:C.cyan,i:"📦",d:"请求到了就插入 batch，完成了就移除，不等整批完",x:"传统 static batch：等最长序列完成。Continuous batch：GPU 永远在干活。吞吐提升 10×+。"},
+{t:"Flash Attention",c:C.yellow,i:"⚡",d:"利用 SRAM tiling 做 attention，内存 O(N) 速度更快",x:"避免 [seq,seq] attention 矩阵写回 HBM。Tri Dao 论文。现已是标配。"},
+{t:"量化 (INT8/INT4/FP8)",c:C.green,i:"🗜️",d:"权重和/或 KV Cache 量化，显存砍半甚至 1/4",x:"GPTQ/AWQ 权重量化 + vLLM FP8 KV Cache。INT8 几乎无损。"},
+{t:"GQA / MQA",c:C.purple,i:"🎯",d:"减少 KV heads 数量，KV Cache 缩小 4-8×",x:"GQA(32Q+8KV) → Cache 缩小4×。Llama3/Qwen2/Claude 都在用。"},
+{t:"Speculative Decoding",c:C.red,i:"🏃",d:"小模型猜 N token，大模型一次验证，吞吐 2-3×",x:"验证是并行的（类似 prefill），猜错无额外成本。"},
+{t:"Sliding Window",c:C.pink,i:"🪟",d:"只保留最近 N 个 KV + sink tokens，支持无限长生成",x:"Mistral 4096 window。StreamingLLM 保留开头 4 token + 窗口。"},
 ];
 const [exp,setExp]=useState(null);
-return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} style={{background:“rgba(255,255,255,0.025)”,borderRadius:12,border:“1px solid “+(exp===i?t.c+“40”:“rgba(255,255,255,0.06)”),padding:“12px 14px”,marginBottom:8,cursor:“pointer”,transition:“all 0.3s”}}>
-<div style={{display:“flex”,alignItems:“flex-start”,gap:10}}>
+return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} style={{background:"rgba(255,255,255,0.025)",borderRadius:12,border:"1px solid "+(exp===i?t.c+"40":"rgba(255,255,255,0.06)"),padding:"12px 14px",marginBottom:8,cursor:"pointer",transition:"all 0.3s"}}>
+<div style={{display:"flex",alignItems:"flex-start",gap:10}}>
 <span style={{fontSize:16}}>{t.i}</span>
-<div style={{flex:1}}><div style={{fontSize:12,fontWeight:600,color:t.c,marginBottom:3}}>{t.t}</div><div style={{fontSize:11,color:”#999”,lineHeight:1.6}}>{t.d}</div>
-<div style={{maxHeight:exp===i?80:0,overflow:“hidden”,transition:“max-height 0.3s”}}><div style={{fontSize:10,color:”#777”,marginTop:6,padding:“6px 8px”,background:“rgba(0,0,0,0.3)”,borderRadius:4,lineHeight:1.6}}>{t.x}</div></div>
+<div style={{flex:1}}><div style={{fontSize:12,fontWeight:600,color:t.c,marginBottom:3}}>{t.t}</div><div style={{fontSize:11,color:"#999",lineHeight:1.6}}>{t.d}</div>
+<div style={{maxHeight:exp===i?80:0,overflow:"hidden",transition:"max-height 0.3s"}}><div style={{fontSize:10,color:"#777",marginTop:6,padding:"6px 8px",background:"rgba(0,0,0,0.3)",borderRadius:4,lineHeight:1.6}}>{t.x}</div></div>
 </div>
-<span style={{fontSize:11,color:”#555”,transform:exp===i?“rotate(180deg)”:””,transition:“transform 0.2s”}}>▼</span>
+<span style={{fontSize:11,color:"#555",transform:exp===i?"rotate(180deg)":"",transition:"transform 0.2s"}}>▼</span>
 </div>
 
   </div>)}</div>;
@@ -814,39 +814,39 @@ return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} s
 
 // ─── MAIN APP ───────────────────────────────────────────────────────
 function App() {
-const [sec,setSec]=useState(“arch”);
+const [sec,setSec]=useState("arch");
 const ref=useRef(null);
-const go=id=>{setSec(id);ref.current?.scrollIntoView({behavior:“smooth”});};
+const go=id=>{setSec(id);ref.current?.scrollIntoView({behavior:"smooth"});};
 
-return <div style={{minHeight:“100vh”,background:”#08080f”,color:”#d8d8e0”,fontFamily:”‘IBM Plex Sans’,‘Noto Sans SC’,system-ui,sans-serif”}}>
+return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontFamily:"'IBM Plex Sans','Noto Sans SC',system-ui,sans-serif"}}>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<div style={{padding:“24px 16px 12px”,textAlign:“center”}}>
-<div style={{position:“absolute”,inset:0,background:“radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)”,pointerEvents:“none”}}/>
-<h1 style={{fontSize:20,fontWeight:700,margin:0,background:“linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)”,WebkitBackgroundClip:“text”,WebkitTextFillColor:“transparent”,position:“relative”}}>LLM 物理 × 逻辑 全景图解</h1>
-<p style={{fontSize:11,color:”#666”,marginTop:5,position:“relative”}}>从显卡到神经网络 · 从训练到推理 · 8 个维度完整拆解</p>
+<div style={{padding:"24px 16px 12px",textAlign:"center"}}>
+<div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)",pointerEvents:"none"}}/>
+<h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
+<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 8 个维度完整拆解</p>
 </div>
-<div style={{position:“sticky”,top:0,zIndex:10,background:”#08080f”,borderBottom:“1px solid rgba(255,255,255,0.06)”,padding:“6px 0”,marginBottom:14}}>
-<div style={{maxWidth:740,margin:“0 auto”,padding:“0 8px”,display:“flex”,gap:3,overflowX:“auto”,WebkitOverflowScrolling:“touch”}}>
-{TABS.map(s=><button key={s.id} onClick={()=>go(s.id)} style={{padding:“5px 8px”,borderRadius:6,fontSize:10,fontWeight:600,cursor:“pointer”,border:sec===s.id?“1.5px solid #5B8DEF”:“1.5px solid transparent”,background:sec===s.id?“rgba(91,141,239,0.12)”:“transparent”,color:sec===s.id?”#5B8DEF”:”#777”,whiteSpace:“nowrap”,flexShrink:0}}>{s.icon} {s.label}</button>)}
+<div style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
+<div style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
+{TABS.map(s=><button key={s.id} onClick={()=>go(s.id)} style={{padding:"5px 8px",borderRadius:6,fontSize:10,fontWeight:600,cursor:"pointer",border:sec===s.id?"1.5px solid #5B8DEF":"1.5px solid transparent",background:sec===s.id?"rgba(91,141,239,0.12)":"transparent",color:sec===s.id?"#5B8DEF":"#777",whiteSpace:"nowrap",flexShrink:0}}>{s.icon} {s.label}</button>)}
 </div>
 </div>
-<div ref={ref} style={{maxWidth:740,margin:“0 auto”,padding:“0 16px”}}>
-{sec===“arch”&&<><div style={{fontSize:16,fontWeight:700,color:C.blue,marginBottom:12}}>🗺️ 全局架构：物理 × 逻辑</div><ArchDiagram/></>}
-{sec===“journey”&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>🚀 一次推理的完整旅程</div><Journey/></>}
-{sec===“attn”&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔍 Attention 机制内部</div><AttnDetail/></>}
-{sec===“memory”&&<><div style={{fontSize:16,fontWeight:700,color:C.red,marginBottom:12}}>🏔️ 存储金字塔</div><MemPyramid/></>}
-{sec===“tvsi”&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>⚖️ 训练 vs 推理</div><TrainVsInfer/></>}
-{sec===“parallel”&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔗 多卡并行策略</div><Parallel/></>}
-{sec===“kv”&&<><div style={{fontSize:16,fontWeight:700,color:C.orange,marginBottom:12}}>📦 KV Cache 实例演示</div><KVDemo/></>}
-{sec===“opt”&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>⚡ 优化全景</div><Opt/></>}
+<div ref={ref} style={{maxWidth:740,margin:"0 auto",padding:"0 16px"}}>
+{sec==="arch"&&<><div style={{fontSize:16,fontWeight:700,color:C.blue,marginBottom:12}}>🗺️ 全局架构：物理 × 逻辑</div><ArchDiagram/></>}
+{sec==="journey"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>🚀 一次推理的完整旅程</div><Journey/></>}
+{sec==="attn"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔍 Attention 机制内部</div><AttnDetail/></>}
+{sec==="memory"&&<><div style={{fontSize:16,fontWeight:700,color:C.red,marginBottom:12}}>🏔️ 存储金字塔</div><MemPyramid/></>}
+{sec==="tvsi"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>⚖️ 训练 vs 推理</div><TrainVsInfer/></>}
+{sec==="parallel"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔗 多卡并行策略</div><Parallel/></>}
+{sec==="kv"&&<><div style={{fontSize:16,fontWeight:700,color:C.orange,marginBottom:12}}>📦 KV Cache 实例演示</div><KVDemo/></>}
+{sec==="opt"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>⚡ 优化全景</div><Opt/></>}
 </div>
-<div style={{textAlign:“center”,padding:“24px 0”,fontSize:9,color:”#333”}}>Built with Claude · LLM Physical × Logical Guide</div>
+<div style={{textAlign:"center",padding:"24px 0",fontSize:9,color:"#333"}}>Built with Claude · LLM Physical × Logical Guide</div>
 <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}@keyframes blink{50%{opacity:0}}@keyframes btnPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0.3)}50%{box-shadow:0 0 12px 2px rgba(245,166,35,0.2)}}@keyframes scanAnim{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}`}</style>
 
   </div>;
 }
 
-ReactDOM.createRoot(document.getElementById(“root”)).render(<App />);
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
 
 </body>
