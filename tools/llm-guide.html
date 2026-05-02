@@ -37,6 +37,7 @@ const TABS=[
 {id:"tvsi",label:"训练vs推理",icon:"⚖️"},
 {id:"parallel",label:"多卡并行",icon:"🔗"},
 {id:"kv",label:"KV Cache",icon:"📦"},
+{id:"perf",label:"吞吐×时延",icon:"🎚️"},
 {id:"opt",label:"优化全景",icon:"⚡"},
 ];
 
@@ -882,6 +883,113 @@ return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} s
   </div>)}</div>;
 }
 
+// ─── THROUGHPUT × LATENCY SANDBOX ──────────────────────────────────
+function Perf() {
+  const [batch, setBatch] = useState(1);
+  const [model, setModel] = useState("13B");
+  const [ctx, setCtx] = useState(2048);
+
+  const MODELS = {
+    "7B":  { params_B: 7,  weights_GB: 14, kv_per_tok_KB: 256 },
+    "13B": { params_B: 13, weights_GB: 26, kv_per_tok_KB: 320 },
+    "70B": { params_B: 70, weights_GB: 140, kv_per_tok_KB: 320 },
+  };
+  const m = MODELS[model];
+  const HBM_BW = 2000;        // GB/s (A100 SXM)
+  const FLOPS_T = 312;        // TFLOPS FP16
+  const GPU_MEM = model === "70B" ? 320 : 80;  // 70B needs 4×A100, others 1×
+
+  const kv_GB = batch * ctx * m.kv_per_tok_KB / 1024 / 1024;
+  const total_mem_GB = m.weights_GB + kv_GB;
+  const oom = total_mem_GB > GPU_MEM * 0.9;
+
+  // TPOT decomposition
+  const mem_per_step_GB = m.weights_GB + kv_GB;       // every decode step rereads weights + all KV
+  const tpot_mem_ms = mem_per_step_GB / HBM_BW * 1000;
+  const tpot_compute_ms = (2 * m.params_B * batch) / (FLOPS_T * 1000) * 1000;
+  const tpot_ms = Math.max(8, tpot_mem_ms, tpot_compute_ms) + 2;
+  const bottleneck = tpot_compute_ms > tpot_mem_ms ? "compute-bound" : "memory-bound";
+
+  // Throughput (output tokens per second across all requests)
+  const throughput = (batch * 1000) / tpot_ms;
+
+  // Prefill (TTFT) — compute-bound at typical prompt lengths
+  const ttft_ms = (2 * m.params_B * batch * ctx) / (FLOPS_T * 1000) * 1000 + 50;
+
+  // Per-user perceived latency vs throughput tradeoff
+  const per_user_tps = 1000 / tpot_ms;     // tokens/s a single user sees
+
+  const Bar = ({label, value, max, c, unit, warn}) => {
+    const pct = Math.min(100, value / max * 100);
+    return <div style={{marginBottom:10}}>
+      <div style={{display:"flex",justifyContent:"space-between",fontSize:10,marginBottom:3}}>
+        <span style={{color:"#888"}}>{label}</span>
+        <span style={{color:warn?C.red:c,fontWeight:700,...M}}>{value.toFixed(value<10?2:value<100?1:0)} {unit}</span>
+      </div>
+      <div style={{height:8,borderRadius:4,background:"rgba(255,255,255,0.06)",overflow:"hidden"}}>
+        <div style={{height:"100%",width:pct+"%",background:warn?C.red:c,transition:"all 0.25s",borderRadius:4,boxShadow:`0 0 8px ${warn?C.red:c}66`}}/>
+      </div>
+    </div>;
+  };
+
+  return <Card color={C.cyan}>
+    <div style={{fontSize:11,color:"#aaa",marginBottom:12,lineHeight:1.7}}>
+      拖动 <Acc c={C.orange}>batch_size</Acc>，看四条曲线如何此消彼长。
+      <br/>核心 trade-off：<Acc c={C.green}>批大 → 吞吐高</Acc>，但 <Acc c={C.red}>每个用户的延迟也升高</Acc>。
+    </div>
+
+    {/* Controls */}
+    <div style={{padding:"12px 14px",background:"rgba(0,0,0,0.3)",borderRadius:8,marginBottom:14}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6,fontSize:11}}>
+        <span style={{color:"#aaa"}}>模型</span>
+        <div style={{display:"flex",gap:4}}>
+          {Object.keys(MODELS).map(k => <button key={k} onClick={()=>setModel(k)} style={{padding:"3px 10px",borderRadius:4,fontSize:10,fontWeight:600,cursor:"pointer",border:"1px solid "+(model===k?C.cyan+"66":"rgba(255,255,255,0.1)"),background:model===k?C.cyan+"22":"transparent",color:model===k?C.cyan:"#888"}}>Llama {k}</button>)}
+        </div>
+      </div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6,fontSize:11}}>
+        <span style={{color:"#aaa"}}>上下文 ctx</span>
+        <div style={{display:"flex",gap:4}}>
+          {[1024, 2048, 4096, 8192].map(k => <button key={k} onClick={()=>setCtx(k)} style={{padding:"3px 10px",borderRadius:4,fontSize:10,fontWeight:600,cursor:"pointer",border:"1px solid "+(ctx===k?C.cyan+"66":"rgba(255,255,255,0.1)"),background:ctx===k?C.cyan+"22":"transparent",color:ctx===k?C.cyan:"#888",...M}}>{k>=1024?(k/1024)+"k":k}</button>)}
+        </div>
+      </div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:11,marginTop:10}}>
+        <span style={{color:"#aaa"}}>batch_size</span>
+        <span style={{color:C.orange,fontSize:14,fontWeight:700,...M}}>{batch}</span>
+      </div>
+      <input type="range" min="1" max="128" value={batch} onChange={e=>setBatch(parseInt(e.target.value))}
+        style={{width:"100%",accentColor:C.orange,marginTop:4}}/>
+    </div>
+
+    {/* Metrics */}
+    <Bar label="TTFT (首 token 时延)"  value={ttft_ms}        max={6000} c={C.orange} unit="ms" warn={ttft_ms>3000}/>
+    <Bar label="TPOT (每 token 时延)"  value={tpot_ms}        max={200}  c={C.purple} unit="ms" warn={tpot_ms>100}/>
+    <Bar label="单用户感知速度"         value={per_user_tps}   max={80}   c={C.blue}   unit="tok/s"/>
+    <Bar label="系统总吞吐"            value={throughput}     max={1500} c={C.green}  unit="tok/s"/>
+    <Bar label={`显存占用（${GPU_MEM} GB 上限）`} value={total_mem_GB} max={GPU_MEM} c={C.red} unit="GB" warn={oom}/>
+
+    {/* Bottleneck callout */}
+    <div style={{padding:"10px 12px",borderRadius:6,marginTop:6,background:bottleneck==="compute-bound"?C.green+"10":C.purple+"10",border:"1px solid "+(bottleneck==="compute-bound"?C.green+"33":C.purple+"33")}}>
+      <div style={{display:"flex",justifyContent:"space-between",fontSize:10,marginBottom:4}}>
+        <span style={{color:"#aaa"}}>当前瓶颈</span>
+        <span style={{fontWeight:700,...M,color:bottleneck==="compute-bound"?C.green:C.purple}}>{bottleneck.toUpperCase()}</span>
+      </div>
+      <div style={{fontSize:10,color:"#888",lineHeight:1.6}}>
+        {bottleneck==="memory-bound"
+          ? <>每步都要把 <b style={{color:C.purple}}>{m.weights_GB} GB 权重 + {kv_GB.toFixed(1)} GB KV</b> 从 HBM 读到 SRAM。算力闲置，扩 batch 几乎免费。</>
+          : <>权重已多用户分摊，<b style={{color:C.green}}>张量核被打满</b>。再扩 batch 会让单用户感知速度变慢。</>}
+      </div>
+    </div>
+
+    {oom && <div style={{marginTop:8,padding:"8px 10px",background:C.red+"15",border:"1px solid "+C.red+"55",borderRadius:6,fontSize:10,color:C.red,fontWeight:600}}>
+      ⚠️ OOM：显存超出 {GPU_MEM} GB 上限。生产环境靠 PagedAttention（vLLM）+ tensor parallel 缓解。
+    </div>}
+
+    <div style={{marginTop:14,fontSize:9,color:"#555",lineHeight:1.7}}>
+      📌 数值基于 A100 SXM（HBM 2 TB/s · 312 TFLOPS FP16）的简化估算。真实系统还要考虑 PagedAttention、Continuous Batching、speculative decoding。
+    </div>
+  </Card>;
+}
+
 // ─── TOKENIZE & EMBEDDING (micro-flow) ─────────────────────────────
 function Tokenize() {
   const [step, setStep] = useState(0);
@@ -1010,7 +1118,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 <div style={{padding:"24px 16px 12px",textAlign:"center"}}>
 <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)",pointerEvents:"none"}}/>
 <h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
-<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 9 个维度完整拆解</p>
+<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 10 个维度完整拆解</p>
 </div>
 <div style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
 <div style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
@@ -1026,6 +1134,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 {sec==="tvsi"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>⚖️ 训练 vs 推理</div><TrainVsInfer/></>}
 {sec==="parallel"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔗 多卡并行策略</div><Parallel/></>}
 {sec==="kv"&&<><div style={{fontSize:16,fontWeight:700,color:C.orange,marginBottom:12}}>📦 KV Cache 实例演示</div><KVDemo/></>}
+{sec==="perf"&&<><div style={{fontSize:16,fontWeight:700,color:C.cyan,marginBottom:12}}>🎚️ 吞吐 × 时延：batch 拉杆沙盒</div><Perf/></>}
 {sec==="opt"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>⚡ 优化全景</div><Opt/></>}
 </div>
 <div style={{textAlign:"center",padding:"24px 0",fontSize:9,color:"#333"}}>Built with Claude · LLM Physical × Logical Guide</div>
