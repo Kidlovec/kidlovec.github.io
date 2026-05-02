@@ -32,6 +32,7 @@ const TABS=[
 {id:"arch",label:"全局架构",icon:"🗺️"},
 {id:"token",label:"Tokenize",icon:"🔤"},
 {id:"journey",label:"一次推理",icon:"🚀"},
+{id:"sample",label:"采样策略",icon:"🎲"},
 {id:"attn",label:"Attention",icon:"🔍"},
 {id:"memory",label:"存储金字塔",icon:"🏔️"},
 {id:"tvsi",label:"训练vs推理",icon:"⚖️"},
@@ -883,6 +884,143 @@ return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} s
   </div>)}</div>;
 }
 
+// ─── SAMPLING STRATEGY (temperature / top-p / top-k) ───────────────
+function Sampling() {
+  const [T, setT] = useState(1.0);
+  const [topK, setTopK] = useState(50);
+  const [topP, setTopP] = useState(0.9);
+
+  const CONTEXT = "今天的天气真";
+  const CANDIDATES = [
+    {tok:"好",  logit:3.2},
+    {tok:"热",  logit:2.9},
+    {tok:"冷",  logit:2.5},
+    {tok:"棒",  logit:2.2},
+    {tok:"美",  logit:1.9},
+    {tok:"差",  logit:1.6},
+    {tok:"晴",  logit:1.3},
+    {tok:"凉",  logit:1.0},
+    {tok:"潮",  logit:0.6},
+    {tok:"蓝",  logit:0.3},
+  ];
+
+  const softmax = (xs) => {
+    const mx = Math.max(...xs);
+    const ex = xs.map(x => Math.exp(x - mx));
+    const s = ex.reduce((a,b) => a+b, 0);
+    return ex.map(e => e/s);
+  };
+
+  // Step 1: temperature-scaled softmax
+  const scaled = CANDIDATES.map(c => c.logit / Math.max(0.05, T));
+  const baseProbs = softmax(scaled);
+
+  // Step 2: top-k filter (sort, keep top K indices)
+  const sortIdx = baseProbs.map((p,i) => ({p,i})).sort((a,b) => b.p - a.p);
+  const keepK = new Set(sortIdx.slice(0, topK).map(x => x.i));
+
+  // Step 3: top-p (nucleus) — among top-k, keep until cumulative >= topP
+  const keepP = new Set();
+  let cum = 0;
+  for (const {p,i} of sortIdx) {
+    if (!keepK.has(i)) continue;
+    keepP.add(i);
+    cum += p;
+    if (cum >= topP) break;
+  }
+
+  // Step 4: renormalize
+  const masked = baseProbs.map((p,i) => keepP.has(i) ? p : 0);
+  const sM = masked.reduce((a,b) => a+b, 0) || 1;
+  const finalProbs = masked.map(p => p/sM);
+
+  const maxBase = Math.max(...baseProbs);
+
+  // Quick semantic hint about current settings
+  let mood;
+  if (T <= 0.3) mood = {label:"贪心 / 确定", c:C.blue, why:"几乎只走最高概率的 token，输出可复现但单调。"};
+  else if (T <= 0.8) mood = {label:"低温 / 稳健", c:C.green, why:"略保留多样性，适合代码、事实问答。"};
+  else if (T <= 1.2) mood = {label:"中温 / 平衡", c:C.cyan, why:"教科书默认，对话和写作的常用区间。"};
+  else if (T <= 1.7) mood = {label:"高温 / 创意", c:C.orange, why:"放大尾部，适合头脑风暴、诗歌。"};
+  else mood = {label:"狂热 / 失控", c:C.red, why:"分布过平，容易产生不连贯甚至无意义的 token。"};
+
+  const Slider = ({label, val, min, max, step, fmt, on, c}) => (
+    <div style={{marginBottom:10}}>
+      <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:3}}>
+        <span style={{color:"#aaa"}}>{label}</span>
+        <span style={{color:c,fontWeight:700,...M}}>{fmt(val)}</span>
+      </div>
+      <input type="range" min={min} max={max} step={step} value={val}
+        onChange={e=>on(parseFloat(e.target.value))}
+        style={{width:"100%",accentColor:c}}/>
+    </div>
+  );
+
+  const Bar = ({tok, prob, base, kept, idx}) => {
+    const pct = base > 0 ? (prob/maxBase) * 100 : 0;
+    const basePct = (base/maxBase) * 100;
+    return <div style={{marginBottom:4,fontSize:10}}>
+      <div style={{display:"flex",alignItems:"center",gap:6}}>
+        <span style={{width:24,textAlign:"right",color:kept?"#fff":"#555",fontWeight:600,fontSize:13,...M}}>{tok}</span>
+        <div style={{flex:1,height:18,position:"relative",background:"rgba(255,255,255,0.04)",borderRadius:3,overflow:"hidden"}}>
+          {/* base ghost */}
+          <div style={{position:"absolute",inset:0,width:basePct+"%",background:"rgba(255,255,255,0.06)",borderRadius:3}}/>
+          {/* renormalized */}
+          <div style={{position:"absolute",inset:0,width:pct+"%",background:kept?`linear-gradient(90deg,${C.green},${C.cyan})`:"transparent",borderRadius:3,transition:"width 0.25s"}}/>
+        </div>
+        <span style={{width:60,textAlign:"right",color:kept?C.green:"#444",...M,fontSize:9}}>{(prob*100).toFixed(1)}%</span>
+      </div>
+    </div>;
+  };
+
+  return <Card color={C.purple}>
+    <div style={{fontSize:11,color:"#aaa",marginBottom:12,lineHeight:1.7}}>
+      Forward 后模型给出 logits。三个旋钮 <Acc c={C.orange}>temperature</Acc> / <Acc c={C.orange}>top-k</Acc> / <Acc c={C.orange}>top-p</Acc> 决定了从概率分布里"摇"哪个 token。
+    </div>
+
+    {/* Context */}
+    <div style={{padding:"10px 12px",background:"rgba(0,0,0,0.3)",borderRadius:6,marginBottom:12,fontSize:13,color:"#ddd",...M}}>
+      "{CONTEXT}<span style={{color:C.purple,fontWeight:700,marginLeft:4}}>?</span>"
+      <span style={{fontSize:9,color:"#666",marginLeft:8}}>← 模型预测下一个字</span>
+    </div>
+
+    {/* Controls */}
+    <div style={{padding:"12px 14px",background:"rgba(0,0,0,0.25)",borderRadius:8,marginBottom:14}}>
+      <Slider label="temperature" val={T}    min={0.1} max={2.0} step={0.05} fmt={v=>v.toFixed(2)}      on={setT}    c={C.orange}/>
+      <Slider label="top-k"       val={topK} min={1}   max={10}  step={1}    fmt={v=>v.toFixed(0)}      on={setTopK} c={C.cyan}/>
+      <Slider label="top-p (nucleus)" val={topP} min={0.1} max={1.0} step={0.05} fmt={v=>v.toFixed(2)}  on={setTopP} c={C.green}/>
+    </div>
+
+    {/* Distribution */}
+    <Label>候选概率分布（灰条 = 原始 softmax，彩色条 = 过滤+归一化后）</Label>
+    <div style={{padding:"10px 12px",background:"rgba(0,0,0,0.25)",borderRadius:8,marginBottom:12}}>
+      {CANDIDATES.map((c,i) => <Bar key={i} tok={c.tok} prob={finalProbs[i]} base={baseProbs[i]} kept={keepP.has(i)} idx={i}/>)}
+      <div style={{marginTop:8,paddingTop:6,borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",justifyContent:"space-between",fontSize:9,color:"#666"}}>
+        <span>保留 {keepP.size}/{CANDIDATES.length} 个候选</span>
+        <span>累计概率 {(finalProbs.reduce((a,b)=>a+b,0)*100).toFixed(0)}%（归一化后必为 100%）</span>
+      </div>
+    </div>
+
+    {/* Mood */}
+    <div style={{padding:"10px 12px",borderRadius:6,background:mood.c+"10",border:"1px solid "+mood.c+"33",marginBottom:10}}>
+      <div style={{display:"flex",justifyContent:"space-between",fontSize:10,marginBottom:4}}>
+        <span style={{color:"#aaa"}}>当前氛围</span>
+        <span style={{fontWeight:700,...M,color:mood.c}}>{mood.label}</span>
+      </div>
+      <div style={{fontSize:10,color:"#999",lineHeight:1.6}}>{mood.why}</div>
+    </div>
+
+    {/* Cheatsheet */}
+    <div style={{fontSize:10,color:"#999",lineHeight:1.7,padding:"8px 10px",background:"rgba(255,255,255,0.025)",borderRadius:6,border:"1px dashed rgba(255,255,255,0.06)"}}>
+      <div style={{color:"#bbb",fontWeight:600,marginBottom:4}}>📌 速查</div>
+      • <Acc c={C.orange}>temperature → 0</Acc>：贪心解码（greedy / argmax），完全确定。<br/>
+      • <Acc c={C.cyan}>top-k=k</Acc>：只保留概率最高的 k 个。<br/>
+      • <Acc c={C.green}>top-p=p</Acc>：保留累计概率达到 p 的最少 token（nucleus / 核采样）。<br/>
+      • 实践：通常 <Acc c={C.purple}>top-k=50, top-p=0.9</Acc> 兼顾，再用 temperature 调风格。
+    </div>
+  </Card>;
+}
+
 // ─── THROUGHPUT × LATENCY SANDBOX ──────────────────────────────────
 function Perf() {
   const [batch, setBatch] = useState(1);
@@ -1118,7 +1256,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 <div style={{padding:"24px 16px 12px",textAlign:"center"}}>
 <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)",pointerEvents:"none"}}/>
 <h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
-<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 10 个维度完整拆解</p>
+<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 11 个维度完整拆解</p>
 </div>
 <div style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
 <div style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
@@ -1129,6 +1267,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 {sec==="arch"&&<><div style={{fontSize:16,fontWeight:700,color:C.blue,marginBottom:12}}>🗺️ 全局架构：物理 × 逻辑</div><ArchDiagram/></>}
 {sec==="token"&&<><div style={{fontSize:16,fontWeight:700,color:C.cyan,marginBottom:12}}>🔤 Tokenize → Embedding：从文字到向量</div><Tokenize/></>}
 {sec==="journey"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>🚀 一次推理的完整旅程</div><Journey/></>}
+{sec==="sample"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🎲 采样策略：把 logits 摇成 token</div><Sampling/></>}
 {sec==="attn"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔍 Attention 机制内部</div><AttnDetail/></>}
 {sec==="memory"&&<><div style={{fontSize:16,fontWeight:700,color:C.red,marginBottom:12}}>🏔️ 存储金字塔</div><MemPyramid/></>}
 {sec==="tvsi"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>⚖️ 训练 vs 推理</div><TrainVsInfer/></>}
