@@ -15,3 +15,4 @@ current: tools
 - **LLM 可视化** - [LLM KV可视化](/tools/llm-exec-view.html)
 - **LLM 可视化** - [LLM exec可视化](/tools/llm-exec-view2.html)
 - **LLM 可视化guide** - [LLM 可视化GUIDE](/tools/llm-guide-mobile.html)
+- **LLM 可视化** - [LLM 物理 × 逻辑全景图解](/tools/llm-guide.html) - 桌面端 React 完整交互版，8 个 Tab 拆解架构、推理、Attention、KV Cache、训练 vs 推理、多卡并行与优化全景
