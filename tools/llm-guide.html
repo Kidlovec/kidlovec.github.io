@@ -39,6 +39,7 @@ const TABS=[
 {id:"parallel",label:"多卡并行",icon:"🔗"},
 {id:"kv",label:"KV Cache",icon:"📦"},
 {id:"perf",label:"吞吐×时延",icon:"🎚️"},
+{id:"quant",label:"量化精度",icon:"🗜️"},
 {id:"opt",label:"优化全景",icon:"⚡"},
 ];
 
@@ -884,6 +885,154 @@ return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} s
   </div>)}</div>;
 }
 
+// ─── QUANTIZATION COMPARISON (FP16 / FP8 / INT8 / INT4) ────────────
+function Quant() {
+  const [prec, setPrec] = useState("INT8");
+
+  // 4×4 toy weight matrix (FP16 ground truth)
+  const W = [
+    [ 0.4218, -0.1352,  0.8541, -0.2733],
+    [-0.6128,  0.0421,  0.3187, -0.7892],
+    [ 0.5443, -0.4912,  0.1024,  0.6739],
+    [-0.0857,  0.7621, -0.5346,  0.2418],
+  ];
+  const flat = W.flat();
+  const absMax = Math.max(...flat.map(Math.abs));
+
+  const FORMATS = {
+    "FP16":  {bytes: 2,    color: C.cyan,   bits: "1 + 5 + 10",  desc: "IEEE 754 半精度",  qFn: (x) => x},
+    "FP8":   {bytes: 1,    color: C.green,  bits: "1 + 4 + 3",   desc: "E4M3，H100 原生",  qFn: (x) => {
+      // simulate FP8 E4M3 — quantize to ~256 levels in [-448, +448], here normalized
+      const scale = 8 / absMax;       // exaggerated to show error visually
+      return Math.round(x * scale) / scale;
+    }},
+    "INT8":  {bytes: 1,    color: C.orange, bits: "(对称量化)",  desc: "GPTQ / AWQ 主流", qFn: (x) => {
+      const s = absMax / 127;
+      const q = Math.round(x / s);
+      return q * s;
+    }},
+    "INT4":  {bytes: 0.5,  color: C.red,    bits: "(对称量化)",  desc: "极端压缩，移动端",   qFn: (x) => {
+      const s = absMax / 7;
+      const q = Math.round(x / s);
+      return q * s;
+    }},
+  };
+
+  const f = FORMATS[prec];
+  const Wq = W.map(row => row.map(f.qFn));
+  const errors = W.map((row, i) => row.map((x, j) => Math.abs(x - Wq[i][j])));
+  const meanErr = errors.flat().reduce((a, b) => a + b, 0) / 16;
+  const maxErr = Math.max(...errors.flat());
+  const compression = 2 / f.bytes;
+  const params70B_GB = 70 * f.bytes;
+
+  // pretend perplexity overhead by precision
+  const PPL = {"FP16": 0.0, "FP8": 0.05, "INT8": 0.10, "INT4": 0.65};
+
+  const fmt = (x) => (x >= 0 ? "+" : "") + x.toFixed(prec === "FP16" ? 4 : prec === "FP8" ? 3 : 3);
+
+  return <Card color={C.green}>
+    <div style={{fontSize:11,color:"#aaa",marginBottom:12,lineHeight:1.7}}>
+      把 16-bit 浮点权重压成 8-bit 甚至 4-bit。
+      显存砍半甚至 1/4，<Acc c={C.red}>但每个权重都引入舍入误差</Acc>。
+      看右边的色斑就是误差地图。
+    </div>
+
+    {/* Precision selector */}
+    <div style={{display:"flex",gap:6,marginBottom:14,flexWrap:"wrap"}}>
+      {Object.keys(FORMATS).map(k => <button key={k} onClick={()=>setPrec(k)}
+        style={{flex:1,minWidth:64,padding:"7px 8px",borderRadius:6,fontSize:11,fontWeight:700,cursor:"pointer",border:"1.5px solid "+(prec===k?FORMATS[k].color+"99":"rgba(255,255,255,0.08)"),background:prec===k?FORMATS[k].color+"22":"transparent",color:prec===k?FORMATS[k].color:"#888",transition:"all 0.2s"}}>{k}</button>)}
+    </div>
+
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
+      {/* Original */}
+      <div>
+        <Label>FP16 原始权重</Label>
+        <div style={{padding:"8px",background:"rgba(0,0,0,0.3)",borderRadius:6}}>
+          <table style={{width:"100%",fontSize:9,...M,borderCollapse:"collapse"}}>
+            <tbody>{W.map((row, i) => <tr key={i}>
+              {row.map((x, j) => <td key={j} style={{padding:"4px 3px",textAlign:"center",color:x >= 0 ? C.cyan : C.pink,borderBottom:"1px solid rgba(255,255,255,0.04)"}}>{(x >= 0 ? "+" : "") + x.toFixed(4)}</td>)}
+            </tr>)}</tbody>
+          </table>
+        </div>
+      </div>
+      {/* Quantized */}
+      <div>
+        <Label>{prec} 量化后 + 误差色斑</Label>
+        <div style={{padding:"8px",background:"rgba(0,0,0,0.3)",borderRadius:6}}>
+          <table style={{width:"100%",fontSize:9,...M,borderCollapse:"collapse"}}>
+            <tbody>{Wq.map((row, i) => <tr key={i}>
+              {row.map((x, j) => {
+                const err = errors[i][j];
+                const rel = maxErr > 0 ? err / maxErr : 0;
+                const bg = `rgba(232,93,117,${rel * 0.45})`;
+                return <td key={j} style={{padding:"4px 3px",textAlign:"center",color:x >= 0 ? f.color : C.pink,borderBottom:"1px solid rgba(255,255,255,0.04)",background:bg,transition:"all 0.25s"}}>{(x >= 0 ? "+" : "") + x.toFixed(prec === "FP16" ? 4 : 3)}</td>;
+              })}
+            </tr>)}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    {/* Bit layout single weight */}
+    <Label>位布局 · 单个权重 ({fmt(W[0][2])} → {fmt(Wq[0][2])})</Label>
+    <div style={{padding:"10px 12px",background:"rgba(0,0,0,0.3)",borderRadius:8,marginBottom:14}}>
+      <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,...M,marginBottom:6}}>
+        <span style={{color:"#888",width:50}}>FP16</span>
+        <span style={{padding:"3px 6px",background:C.red+"33",color:C.red,borderRadius:3}}>S</span>
+        <span style={{padding:"3px 6px",background:C.blue+"33",color:C.blue,borderRadius:3}}>EEEEE</span>
+        <span style={{padding:"3px 6px",background:C.green+"33",color:C.green,borderRadius:3}}>MMMMMMMMMM</span>
+        <span style={{color:"#666",marginLeft:"auto"}}>= 16 bits = 2 B</span>
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,...M,marginBottom:6,opacity:prec==="FP8"?1:0.4}}>
+        <span style={{color:"#888",width:50}}>FP8 E4M3</span>
+        <span style={{padding:"3px 6px",background:C.red+"33",color:C.red,borderRadius:3}}>S</span>
+        <span style={{padding:"3px 6px",background:C.blue+"33",color:C.blue,borderRadius:3}}>EEEE</span>
+        <span style={{padding:"3px 6px",background:C.green+"33",color:C.green,borderRadius:3}}>MMM</span>
+        <span style={{color:"#666",marginLeft:"auto"}}>= 8 bits = 1 B</span>
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,...M,marginBottom:6,opacity:prec==="INT8"?1:0.4}}>
+        <span style={{color:"#888",width:50}}>INT8</span>
+        <span style={{padding:"3px 6px",background:C.orange+"33",color:C.orange,borderRadius:3}}>SIIIIIII</span>
+        <span style={{color:"#666",marginLeft:"auto"}}>= 8 bits = 1 B　scale × q</span>
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,...M,opacity:prec==="INT4"?1:0.4}}>
+        <span style={{color:"#888",width:50}}>INT4</span>
+        <span style={{padding:"3px 6px",background:C.red+"33",color:C.red,borderRadius:3}}>SIII</span>
+        <span style={{color:"#666",marginLeft:"auto"}}>= 4 bits = 0.5 B　极端压缩</span>
+      </div>
+    </div>
+
+    {/* Stats */}
+    <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:10}}>
+      <div style={{padding:"10px 12px",background:f.color+"10",border:"1px solid "+f.color+"33",borderRadius:6}}>
+        <div style={{fontSize:9,color:"#888"}}>压缩比 vs FP16</div>
+        <div style={{fontSize:18,fontWeight:700,color:f.color,...M}}>{compression.toFixed(compression < 10 ? 1 : 0)}×</div>
+      </div>
+      <div style={{padding:"10px 12px",background:f.color+"10",border:"1px solid "+f.color+"33",borderRadius:6}}>
+        <div style={{fontSize:9,color:"#888"}}>70B 模型显存</div>
+        <div style={{fontSize:18,fontWeight:700,color:f.color,...M}}>{params70B_GB} GB</div>
+      </div>
+      <div style={{padding:"10px 12px",background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:6}}>
+        <div style={{fontSize:9,color:"#888"}}>平均量化误差</div>
+        <div style={{fontSize:14,fontWeight:700,color:meanErr > 0.01 ? C.red : C.green,...M}}>{(meanErr * 1000).toFixed(2)} ‰</div>
+      </div>
+      <div style={{padding:"10px 12px",background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:6}}>
+        <div style={{fontSize:9,color:"#888"}}>困惑度退化估计</div>
+        <div style={{fontSize:14,fontWeight:700,color:PPL[prec] > 0.3 ? C.red : C.green,...M}}>+{(PPL[prec] * 100).toFixed(0)}%</div>
+      </div>
+    </div>
+
+    <div style={{fontSize:10,color:"#999",lineHeight:1.7,padding:"10px 12px",background:"rgba(255,255,255,0.025)",borderRadius:6,border:"1px dashed rgba(255,255,255,0.06)"}}>
+      <div style={{color:"#bbb",fontWeight:600,marginBottom:4}}>📌 经验法则</div>
+      • <Acc c={C.cyan}>FP16</Acc>：训练默认。<br/>
+      • <Acc c={C.green}>FP8</Acc>：H100 原生支持，训练 + 推理；混合精度训练 H100 ~2× 加速。<br/>
+      • <Acc c={C.orange}>INT8</Acc>（GPTQ/AWQ）：推理几乎无损，是部署主流。KV Cache 也可量化到 INT8。<br/>
+      • <Acc c={C.red}>INT4</Acc>：移动端 / 单卡跑大模型必备，会损失复杂推理能力。
+    </div>
+  </Card>;
+}
+
 // ─── SAMPLING STRATEGY (temperature / top-p / top-k) ───────────────
 function Sampling() {
   const [T, setT] = useState(1.0);
@@ -1256,7 +1405,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 <div style={{padding:"24px 16px 12px",textAlign:"center"}}>
 <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)",pointerEvents:"none"}}/>
 <h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
-<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 11 个维度完整拆解</p>
+<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 12 个维度完整拆解</p>
 </div>
 <div style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
 <div style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
@@ -1274,6 +1423,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 {sec==="parallel"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔗 多卡并行策略</div><Parallel/></>}
 {sec==="kv"&&<><div style={{fontSize:16,fontWeight:700,color:C.orange,marginBottom:12}}>📦 KV Cache 实例演示</div><KVDemo/></>}
 {sec==="perf"&&<><div style={{fontSize:16,fontWeight:700,color:C.cyan,marginBottom:12}}>🎚️ 吞吐 × 时延：batch 拉杆沙盒</div><Perf/></>}
+{sec==="quant"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>🗜️ 量化精度：把 16-bit 砍成 8/4-bit</div><Quant/></>}
 {sec==="opt"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>⚡ 优化全景</div><Opt/></>}
 </div>
 <div style={{textAlign:"center",padding:"24px 0",fontSize:9,color:"#333"}}>Built with Claude · LLM Physical × Logical Guide</div>
