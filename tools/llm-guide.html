@@ -47,6 +47,7 @@ const TABS=[
 {id:"quant",label:"量化精度",icon:"🗜️"},
 {id:"opt",label:"优化全景",icon:"⚡"},
 {id:"evolve",label:"演进时间线",icon:"🕰️"},
+{id:"sandbox",label:"如果会怎样",icon:"🎛️"},
 ];
 
 // ─── SHARED ─────────────────────────────────────────────────────────
@@ -889,6 +890,143 @@ return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} s
 </div>
 
   </div>)}</div>;
+}
+
+// ─── "WHAT IF" SANDBOX (memory & cost calculator) ──────────────────
+function Sandbox() {
+  const [params, setParams] = useState(70);     // billions
+  const [ctx, setCtx] = useState(8192);         // tokens
+  const [batch, setBatch] = useState(1);
+  const [prec, setPrec] = useState("FP16");
+  const [att, setAtt] = useState("GQA");        // MHA / GQA / MQA
+
+  const PREC = {"FP16": 2, "FP8": 1, "INT8": 1, "INT4": 0.5};
+  const KV_RATIO = {"MHA": 1.0, "GQA": 0.25, "MQA": 0.125};
+  const HARDWARE = [
+    {n:"RTX 4090",      vram:24,  fp16_t:165,  hr:0.45,  c:C.green},
+    {n:"A100 80GB",     vram:80,  fp16_t:312,  hr:1.80,  c:C.cyan},
+    {n:"H100 80GB",     vram:80,  fp16_t:989,  hr:2.99,  c:C.purple},
+    {n:"H200 141GB",    vram:141, fp16_t:989,  hr:4.50,  c:C.orange},
+  ];
+
+  const bytesPerWeight = PREC[prec];
+  const weightsGB = params * bytesPerWeight;
+
+  // KV cache size: rough — assume 80 layers, head_dim=128, 8 KV heads (GQA), FP16
+  // = 2 (K and V) × layers × kv_heads × head_dim × ctx × batch × bytes
+  // Use proxy: kv_per_token_KB scales with model size
+  const baseKvPerToken_KB = 0.5 * Math.pow(params, 0.55);   // ~0.5 KB at 1B, ~5 KB at 70B
+  const kvPerToken_KB = baseKvPerToken_KB * KV_RATIO[att] * (PREC[prec] / 2);
+  const kvGB = (kvPerToken_KB * ctx * batch) / 1024 / 1024;
+
+  // Activations: ~ctx * d * batch * 4 bytes for FP16 ish
+  // Approximation
+  const actGB = ctx * batch * Math.sqrt(params) * 0.0005;
+
+  const totalGB = weightsGB + kvGB + actGB;
+
+  const hwResults = HARDWARE.map(h => {
+    const gpus = Math.ceil(totalGB / (h.vram * 0.85));   // 85% usable
+    const cost_hr = gpus * h.hr;
+    // Roughly: speed ~ FLOPs / params / batch
+    const tps = batch * h.fp16_t * 1000 / (params * 2);   // very rough
+    return {...h, gpus, cost_hr, tps};
+  });
+
+  const verdict = (g) => {
+    if (g === 1) return {label:"单卡可跑", c:C.green};
+    if (g <= 4) return {label:"单机多卡", c:C.cyan};
+    if (g <= 8) return {label:"满载单机", c:C.orange};
+    return {label:`需 ${g} 卡集群`, c:C.red};
+  };
+
+  const Slider = ({label, val, options, on, c, format}) => (
+    <div style={{marginBottom:10}}>
+      <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:3}}>
+        <span style={{color:"#aaa"}}>{label}</span>
+        <span style={{color:c,fontWeight:700,...M}}>{format ? format(val) : val}</span>
+      </div>
+      <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
+        {options.map(o => <button key={o} onClick={()=>on(o)}
+          style={{flex:1,minWidth:50,padding:"4px 6px",borderRadius:4,fontSize:9,fontWeight:700,cursor:"pointer",border:"1px solid "+(val===o?c+"66":"rgba(255,255,255,0.08)"),background:val===o?c+"22":"transparent",color:val===o?c:"#888",transition:"all 0.2s",...M}}>
+          {format ? format(o) : o}
+        </button>)}
+      </div>
+    </div>
+  );
+
+  return <Card color={C.orange}>
+    <div style={{fontSize:11,color:"#aaa",marginBottom:14,lineHeight:1.7}}>
+      把所有旋钮拨到你的真实场景，看看 <Acc c={C.cyan}>显存够不够</Acc>、<Acc c={C.green}>需要几张卡</Acc>、<Acc c={C.orange}>每小时烧多少钱</Acc>。
+    </div>
+
+    {/* Controls */}
+    <div style={{padding:"12px 14px",background:"rgba(0,0,0,0.3)",borderRadius:8,marginBottom:14}}>
+      <Slider label="模型规模 (B params)" val={params} options={[1,7,13,30,70,175,405]} on={setParams} c={C.cyan} format={v=>v+"B"}/>
+      <Slider label="上下文长度 (token)"   val={ctx}    options={[1024,4096,8192,32768,131072,1048576]} on={setCtx} c={C.purple} format={v=>v>=1048576?"1M":v>=1024?(v/1024)+"k":v}/>
+      <Slider label="batch size"           val={batch}  options={[1,4,16,32,128]} on={setBatch} c={C.orange}/>
+      <Slider label="权重精度"              val={prec}   options={["FP16","FP8","INT8","INT4"]} on={setPrec} c={C.green}/>
+      <Slider label="Attention 变体"       val={att}    options={["MHA","GQA","MQA"]} on={setAtt} c={C.pink}/>
+    </div>
+
+    {/* Memory breakdown */}
+    <Label>显存分解</Label>
+    <div style={{padding:"12px 14px",background:"rgba(0,0,0,0.3)",borderRadius:8,marginBottom:12}}>
+      {[
+        {label:"权重",   v:weightsGB, c:C.cyan},
+        {label:"KV Cache", v:kvGB,    c:C.orange},
+        {label:"激活值", v:actGB,     c:C.green},
+      ].map((row, i) => {
+        const pct = totalGB > 0 ? (row.v / totalGB) * 100 : 0;
+        return <div key={i} style={{marginBottom:8}}>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:10,marginBottom:3}}>
+            <span style={{color:"#aaa"}}>{row.label}</span>
+            <span style={{color:row.c,fontWeight:700,...M}}>{row.v.toFixed(2)} GB （{pct.toFixed(0)}%）</span>
+          </div>
+          <div style={{height:6,borderRadius:3,background:"rgba(255,255,255,0.06)",overflow:"hidden"}}>
+            <div style={{height:"100%",width:pct+"%",background:row.c,borderRadius:3,transition:"width 0.3s"}}/>
+          </div>
+        </div>;
+      })}
+      <div style={{paddingTop:8,marginTop:6,borderTop:"1px solid rgba(255,255,255,0.08)",display:"flex",justifyContent:"space-between"}}>
+        <span style={{fontSize:11,color:"#bbb",fontWeight:700}}>合计</span>
+        <span style={{fontSize:14,color:totalGB>200?C.red:C.green,fontWeight:700,...M}}>{totalGB.toFixed(1)} GB</span>
+      </div>
+    </div>
+
+    {/* Hardware comparison */}
+    <Label>硬件配置 × 估算</Label>
+    <div style={{padding:"10px 12px",background:"rgba(0,0,0,0.3)",borderRadius:8,marginBottom:12}}>
+      <table style={{width:"100%",fontSize:10,...M,borderCollapse:"collapse"}}>
+        <thead><tr style={{color:"#666",fontSize:9}}>
+          <th style={{textAlign:"left",padding:"4px 6px"}}>GPU</th>
+          <th style={{textAlign:"right",padding:"4px 6px"}}>需要</th>
+          <th style={{textAlign:"left",padding:"4px 6px"}}>判断</th>
+          <th style={{textAlign:"right",padding:"4px 6px"}}>cost/h</th>
+          <th style={{textAlign:"right",padding:"4px 6px"}}>≈ tok/s</th>
+        </tr></thead>
+        <tbody>
+          {hwResults.map((h, i) => {
+            const v = verdict(h.gpus);
+            return <tr key={i} style={{borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
+              <td style={{padding:"5px 6px",color:h.c,fontWeight:600}}>{h.n}</td>
+              <td style={{padding:"5px 6px",textAlign:"right",color:"#ddd",fontWeight:600}}>{h.gpus} 张</td>
+              <td style={{padding:"5px 6px",color:v.c,fontWeight:600}}>{v.label}</td>
+              <td style={{padding:"5px 6px",textAlign:"right",color:C.orange,fontWeight:600}}>${h.cost_hr.toFixed(2)}</td>
+              <td style={{padding:"5px 6px",textAlign:"right",color:"#aaa"}}>{h.tps.toFixed(0)}</td>
+            </tr>;
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    <div style={{fontSize:10,color:"#999",lineHeight:1.7,padding:"10px 12px",background:"rgba(255,255,255,0.025)",borderRadius:6,border:"1px dashed rgba(255,255,255,0.06)"}}>
+      <div style={{color:"#bbb",fontWeight:600,marginBottom:4}}>💡 玩法</div>
+      • 想跑 70B 又只有 24GB 4090？→ 调到 <Acc c={C.green}>INT4 + GQA + ctx 4k + batch 1</Acc>，看是否压到一卡之内。<br/>
+      • 想看 1M 上下文的代价？→ ctx 调到 1M，看 KV Cache 分钟变成主要成本。<br/>
+      • 数字是数量级估算，真实数受 Flash Attention、PagedAttention、内存碎片等影响。
+    </div>
+  </Card>;
 }
 
 // ─── RoPE 2D ROTATION (position embedding) ─────────────────────────
@@ -2188,7 +2326,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 <div style={{padding:"24px 16px 12px",textAlign:"center"}}>
 <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)",pointerEvents:"none"}}/>
 <h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
-<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 18 个维度完整拆解</p>
+<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 19 个维度完整拆解</p>
 </div>
 <div style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
 <div style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
@@ -2214,6 +2352,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 {sec==="quant"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>🗜️ 量化精度：把 16-bit 砍成 8/4-bit</div><Quant/></>}
 {sec==="opt"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>⚡ 优化全景</div><Opt/></>}
 {sec==="evolve"&&<><div style={{fontSize:16,fontWeight:700,color:C.pink,marginBottom:12}}>🕰️ 演进时间线：从 Transformer 到现在</div><Evolve/></>}
+{sec==="sandbox"&&<><div style={{fontSize:16,fontWeight:700,color:C.orange,marginBottom:12}}>🎛️ "如果……会怎样" 沙盒</div><Sandbox/></>}
 </div>
 <div style={{textAlign:"center",padding:"24px 0",fontSize:9,color:"#333"}}>Built with Claude · LLM Physical × Logical Guide</div>
 <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}@keyframes blink{50%{opacity:0}}@keyframes btnPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0.3)}50%{box-shadow:0 0 12px 2px rgba(245,166,35,0.2)}}@keyframes scanAnim{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}`}</style>
