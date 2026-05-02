@@ -36,6 +36,7 @@ const TABS=[
 {id:"attn",label:"Attention",icon:"🔍"},
 {id:"memory",label:"存储金字塔",icon:"🏔️"},
 {id:"tvsi",label:"训练vs推理",icon:"⚖️"},
+{id:"train",label:"训练飞轮",icon:"🎡"},
 {id:"parallel",label:"多卡并行",icon:"🔗"},
 {id:"kv",label:"KV Cache",icon:"📦"},
 {id:"moe",label:"MoE 路由",icon:"🧠"},
@@ -886,6 +887,136 @@ return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} s
 </div>
 
   </div>)}</div>;
+}
+
+// ─── TRAINING DATA FLYWHEEL (Pretrain → SFT → RLHF / DPO) ──────────
+function TrainFlywheel() {
+  const [stage, setStage] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const [rlhfStep, setRlhfStep] = useState(0);
+  const tref = useRef(null);
+  const rlhfRef = useRef(null);
+
+  const STAGES = [
+    {
+      key:"pretrain", c:C.cyan, icon:"📚",
+      name:"Pretrain · 自监督",
+      data:"~15T token 网页 + 书籍 + 代码",
+      sample:'"巴黎是法国的[首都]"',
+      objective:"next-token cross-entropy",
+      loss:"L = −Σ log P(x_t | x_<t)",
+      cost:"~10²⁴ FLOPs（数月，数千 GPU）",
+      produces:"Base model · 知道事实，不会听话",
+    },
+    {
+      key:"sft", c:C.green, icon:"🎓",
+      name:"SFT · 监督微调",
+      data:"10⁴~10⁶ 条人工 instruction-response 对",
+      sample:'用户: "解释什么是 KV Cache" → 助手: "..."',
+      objective:"在 response 部分做 next-token",
+      loss:"L = −Σ log P(y_t | x, y_<t)",
+      cost:"~10²⁰ FLOPs（数小时）",
+      produces:"Instruct model · 会照格式回答",
+    },
+    {
+      key:"rlhf", c:C.purple, icon:"⚖️",
+      name:"RLHF / DPO · 偏好对齐",
+      data:"10⁵+ 对 human-ranked (chosen, rejected)",
+      sample:'同一问题两个回答，标注者选更好的',
+      objective:"最大化 reward，约束 KL ≤ β",
+      loss:"L = −E[r(x,y)] + β · KL(π‖π_ref)",
+      cost:"~10²⁰ FLOPs（PPO 比 DPO 贵 5×）",
+      produces:"Aligned model · 有用 · 无害 · 诚实",
+    },
+  ];
+
+  useEffect(() => {
+    if (!playing) return;
+    tref.current = setInterval(() => setStage(s => (s + 1) % STAGES.length), 3500);
+    return () => clearInterval(tref.current);
+  }, [playing, STAGES.length]);
+
+  // Inner RLHF loop animation
+  useEffect(() => {
+    if (stage !== 2) return;
+    rlhfRef.current = setInterval(() => setRlhfStep(s => (s + 1) % 4), 850);
+    return () => clearInterval(rlhfRef.current);
+  }, [stage]);
+
+  const cur = STAGES[stage];
+
+  const RLHF_STEPS = [
+    {label:"采样回答", c:C.blue,   x:"policy π 生成 y₁, y₂"},
+    {label:"奖励打分", c:C.orange, x:"reward model RM(x, y) → 分数"},
+    {label:"PPO 更新", c:C.green,  x:"梯度上升，约束 KL"},
+    {label:"循环",     c:C.purple, x:"新 policy → 回到第 1 步"},
+  ];
+
+  return <Card color={C.purple}>
+    <div style={{fontSize:11,color:"#aaa",marginBottom:12,lineHeight:1.7}}>
+      一个聊天模型不是一次训出来的，而是 <Acc c={C.cyan}>3 阶段流水线</Acc>：先学知识，再学格式，最后学价值观。
+    </div>
+
+    {/* Stage tabs */}
+    <div style={{display:"flex",gap:6,marginBottom:14}}>
+      {STAGES.map((s, i) => <button key={s.key} onClick={()=>{setStage(i); setPlaying(false);}}
+        style={{flex:1,padding:"8px 10px",borderRadius:6,fontSize:11,fontWeight:700,cursor:"pointer",border:"1.5px solid "+(stage===i?s.c+"99":"rgba(255,255,255,0.08)"),background:stage===i?s.c+"22":"transparent",color:stage===i?s.c:"#888",transition:"all 0.25s"}}>
+        <span style={{fontSize:14,marginRight:4}}>{s.icon}</span>
+        {i+1}. {s.key.toUpperCase()}
+      </button>)}
+    </div>
+
+    {/* Current stage detail */}
+    <Card color={cur.c} style={{marginBottom:12}}>
+      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+        <div style={{fontSize:24}}>{cur.icon}</div>
+        <div>
+          <div style={{fontSize:14,fontWeight:700,color:cur.c}}>{cur.name}</div>
+          <div style={{fontSize:9,color:"#666",...M}}>stage {stage + 1} / 3</div>
+        </div>
+      </div>
+      <Row l="数据" v={cur.data} c="#bbb"/>
+      <Row l="样本" v={cur.sample} c={cur.c}/>
+      <Row l="目标" v={cur.objective} c="#bbb"/>
+      <Row l="损失" v={cur.loss} c={cur.c}/>
+      <Row l="成本" v={cur.cost} c={C.orange}/>
+      <Row l="产物" v={cur.produces} c={C.green}/>
+    </Card>
+
+    {/* RLHF inner loop visible only on stage 2 */}
+    {stage === 2 && <Card style={{marginBottom:12}}>
+      <Label>RLHF 内循环（PPO）· 第 {rlhfStep + 1} / 4 步</Label>
+      <div style={{display:"flex",gap:6,marginTop:8,marginBottom:6}}>
+        {RLHF_STEPS.map((s, i) => <div key={i} style={{flex:1,padding:"10px 8px",borderRadius:6,textAlign:"center",
+          background: rlhfStep === i ? s.c+"22" : "rgba(255,255,255,0.04)",
+          border: rlhfStep === i ? "1.5px solid "+s.c+"66" : "1.5px solid transparent",
+          transition:"all 0.3s",
+        }}>
+          <div style={{fontSize:10,fontWeight:700,color:rlhfStep===i?s.c:"#888"}}>{i+1}. {s.label}</div>
+          <div style={{fontSize:8,color:"#666",marginTop:3,...M,minHeight:18}}>{rlhfStep===i?s.x:""}</div>
+        </div>)}
+      </div>
+      <div style={{fontSize:9,color:"#666",marginTop:6,padding:"6px 8px",background:"rgba(0,0,0,0.3)",borderRadius:4,lineHeight:1.7,...M}}>
+        DPO 跳过 reward model：直接用 (chosen, rejected) 对做对比损失，省去 PPO 的不稳定。
+      </div>
+    </Card>}
+
+    {/* Flywheel diagram */}
+    <Card color={C.orange}>
+      <Label>🎡 数据飞轮 · 上线后才真正开始</Label>
+      <div style={{padding:"10px 12px",fontSize:10,color:"#999",lineHeight:1.8}}>
+        <div>1. <Acc c={C.cyan}>真实用户</Acc> 与对齐模型对话 →</div>
+        <div>2. <Acc c={C.green}>赞/踩 + 编辑</Acc> 形成弱标注 →</div>
+        <div>3. 一部分送 <Acc c={C.orange}>RM 训练</Acc>，一部分做 <Acc c={C.purple}>SFT 增量</Acc> →</div>
+        <div>4. 模型再次 RLHF / DPO → <Acc c={C.red}>更强 → 用户更多 → 数据更多</Acc> ↻</div>
+      </div>
+    </Card>
+
+    <div style={{display:"flex",gap:6,marginTop:10}}>
+      <button onClick={()=>setPlaying(!playing)} style={{flex:1,padding:"6px 10px",borderRadius:5,fontSize:10,fontWeight:600,cursor:"pointer",border:"1px solid "+C.purple+"55",background:C.purple+"15",color:C.purple}}>{playing ? "⏸ 暂停轮播" : "▶ 自动轮播"}</button>
+      <button onClick={()=>{setStage(0); setRlhfStep(0);}} style={{padding:"6px 12px",borderRadius:5,fontSize:10,fontWeight:600,cursor:"pointer",border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:"#888"}}>↺ 重置</button>
+    </div>
+  </Card>;
 }
 
 // ─── MIXTURE OF EXPERTS (router + expert routing) ──────────────────
@@ -1828,7 +1959,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 <div style={{padding:"24px 16px 12px",textAlign:"center"}}>
 <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)",pointerEvents:"none"}}/>
 <h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
-<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 15 个维度完整拆解</p>
+<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 16 个维度完整拆解</p>
 </div>
 <div style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
 <div style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
@@ -1843,6 +1974,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 {sec==="attn"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔍 Attention 机制内部</div><AttnDetail/></>}
 {sec==="memory"&&<><div style={{fontSize:16,fontWeight:700,color:C.red,marginBottom:12}}>🏔️ 存储金字塔</div><MemPyramid/></>}
 {sec==="tvsi"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>⚖️ 训练 vs 推理</div><TrainVsInfer/></>}
+{sec==="train"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🎡 训练飞轮：Pretrain → SFT → RLHF/DPO</div><TrainFlywheel/></>}
 {sec==="parallel"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔗 多卡并行策略</div><Parallel/></>}
 {sec==="kv"&&<><div style={{fontSize:16,fontWeight:700,color:C.orange,marginBottom:12}}>📦 KV Cache 实例演示</div><KVDemo/></>}
 {sec==="moe"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🧠 MoE：每个 token 只激活 2/8 个专家</div><MoE/></>}
