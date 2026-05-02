@@ -39,6 +39,7 @@ const TABS=[
 {id:"parallel",label:"多卡并行",icon:"🔗"},
 {id:"kv",label:"KV Cache",icon:"📦"},
 {id:"perf",label:"吞吐×时延",icon:"🎚️"},
+{id:"batch",label:"连续批处理",icon:"🧩"},
 {id:"quant",label:"量化精度",icon:"🗜️"},
 {id:"opt",label:"优化全景",icon:"⚡"},
 ];
@@ -885,6 +886,160 @@ return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} s
   </div>)}</div>;
 }
 
+// ─── CONTINUOUS BATCHING ANIMATION ─────────────────────────────────
+function ContBatch() {
+  const [mode, setMode] = useState("cont");
+  const [t, setT] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const tref = useRef(null);
+
+  // Each request: { id, color, prefill (1 cell), decode (N cells) }
+  // Static schedule has fixed slot occupancy; continuous fills gaps.
+  const REQS = [
+    {id:"R1", c:C.cyan,   prefill:1, decode:4,  arrive:0},
+    {id:"R2", c:C.green,  prefill:1, decode:7,  arrive:0},
+    {id:"R3", c:C.orange, prefill:1, decode:11, arrive:0},
+    {id:"R4", c:C.purple, prefill:1, decode:5,  arrive:0},
+    {id:"R5", c:C.pink,   prefill:1, decode:6,  arrive:5},   // arrives mid-flight
+    {id:"R6", c:C.yellow, prefill:1, decode:4,  arrive:8},
+    {id:"R7", c:C.red,    prefill:1, decode:3,  arrive:10},
+    {id:"R8", c:C.blue,   prefill:1, decode:5,  arrive:13},
+  ];
+  const SLOTS = 4;
+  const TICKS = 22;
+
+  // Build schedule: slots[slot][t] = req object (or null)
+  const schedule = Array.from({length: SLOTS}, () => Array(TICKS).fill(null));
+  if (mode === "static") {
+    // Naive batched: launch in groups of SLOTS, batch ends when slowest in group finishes
+    let cursor = 0;
+    let i = 0;
+    while (i < REQS.length && cursor < TICKS) {
+      const group = REQS.slice(i, i + SLOTS).filter(r => r.arrive <= cursor + 2);
+      if (group.length === 0) { cursor++; continue; }
+      const groupLen = Math.max(...group.map(r => r.prefill + r.decode));
+      group.forEach((r, gIdx) => {
+        for (let dt = 0; dt < r.prefill + r.decode && cursor + dt < TICKS; dt++) {
+          schedule[gIdx][cursor + dt] = r;
+        }
+      });
+      cursor += groupLen;
+      i += group.length;
+    }
+  } else {
+    // Continuous: greedily slot any arrived-but-not-yet-running request into a free slot each tick
+    const remaining = REQS.map(r => ({...r, left: r.prefill + r.decode, started: false}));
+    for (let tick = 0; tick < TICKS; tick++) {
+      // First, continue any in-progress (one per slot)
+      // For continuous batching, slot occupancy is stable while request continues
+      for (let s = 0; s < SLOTS; s++) {
+        const cur = tick > 0 ? schedule[s][tick - 1] : null;
+        if (cur) {
+          const r = remaining.find(x => x.id === cur.id);
+          if (r && r.left > 0) { schedule[s][tick] = cur; r.left--; }
+        }
+      }
+      // Then, fill empty slots with newly-arrived requests
+      for (let s = 0; s < SLOTS; s++) {
+        if (schedule[s][tick]) continue;
+        const next = remaining.find(r => !r.started && r.arrive <= tick && r.left > 0);
+        if (next) {
+          schedule[s][tick] = next;
+          next.started = true;
+          next.left--;
+        }
+      }
+    }
+  }
+
+  // Compute GPU utilization (% slots in use) at current t
+  const occupied = (tick) => {
+    let n = 0;
+    for (let s = 0; s < SLOTS; s++) if (schedule[s][tick]) n++;
+    return n;
+  };
+  const utilNow = occupied(t);
+
+  useEffect(() => {
+    if (!playing) return;
+    tref.current = setInterval(() => setT(prev => (prev + 1) % TICKS), 350);
+    return () => clearInterval(tref.current);
+  }, [playing]);
+
+  const totalUtil = Array.from({length: TICKS}, (_, i) => occupied(i)).reduce((a,b) => a+b, 0);
+  const utilPct = (totalUtil / (SLOTS * TICKS) * 100).toFixed(0);
+
+  return <Card color={C.purple}>
+    <div style={{fontSize:11,color:"#aaa",marginBottom:12,lineHeight:1.7}}>
+      多个请求长度不同，怎么共享 4 个 GPU 槽位？
+      <br/>切换模式看 <Acc c={C.green}>vLLM 引入的核心创新</Acc>。
+    </div>
+
+    <div style={{display:"flex",gap:6,marginBottom:12}}>
+      {[["static","🪨 静态批处理"],["cont","⚡ 连续批处理"]].map(([k,v]) =>
+        <button key={k} onClick={()=>{setMode(k); setT(0);}} style={{flex:1,padding:"6px 10px",borderRadius:6,fontSize:11,fontWeight:600,cursor:"pointer",border:"1.5px solid "+(mode===k?C.purple+"99":"rgba(255,255,255,0.1)"),background:mode===k?C.purple+"22":"transparent",color:mode===k?C.purple:"#888"}}>{v}</button>
+      )}
+    </div>
+
+    {/* Schedule grid */}
+    <div style={{padding:"12px 12px",background:"rgba(0,0,0,0.3)",borderRadius:8,marginBottom:12,overflowX:"auto"}}>
+      {/* time axis */}
+      <div style={{display:"flex",gap:1,marginBottom:6,marginLeft:36}}>
+        {Array.from({length: TICKS}, (_, i) => <div key={i} style={{width:18,textAlign:"center",fontSize:7,color:i===t?C.orange:"#444",fontWeight:i===t?700:400,...M}}>{i}</div>)}
+      </div>
+      {/* slot rows */}
+      {Array.from({length: SLOTS}, (_, s) => <div key={s} style={{display:"flex",gap:1,alignItems:"center",marginBottom:2}}>
+        <div style={{width:34,fontSize:9,color:"#888",textAlign:"right",paddingRight:4,...M}}>slot {s}</div>
+        {schedule[s].map((req, i) => {
+          const isNow = i === t;
+          const c = req ? req.c : null;
+          return <div key={i} title={req ? req.id : "idle"} style={{
+            width: 18, height: 22, borderRadius: 3,
+            background: req ? c + (isNow ? "DD" : "55") : (isNow ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.02)"),
+            border: isNow ? "1px solid " + C.orange : "1px solid transparent",
+            transition: "all 0.15s",
+            display:"flex",alignItems:"center",justifyContent:"center",
+            fontSize:7,color:"#fff",fontWeight:600,...M,
+            boxShadow: req && isNow ? `0 0 6px ${c}88` : "none",
+          }}>{req ? req.id.slice(1) : ""}</div>;
+        })}
+      </div>)}
+      {/* utilization timeline */}
+      <div style={{display:"flex",gap:1,alignItems:"flex-end",marginTop:8,marginLeft:36,height:24}}>
+        {Array.from({length: TICKS}, (_, i) => {
+          const u = occupied(i) / SLOTS;
+          return <div key={i} style={{width:18,height:Math.max(2, u * 22),background:u >= 0.95 ? C.green : u >= 0.5 ? C.orange : C.red,opacity:0.8,borderRadius:1,transition:"all 0.2s"}}/>;
+        })}
+      </div>
+      <div style={{marginLeft:36,fontSize:8,color:"#666",marginTop:2}}>↑ GPU 利用率（满 = 4/4 槽位）</div>
+    </div>
+
+    <div style={{display:"flex",gap:6,marginBottom:10}}>
+      <button onClick={()=>setPlaying(!playing)} style={{flex:1,padding:"6px 10px",borderRadius:5,fontSize:10,fontWeight:600,cursor:"pointer",border:"1px solid "+C.cyan+"55",background:C.cyan+"15",color:C.cyan}}>{playing ? "⏸ 暂停" : "▶ 播放"}</button>
+      <button onClick={()=>{setT(0);}} style={{padding:"6px 12px",borderRadius:5,fontSize:10,fontWeight:600,cursor:"pointer",border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:"#888"}}>↺ 重置</button>
+    </div>
+
+    <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:10}}>
+      <div style={{padding:"10px 12px",background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:6}}>
+        <div style={{fontSize:9,color:"#888"}}>当前 t={t} 槽位利用</div>
+        <div style={{fontSize:18,fontWeight:700,color:utilNow === SLOTS ? C.green : C.orange,...M}}>{utilNow}/{SLOTS}</div>
+      </div>
+      <div style={{padding:"10px 12px",background:mode==="cont"?C.green+"10":C.red+"10",border:"1px solid "+(mode==="cont"?C.green+"33":C.red+"33"),borderRadius:6}}>
+        <div style={{fontSize:9,color:"#888"}}>整段 GPU 利用率</div>
+        <div style={{fontSize:18,fontWeight:700,color:mode==="cont"?C.green:C.red,...M}}>{utilPct}%</div>
+      </div>
+    </div>
+
+    <div style={{fontSize:10,color:"#999",lineHeight:1.7,padding:"10px 12px",background:"rgba(255,255,255,0.025)",borderRadius:6,border:"1px dashed rgba(255,255,255,0.06)"}}>
+      <div style={{color:"#bbb",fontWeight:600,marginBottom:4}}>📌 关键点</div>
+      • <Acc c={C.red}>静态批</Acc>：4 个请求一起开始、一起结束。最长的请求拖累全组 → <Acc c={C.red}>大量空闲槽位</Acc>。<br/>
+      • <Acc c={C.green}>连续批</Acc>：一旦有请求结束，立刻把新请求的 prefill 塞进空槽 → <Acc c={C.green}>槽位几乎不空</Acc>，吞吐 2-4×。<br/>
+      • 实现关键：<Acc c={C.cyan}>iteration-level scheduling</Acc> + <Acc c={C.cyan}>PagedAttention</Acc>（KV Cache 分页）。<br/>
+      • 是 vLLM / TensorRT-LLM / SGLang 的核心 trick。
+    </div>
+  </Card>;
+}
+
 // ─── QUANTIZATION COMPARISON (FP16 / FP8 / INT8 / INT4) ────────────
 function Quant() {
   const [prec, setPrec] = useState("INT8");
@@ -1405,7 +1560,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 <div style={{padding:"24px 16px 12px",textAlign:"center"}}>
 <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)",pointerEvents:"none"}}/>
 <h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
-<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 12 个维度完整拆解</p>
+<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 13 个维度完整拆解</p>
 </div>
 <div style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
 <div style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
@@ -1423,6 +1578,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 {sec==="parallel"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔗 多卡并行策略</div><Parallel/></>}
 {sec==="kv"&&<><div style={{fontSize:16,fontWeight:700,color:C.orange,marginBottom:12}}>📦 KV Cache 实例演示</div><KVDemo/></>}
 {sec==="perf"&&<><div style={{fontSize:16,fontWeight:700,color:C.cyan,marginBottom:12}}>🎚️ 吞吐 × 时延：batch 拉杆沙盒</div><Perf/></>}
+{sec==="batch"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🧩 连续批处理：vLLM 的核心 trick</div><ContBatch/></>}
 {sec==="quant"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>🗜️ 量化精度：把 16-bit 砍成 8/4-bit</div><Quant/></>}
 {sec==="opt"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>⚡ 优化全景</div><Opt/></>}
 </div>
