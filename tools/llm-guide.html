@@ -368,7 +368,37 @@ return <div>
 function AttnDetail() {
 const [tab,setTab]=useState("mha");
 const [heatStep,setHeatStep]=useState(0);
+const [hov,setHov]=useState(null);
+const [lock,setLock]=useState(null);
 const heatRef=useRef(null);
+
+// Coreference demo — hover any token to see what it attends to
+const SENT=["Alice","gave","Bob","her","book","because","she","trusted","him"];
+// Manually crafted attention rows; weights for previous tokens (causal mask)
+// Each row index i has weights[0..i] summing to ~1.
+const ATTN=[
+  [1.00],
+  [0.45, 0.55],
+  [0.30, 0.20, 0.50],
+  [0.70, 0.05, 0.05, 0.20],   // "her" → Alice
+  [0.05, 0.10, 0.05, 0.30, 0.50],
+  [0.05, 0.40, 0.05, 0.05, 0.05, 0.40],
+  [0.72, 0.02, 0.02, 0.04, 0.04, 0.08, 0.08],   // "she" → Alice
+  [0.05, 0.05, 0.10, 0.05, 0.05, 0.05, 0.45, 0.20],
+  [0.04, 0.04, 0.74, 0.04, 0.04, 0.04, 0.04, 0.04, -0.02], // "him" → Bob
+];
+const EXPL={
+  0:"句首 token，前面没有可看的内容（causal mask）。",
+  1:"动词，主要关注主语 Alice。",
+  2:"宾语，关注主语 + 动词建立 SVO 结构。",
+  3:"📍 代词指代：her 强烈指向 Alice（最近的女性人名）。",
+  4:"名词，主要关注它的所有者 her。",
+  5:"连词，承接前面的事件 gave。",
+  6:"📍 代词指代：she 再次指向 Alice，跨过中间多个 token。",
+  7:"动词，关注主语 she。",
+  8:"📍 代词指代：him 强烈指向 Bob（剩余的男性指代候选）。",
+};
+const active = lock!==null ? lock : hov;
 
 // Auto-animate attention heatmap
 useEffect(()=>{
@@ -430,6 +460,45 @@ return <div>
     </div>
   </div>
   <div style={{fontSize:9,color:"#555",marginTop:8}}>Q (行) × K<sup>T</sup> (列) → softmax → 权重。✕ = causal mask（不能看未来）</div>
+</Card>
+
+{/* Hover-to-explain attention demo */}
+<Card color={C.purple}>
+  <Label>🎯 Hover 探索：代词到底"看"了谁？</Label>
+  <div style={{fontSize:10,color:"#888",marginBottom:10,lineHeight:1.7}}>
+    把鼠标悬停（或点击锁定）在任意 token 上，
+    背景颜色深浅 = 它对前文每个 token 的 <Acc c={C.orange}>attention 权重</Acc>。
+    重点观察代词 <Acc c={C.purple}>her / she / him</Acc>。
+  </div>
+  <div style={{padding:"14px 12px",background:"rgba(0,0,0,0.3)",borderRadius:8,marginBottom:10,lineHeight:2.6,textAlign:"center"}}>
+    {SENT.map((t,i) => {
+      const isActive = active===i;
+      const w = active!==null && i<=active ? (ATTN[active][i]||0) : 0;
+      const bg = isActive ? C.purple+"55" : (w>0 ? `rgba(245,166,35,${Math.min(0.85, w*1.1)})` : "transparent");
+      const border = isActive ? `1.5px solid ${C.purple}` : `1.5px solid transparent`;
+      return <span key={i}
+        onMouseEnter={()=>setHov(i)}
+        onMouseLeave={()=>setHov(null)}
+        onClick={()=>setLock(lock===i?null:i)}
+        style={{display:"inline-block",padding:"6px 11px",margin:"3px 2px",borderRadius:6,background:bg,border:border,cursor:"pointer",fontSize:13,fontWeight:isActive||w>0.3?700:500,color:isActive?"#fff":w>0.3?"#fff":"#bbb",transition:"all 0.2s",...M}}
+        title={`token ${i}`}>
+        {t}{w>0.05 && !isActive && <sub style={{fontSize:8,marginLeft:3,opacity:0.85}}>{(w*100).toFixed(0)}%</sub>}
+      </span>;
+    })}
+  </div>
+  <div style={{minHeight:64,padding:"10px 12px",background:active!==null?C.purple+"08":"transparent",border:active!==null?"1px solid "+C.purple+"22":"1px dashed rgba(255,255,255,0.06)",borderRadius:6,fontSize:11,color:"#bbb",lineHeight:1.7,transition:"all 0.3s"}}>
+    {active!==null
+      ? <>
+          <div style={{fontSize:10,color:"#888",marginBottom:4}}>当前 query token：</div>
+          <div style={{fontSize:14,fontWeight:700,color:C.purple,marginBottom:6,...M}}>"{SENT[active]}"</div>
+          <div>{EXPL[active]}</div>
+        </>
+      : <div style={{color:"#666",textAlign:"center",paddingTop:8}}>↑ 鼠标悬停一个 token 看它关注谁　·　点击可锁定</div>}
+  </div>
+  <div style={{marginTop:10,fontSize:9,color:"#555",lineHeight:1.7}}>
+    📚 这是 attention 最强的能力之一：跨距离建立"<Acc c={C.cyan}>谁是谁</Acc>"的依赖。
+    真实模型有 32-128 个 head，每个 head 各自学到一种模式（语法、共指、主题、长程依赖……）。
+  </div>
 </Card>
 
 <Card>
