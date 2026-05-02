@@ -38,6 +38,7 @@ const TABS=[
 {id:"tvsi",label:"训练vs推理",icon:"⚖️"},
 {id:"parallel",label:"多卡并行",icon:"🔗"},
 {id:"kv",label:"KV Cache",icon:"📦"},
+{id:"moe",label:"MoE 路由",icon:"🧠"},
 {id:"perf",label:"吞吐×时延",icon:"🎚️"},
 {id:"batch",label:"连续批处理",icon:"🧩"},
 {id:"spec",label:"推测解码",icon:"🎯"},
@@ -887,6 +888,145 @@ return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} s
   </div>)}</div>;
 }
 
+// ─── MIXTURE OF EXPERTS (router + expert routing) ──────────────────
+function MoE() {
+  const [step, setStep] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const tref = useRef(null);
+
+  const TOKENS = ["写", "一段", "Python", "代码", "求", "斐波那契"];
+  const N_EXPERTS = 8;
+  const TOP_K = 2;
+
+  // Pretend each expert specializes in something
+  const EXPERT_LABELS = ["语法", "中文", "代码", "数学", "常识", "推理", "对话", "编辑"];
+  // For each token, pretend the router gives these scores (length 8)
+  const ROUTER_SCORES = [
+    [0.65, 0.78, 0.20, 0.10, 0.30, 0.40, 0.50, 0.55],   // "写" → 语法 + 中文
+    [0.55, 0.82, 0.15, 0.08, 0.25, 0.40, 0.40, 0.50],   // "一段" → 语法 + 中文
+    [0.30, 0.20, 0.95, 0.40, 0.20, 0.50, 0.20, 0.40],   // "Python" → 代码 + 推理
+    [0.40, 0.40, 0.92, 0.50, 0.30, 0.55, 0.30, 0.45],   // "代码" → 代码 + 推理
+    [0.30, 0.40, 0.50, 0.85, 0.30, 0.70, 0.20, 0.40],   // "求" → 数学 + 推理
+    [0.20, 0.45, 0.65, 0.92, 0.30, 0.85, 0.20, 0.40],   // "斐波那契" → 数学 + 代码
+  ];
+
+  // Find top-K experts for current token
+  const ranked = ROUTER_SCORES[step].map((s, i) => ({s, i})).sort((a, b) => b.s - a.s);
+  const chosen = new Set(ranked.slice(0, TOP_K).map(x => x.i));
+
+  // Stats
+  const expertParams_B = 1.6;  // each expert
+  const totalParams_B = N_EXPERTS * expertParams_B;
+  const activeParams_B = TOP_K * expertParams_B;
+
+  useEffect(() => {
+    if (!playing) return;
+    tref.current = setInterval(() => setStep(s => (s + 1) % TOKENS.length), 1300);
+    return () => clearInterval(tref.current);
+  }, [playing, TOKENS.length]);
+
+  return <Card color={C.purple}>
+    <div style={{fontSize:11,color:"#aaa",marginBottom:12,lineHeight:1.7}}>
+      MoE 把单一 FFN 拆成 N 个"专家"，每个 token 只激活其中 K 个。
+      <br/>同样 FLOPs 下，<Acc c={C.green}>总参数量数倍于 dense</Acc>，模型更聪明，推理依旧便宜。
+    </div>
+
+    {/* Sentence with current token highlighted */}
+    <div style={{padding:"10px 12px",background:"rgba(0,0,0,0.3)",borderRadius:6,marginBottom:12,fontSize:13,lineHeight:2,textAlign:"center",...M}}>
+      {TOKENS.map((t, i) => <span key={i} style={{
+        display:"inline-block",margin:"0 3px",padding:"3px 9px",borderRadius:5,
+        background: i === step ? C.purple+"55" : (i < step ? "rgba(255,255,255,0.04)" : "transparent"),
+        color: i === step ? "#fff" : (i < step ? "#bbb" : "#555"),
+        border: i === step ? `1.5px solid ${C.purple}` : "1.5px solid transparent",
+        transition:"all 0.3s",fontWeight:i===step?700:400,
+      }}>{t}</span>)}
+    </div>
+
+    {/* Router output */}
+    <Label>Router 打分（softmax over 8 experts）</Label>
+    <div style={{padding:"10px 12px",background:"rgba(0,0,0,0.25)",borderRadius:8,marginBottom:14}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(8,1fr)",gap:6}}>
+        {EXPERT_LABELS.map((label, i) => {
+          const s = ROUTER_SCORES[step][i];
+          const isChosen = chosen.has(i);
+          return <div key={i} style={{textAlign:"center"}}>
+            <div style={{height:60,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+              <div style={{
+                width:18,height: Math.max(3, s * 56),
+                background: isChosen ? `linear-gradient(180deg,${C.green},${C.cyan})` : "rgba(255,255,255,0.12)",
+                borderRadius:"3px 3px 0 0",
+                transition:"all 0.3s",
+                boxShadow: isChosen ? `0 0 8px ${C.green}66` : "none",
+              }}/>
+            </div>
+            <div style={{fontSize:8,color:isChosen?C.green:"#666",fontWeight:700,marginTop:2,...M}}>{(s*100).toFixed(0)}</div>
+            <div style={{fontSize:9,color:isChosen?C.green:"#666",marginTop:2,fontWeight:isChosen?700:400}}>E{i}</div>
+            <div style={{fontSize:8,color:"#555"}}>{label}</div>
+          </div>;
+        })}
+      </div>
+    </div>
+
+    {/* Routing illustration */}
+    <Label>当前 token "{TOKENS[step]}" → top-{TOP_K} expert 路由</Label>
+    <div style={{padding:"14px 12px",background:"rgba(0,0,0,0.3)",borderRadius:8,marginBottom:12,position:"relative"}}>
+      <svg viewBox="0 0 320 90" style={{width:"100%",height:"auto"}}>
+        {/* Token */}
+        <rect x="130" y="2" width="60" height="20" rx="4" fill={C.purple} opacity="0.9"/>
+        <text x="160" y="16" textAnchor="middle" fill="#fff" fontSize="9" fontWeight="700">{TOKENS[step]}</text>
+        {/* Experts */}
+        {EXPERT_LABELS.map((label, i) => {
+          const x = 10 + i * 38 + 5;
+          const isChosen = chosen.has(i);
+          return <g key={i}>
+            <rect x={x} y="60" width="28" height="22" rx="3"
+              fill={isChosen ? C.green : "rgba(255,255,255,0.08)"}
+              stroke={isChosen ? C.cyan : "rgba(255,255,255,0.1)"}
+              strokeWidth="1"
+              opacity={isChosen ? 1 : 0.5}>
+              {isChosen && <animate attributeName="opacity" values="0.8;1;0.8" dur="1s" repeatCount="indefinite"/>}
+            </rect>
+            <text x={x+14} y="74" textAnchor="middle" fill={isChosen ? "#fff" : "#666"} fontSize="7" fontWeight="700">E{i}</text>
+            {/* arrow from token to expert */}
+            {isChosen && <line x1="160" y1="22" x2={x+14} y2="60" stroke={C.cyan} strokeWidth="1.2" opacity="0.7" strokeDasharray="3,2">
+              <animate attributeName="stroke-dashoffset" from="10" to="0" dur="0.6s" repeatCount="indefinite"/>
+            </line>}
+          </g>;
+        })}
+      </svg>
+    </div>
+
+    {/* Stats */}
+    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:10}}>
+      <div style={{padding:"10px 12px",background:C.purple+"10",border:"1px solid "+C.purple+"33",borderRadius:6}}>
+        <div style={{fontSize:9,color:"#888"}}>总参数</div>
+        <div style={{fontSize:16,fontWeight:700,color:C.purple,...M}}>{totalParams_B} B</div>
+      </div>
+      <div style={{padding:"10px 12px",background:C.green+"10",border:"1px solid "+C.green+"33",borderRadius:6}}>
+        <div style={{fontSize:9,color:"#888"}}>每 token 激活</div>
+        <div style={{fontSize:16,fontWeight:700,color:C.green,...M}}>{activeParams_B} B</div>
+      </div>
+      <div style={{padding:"10px 12px",background:C.cyan+"10",border:"1px solid "+C.cyan+"33",borderRadius:6}}>
+        <div style={{fontSize:9,color:"#888"}}>稀疏率</div>
+        <div style={{fontSize:16,fontWeight:700,color:C.cyan,...M}}>{(TOP_K / N_EXPERTS * 100).toFixed(0)}%</div>
+      </div>
+    </div>
+
+    <div style={{display:"flex",gap:6,marginBottom:10}}>
+      <button onClick={()=>setPlaying(!playing)} style={{flex:1,padding:"6px 10px",borderRadius:5,fontSize:10,fontWeight:600,cursor:"pointer",border:"1px solid "+C.purple+"55",background:C.purple+"15",color:C.purple}}>{playing ? "⏸ 暂停" : "▶ 播放"}</button>
+      <button onClick={()=>setStep(0)} style={{padding:"6px 12px",borderRadius:5,fontSize:10,fontWeight:600,cursor:"pointer",border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:"#888"}}>↺ 重置</button>
+    </div>
+
+    <div style={{fontSize:10,color:"#999",lineHeight:1.7,padding:"10px 12px",background:"rgba(255,255,255,0.025)",borderRadius:6,border:"1px dashed rgba(255,255,255,0.06)"}}>
+      <div style={{color:"#bbb",fontWeight:600,marginBottom:4}}>📌 实际模型</div>
+      • <Acc c={C.cyan}>Mixtral 8×7B</Acc>：8 个 expert，激活 2 → 47B 总参 / 13B 激活。<br/>
+      • <Acc c={C.cyan}>DeepSeek V3</Acc>：256 个 routed expert + 1 shared，激活 8 → 671B 总参 / 37B 激活。<br/>
+      • Router 输出 logits → softmax → top-K，<Acc c={C.purple}>不同 head 互不重叠</Acc>。<br/>
+      • 关键挑战：<Acc c={C.red}>负载均衡</Acc>（auxiliary loss）+ <Acc c={C.red}>跨节点 all-to-all 通讯</Acc>（expert parallelism）。
+    </div>
+  </Card>;
+}
+
 // ─── SPECULATIVE DECODING (draft + target) ─────────────────────────
 function SpecDecode() {
   const [step, setStep] = useState(0);
@@ -1688,7 +1828,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 <div style={{padding:"24px 16px 12px",textAlign:"center"}}>
 <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)",pointerEvents:"none"}}/>
 <h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
-<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 14 个维度完整拆解</p>
+<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 15 个维度完整拆解</p>
 </div>
 <div style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
 <div style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
@@ -1705,6 +1845,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 {sec==="tvsi"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>⚖️ 训练 vs 推理</div><TrainVsInfer/></>}
 {sec==="parallel"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔗 多卡并行策略</div><Parallel/></>}
 {sec==="kv"&&<><div style={{fontSize:16,fontWeight:700,color:C.orange,marginBottom:12}}>📦 KV Cache 实例演示</div><KVDemo/></>}
+{sec==="moe"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🧠 MoE：每个 token 只激活 2/8 个专家</div><MoE/></>}
 {sec==="perf"&&<><div style={{fontSize:16,fontWeight:700,color:C.cyan,marginBottom:12}}>🎚️ 吞吐 × 时延：batch 拉杆沙盒</div><Perf/></>}
 {sec==="batch"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🧩 连续批处理：vLLM 的核心 trick</div><ContBatch/></>}
 {sec==="spec"&&<><div style={{fontSize:16,fontWeight:700,color:C.orange,marginBottom:12}}>🎯 推测解码：小模型起草 + 大模型验证</div><SpecDecode/></>}
