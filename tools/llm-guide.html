@@ -34,6 +34,7 @@ const TABS=[
 {id:"journey",label:"一次推理",icon:"🚀"},
 {id:"sample",label:"采样策略",icon:"🎲"},
 {id:"attn",label:"Attention",icon:"🔍"},
+{id:"rope",label:"RoPE 旋转",icon:"🌀"},
 {id:"memory",label:"存储金字塔",icon:"🏔️"},
 {id:"tvsi",label:"训练vs推理",icon:"⚖️"},
 {id:"train",label:"训练飞轮",icon:"🎡"},
@@ -888,6 +889,132 @@ return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} s
 </div>
 
   </div>)}</div>;
+}
+
+// ─── RoPE 2D ROTATION (position embedding) ─────────────────────────
+function RoPE() {
+  const [posQ, setPosQ] = useState(2);
+  const [posK, setPosK] = useState(0);
+  const [dim, setDim] = useState(0);   // which 2D pair (0..3)
+
+  // Base vectors (un-rotated query and key in a single 2D pair)
+  const Q0 = {x: 0.85, y: 0.35};
+  const K0 = {x: 0.70, y: 0.55};
+
+  // Per-dimension frequency θ_i = base^(-2i/d), with base = 10000
+  const D = 8;  // tiny demo head-dim
+  const baseFreq = 10000;
+  const thetas = [0,1,2,3].map(i => Math.pow(baseFreq, -2*i / D));
+
+  const theta = thetas[dim];
+  const angleQ = posQ * theta;
+  const angleK = posK * theta;
+
+  const rotate = (v, ang) => ({x: v.x*Math.cos(ang) - v.y*Math.sin(ang), y: v.x*Math.sin(ang) + v.y*Math.cos(ang)});
+
+  const Q = rotate(Q0, angleQ);
+  const K = rotate(K0, angleK);
+  const dot = Q.x*K.x + Q.y*K.y;
+  const dotBase = Q0.x*K0.x + Q0.y*K0.y;
+  // Relative angle Q to K
+  const relAngle = (posQ - posK) * theta;
+
+  // SVG: 200×200 canvas centered at (100, 100), unit = 80 px
+  const cx = 100, cy = 100, U = 70;
+  const toSvg = v => ({x: cx + v.x*U, y: cy - v.y*U});
+  const Qs = toSvg(Q), Ks = toSvg(K);
+  const Q0s = toSvg(Q0), K0s = toSvg(K0);
+
+  return <Card color={C.cyan}>
+    <div style={{fontSize:11,color:"#aaa",marginBottom:12,lineHeight:1.7}}>
+      RoPE 不"加"位置向量，而是把 Q/K 的每对维度<Acc c={C.orange}>旋转一个角度 m·θ</Acc>（m 是位置）。
+      <br/>结果：<Acc c={C.green}>Q·K 只依赖相对位置</Acc>，外推到更长上下文几乎免费。
+    </div>
+
+    {/* Visualization */}
+    <div style={{display:"grid",gridTemplateColumns:"180px 1fr",gap:14,marginBottom:14,alignItems:"start"}}>
+      <div style={{padding:"10px",background:"rgba(0,0,0,0.3)",borderRadius:8}}>
+        <svg viewBox="0 0 200 200" style={{width:"100%",height:"auto"}}>
+          {/* Axes */}
+          <line x1="10" y1="100" x2="190" y2="100" stroke="rgba(255,255,255,0.1)" strokeWidth="0.5"/>
+          <line x1="100" y1="10" x2="100" y2="190" stroke="rgba(255,255,255,0.1)" strokeWidth="0.5"/>
+          <circle cx={cx} cy={cy} r={U} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" strokeDasharray="2,3"/>
+          {/* Original Q (faded) */}
+          <line x1={cx} y1={cy} x2={Q0s.x} y2={Q0s.y} stroke={C.blue} strokeWidth="1" opacity="0.25" strokeDasharray="3,3"/>
+          <circle cx={Q0s.x} cy={Q0s.y} r="2" fill={C.blue} opacity="0.25"/>
+          {/* Rotated Q */}
+          <line x1={cx} y1={cy} x2={Qs.x} y2={Qs.y} stroke={C.blue} strokeWidth="2.2"/>
+          <circle cx={Qs.x} cy={Qs.y} r="3.5" fill={C.blue}>
+            <animate attributeName="r" values="3;4;3" dur="1.4s" repeatCount="indefinite"/>
+          </circle>
+          <text x={Qs.x+5} y={Qs.y-5} fill={C.blue} fontSize="9" fontWeight="700">Q (m={posQ})</text>
+          {/* Original K (faded) */}
+          <line x1={cx} y1={cy} x2={K0s.x} y2={K0s.y} stroke={C.orange} strokeWidth="1" opacity="0.25" strokeDasharray="3,3"/>
+          <circle cx={K0s.x} cy={K0s.y} r="2" fill={C.orange} opacity="0.25"/>
+          {/* Rotated K */}
+          <line x1={cx} y1={cy} x2={Ks.x} y2={Ks.y} stroke={C.orange} strokeWidth="2.2"/>
+          <circle cx={Ks.x} cy={Ks.y} r="3.5" fill={C.orange}>
+            <animate attributeName="r" values="3;4;3" dur="1.4s" repeatCount="indefinite"/>
+          </circle>
+          <text x={Ks.x+5} y={Ks.y-5} fill={C.orange} fontSize="9" fontWeight="700">K (m={posK})</text>
+          {/* Origin */}
+          <circle cx={cx} cy={cy} r="1.5" fill="#fff"/>
+        </svg>
+        <div style={{fontSize:8,color:"#666",textAlign:"center",marginTop:4,lineHeight:1.6}}>
+          虚线 = 原始 Q/K<br/>实线 = 旋转后<br/>θ_dim={theta.toFixed(4)}
+        </div>
+      </div>
+
+      <div>
+        <Label>位置 m_Q（query）</Label>
+        <input type="range" min="0" max="64" value={posQ} onChange={e=>setPosQ(parseInt(e.target.value))}
+          style={{width:"100%",accentColor:C.blue,marginBottom:4}}/>
+        <div style={{fontSize:10,color:C.blue,...M,marginBottom:10}}>m_Q = {posQ} → 旋转 {(angleQ * 180 / Math.PI).toFixed(1)}°</div>
+
+        <Label>位置 m_K（key）</Label>
+        <input type="range" min="0" max="64" value={posK} onChange={e=>setPosK(parseInt(e.target.value))}
+          style={{width:"100%",accentColor:C.orange,marginBottom:4}}/>
+        <div style={{fontSize:10,color:C.orange,...M,marginBottom:10}}>m_K = {posK} → 旋转 {(angleK * 180 / Math.PI).toFixed(1)}°</div>
+
+        <Label>当前看哪一对维度（共 {D/2} 对）</Label>
+        <div style={{display:"flex",gap:4,marginBottom:8}}>
+          {[0,1,2,3].map(i => <button key={i} onClick={()=>setDim(i)} style={{flex:1,padding:"4px 6px",borderRadius:4,fontSize:9,fontWeight:700,cursor:"pointer",border:"1px solid "+(dim===i?C.cyan+"66":"rgba(255,255,255,0.1)"),background:dim===i?C.cyan+"22":"transparent",color:dim===i?C.cyan:"#888",...M}}>dim {2*i},{2*i+1}</button>)}
+        </div>
+        <div style={{fontSize:9,color:"#666",lineHeight:1.6}}>
+          低维（dim 0,1）频率高，每步转大角度。<br/>
+          高维（dim 6,7）频率极低，几乎不转 → 编码长程信息。
+        </div>
+      </div>
+    </div>
+
+    {/* Stats */}
+    <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:10}}>
+      <div style={{padding:"10px 12px",background:C.green+"10",border:"1px solid "+C.green+"33",borderRadius:6}}>
+        <div style={{fontSize:9,color:"#888"}}>当前 Q · K</div>
+        <div style={{fontSize:16,fontWeight:700,color:C.green,...M}}>{dot.toFixed(4)}</div>
+      </div>
+      <div style={{padding:"10px 12px",background:C.purple+"10",border:"1px solid "+C.purple+"33",borderRadius:6}}>
+        <div style={{fontSize:9,color:"#888"}}>相对位置 Δm = m_Q − m_K</div>
+        <div style={{fontSize:16,fontWeight:700,color:C.purple,...M}}>{posQ - posK} （旋转 {(relAngle*180/Math.PI).toFixed(1)}°）</div>
+      </div>
+    </div>
+
+    <div style={{padding:"10px 12px",background:"rgba(255,255,255,0.025)",border:"1px dashed rgba(255,255,255,0.06)",borderRadius:6,marginBottom:10}}>
+      <div style={{fontSize:10,color:"#bbb",fontWeight:600,marginBottom:4}}>🧩 关键性质</div>
+      <div style={{fontSize:10,color:"#999",lineHeight:1.7}}>
+        把 m_Q 和 m_K 同时增加 <span style={{...M,color:C.cyan}}>K</span>，Q·K 不变（对应代码：滑动 Q 和 K 同方向，dot 几乎不变）。
+        <br/>原始未旋转的 Q·K = <span style={{color:C.cyan,...M}}>{dotBase.toFixed(4)}</span>
+      </div>
+    </div>
+
+    <div style={{fontSize:10,color:"#999",lineHeight:1.7,padding:"10px 12px",background:"rgba(255,255,255,0.025)",borderRadius:6,border:"1px dashed rgba(255,255,255,0.06)"}}>
+      <div style={{color:"#bbb",fontWeight:600,marginBottom:4}}>📌 实战</div>
+      • <Acc c={C.cyan}>Llama / Mistral / Qwen / DeepSeek</Acc> 全用 RoPE。<br/>
+      • 想要长上下文？<Acc c={C.orange}>NTK-aware scaling</Acc> / <Acc c={C.orange}>YaRN</Acc> 调高低维频率即可，无需重训。<br/>
+      • RoPE 把"绝对位置"和"相对位置"统一：<Acc c={C.green}>编码绝对、点积上看到相对</Acc>。<br/>
+      • 公式：旋转矩阵 R<sub>m·θ</sub> 作用在 Q、K 的每对维度上，θ_i = 10000<sup>-2i/d</sup>。
+    </div>
+  </Card>;
 }
 
 // ─── EVOLUTION TIMELINE (Transformer → modern LLM) ─────────────────
@@ -2061,7 +2188,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 <div style={{padding:"24px 16px 12px",textAlign:"center"}}>
 <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)",pointerEvents:"none"}}/>
 <h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
-<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 17 个维度完整拆解</p>
+<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 18 个维度完整拆解</p>
 </div>
 <div style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
 <div style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
@@ -2074,6 +2201,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 {sec==="journey"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>🚀 一次推理的完整旅程</div><Journey/></>}
 {sec==="sample"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🎲 采样策略：把 logits 摇成 token</div><Sampling/></>}
 {sec==="attn"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔍 Attention 机制内部</div><AttnDetail/></>}
+{sec==="rope"&&<><div style={{fontSize:16,fontWeight:700,color:C.cyan,marginBottom:12}}>🌀 RoPE：把 Q/K 旋转编码位置</div><RoPE/></>}
 {sec==="memory"&&<><div style={{fontSize:16,fontWeight:700,color:C.red,marginBottom:12}}>🏔️ 存储金字塔</div><MemPyramid/></>}
 {sec==="tvsi"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>⚖️ 训练 vs 推理</div><TrainVsInfer/></>}
 {sec==="train"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🎡 训练飞轮：Pretrain → SFT → RLHF/DPO</div><TrainFlywheel/></>}
