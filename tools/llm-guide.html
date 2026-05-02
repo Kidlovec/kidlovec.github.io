@@ -45,6 +45,7 @@ const TABS=[
 {id:"spec",label:"推测解码",icon:"🎯"},
 {id:"quant",label:"量化精度",icon:"🗜️"},
 {id:"opt",label:"优化全景",icon:"⚡"},
+{id:"evolve",label:"演进时间线",icon:"🕰️"},
 ];
 
 // ─── SHARED ─────────────────────────────────────────────────────────
@@ -887,6 +888,107 @@ return <div>{tips.map((t,i)=><div key={i} onClick={()=>setExp(exp===i?null:i)} s
 </div>
 
   </div>)}</div>;
+}
+
+// ─── EVOLUTION TIMELINE (Transformer → modern LLM) ─────────────────
+function Evolve() {
+  const [sel, setSel] = useState(0);
+  const [auto, setAuto] = useState(true);
+  const tref = useRef(null);
+
+  const MILESTONES = [
+    {y:"2017.06", n:"Transformer",            org:"Google",     c:C.cyan,   tag:"奠基",     params:"≈ 65M",  k:"Attention is All You Need · encoder-decoder · 取代 RNN/LSTM"},
+    {y:"2018.06", n:"GPT-1",                  org:"OpenAI",     c:C.blue,   tag:"decoder-only", params:"117M",   k:"无监督预训练 + 有监督微调，第一个真正的生成式预训练范式"},
+    {y:"2018.10", n:"BERT",                   org:"Google",     c:C.green,  tag:"encoder",  params:"340M",   k:"双向 MLM + NSP，理解任务全面屠榜"},
+    {y:"2019.02", n:"GPT-2",                  org:"OpenAI",     c:C.blue,   tag:"scale",    params:"1.5B",   k:"零样本/少样本展示初步能力，开源到 117M 时引发争议"},
+    {y:"2020.05", n:"GPT-3",                  org:"OpenAI",     c:C.blue,   tag:"emergent", params:"175B",   k:"In-context learning 涌现，从此进入 LLM 时代"},
+    {y:"2022.01", n:"Chinchilla 定律",        org:"DeepMind",   c:C.yellow, tag:"scaling",  params:"70B",    k:"模型规模 vs 数据量的最优比例：~20 token / param"},
+    {y:"2022.03", n:"InstructGPT",            org:"OpenAI",     c:C.purple, tag:"RLHF",     params:"175B",   k:"PPO 对齐范式确立 · 1.3B 对齐版打过 175B 原版"},
+    {y:"2022.11", n:"ChatGPT",                org:"OpenAI",     c:C.orange, tag:"破圈",     params:"~175B",  k:"消费级 RLHF 聊天，5 天百万用户，AI 进入大众语境"},
+    {y:"2023.02", n:"Llama 1",                org:"Meta",       c:C.red,    tag:"开源浪潮", params:"7B-65B", k:"高质量开放权重，催生 Alpaca/Vicuna 等微调生态"},
+    {y:"2023.03", n:"GPT-4",                  org:"OpenAI",     c:C.blue,   tag:"多模态",   params:"~1.8T MoE", k:"图像输入 · 显著推理增益 · 估测为 8×220B MoE"},
+    {y:"2023.07", n:"Llama 2",                org:"Meta",       c:C.red,    tag:"商用开源", params:"7B-70B", k:"商用许可 · GQA 出现 · 对齐版本随权重一起发布"},
+    {y:"2023.12", n:"Mixtral 8×7B",           org:"Mistral",    c:C.green,  tag:"开源 MoE", params:"47B/13B 激活", k:"开源 MoE，推理便宜，单卡可跑"},
+    {y:"2024.02", n:"Gemini 1.5 Pro",         org:"Google",     c:C.green,  tag:"长上下文", params:"未公开",  k:"1M token 上下文，把\"长文档检索\"变成\"塞进 prompt\""},
+    {y:"2024.03", n:"Claude 3",               org:"Anthropic",  c:C.orange, tag:"Opus 跃升", params:"未公开",  k:"Opus/Sonnet/Haiku 三档分级，长上下文 + 视觉 + 工具调用"},
+    {y:"2024.04", n:"Llama 3",                org:"Meta",       c:C.red,    tag:"小模型也强", params:"8B/70B/405B", k:"15T token 训练 · 8B 接近 Llama-2 70B 水平"},
+    {y:"2024.05", n:"GPT-4o",                 org:"OpenAI",     c:C.blue,   tag:"原生多模态", params:"未公开",  k:"统一文本/视觉/音频，端到端低延迟对话"},
+    {y:"2024.09", n:"o1 / o1-preview",        org:"OpenAI",     c:C.purple, tag:"reasoning", params:"未公开",  k:"测试时计算 + 长链思考（CoT inside），首个 reasoning 模型"},
+    {y:"2024.12", n:"DeepSeek V3",            org:"DeepSeek",   c:C.cyan,   tag:"性价比",    params:"671B/37B 激活", k:"开源 671B MoE，FP8 训练，5.6M 美元训完，挑战闭源"},
+    {y:"2025.01", n:"DeepSeek R1",            org:"DeepSeek",   c:C.cyan,   tag:"开源 reasoning", params:"671B MoE", k:"纯 RL（GRPO）激发推理 · 蒸馏到小模型也强 · 推动行业范式"},
+    {y:"2025+",   n:"Claude 4 / GPT-5",       org:"前沿",        c:C.pink,   tag:"agentic",  params:"未公开",  k:"长程任务、原生工具使用、记忆 · 进入\"代你做事\"阶段"},
+  ];
+
+  useEffect(() => {
+    if (!auto) return;
+    tref.current = setInterval(() => setSel(s => (s + 1) % MILESTONES.length), 2200);
+    return () => clearInterval(tref.current);
+  }, [auto, MILESTONES.length]);
+
+  // Scroll into view
+  const stripRef = useRef(null);
+  useEffect(() => {
+    if (!stripRef.current) return;
+    const el = stripRef.current.children[sel];
+    if (el && el.scrollIntoView) el.scrollIntoView({behavior:"smooth", inline:"center", block:"nearest"});
+  }, [sel]);
+
+  const cur = MILESTONES[sel];
+
+  return <Card color={C.pink}>
+    <div style={{fontSize:11,color:"#aaa",marginBottom:12,lineHeight:1.7}}>
+      8 年从 65M 参数的 <Acc c={C.cyan}>Transformer</Acc> 论文，到万亿级 MoE + 推理模型的产业生态。
+      <br/>下面是关键节点（点击或自动播放）。
+    </div>
+
+    {/* Horizontal strip */}
+    <div ref={stripRef} style={{display:"flex",gap:8,padding:"8px 4px",overflowX:"auto",scrollbarWidth:"thin",WebkitOverflowScrolling:"touch",marginBottom:12,borderTop:"1px dashed rgba(255,255,255,0.08)",borderBottom:"1px dashed rgba(255,255,255,0.08)"}}>
+      {MILESTONES.map((m, i) => {
+        const active = i === sel;
+        return <div key={i} onClick={()=>{setSel(i); setAuto(false);}} style={{
+          flexShrink:0, minWidth:96, cursor:"pointer", padding:"8px 10px", borderRadius:6,
+          background: active ? m.c+"22" : "rgba(255,255,255,0.03)",
+          border: "1.5px solid " + (active ? m.c+"99" : "rgba(255,255,255,0.06)"),
+          transition:"all 0.25s",
+          textAlign:"center",
+          boxShadow: active ? `0 0 12px ${m.c}33` : "none",
+        }}>
+          <div style={{fontSize:9,color:active?m.c:"#666",fontWeight:700,...M}}>{m.y}</div>
+          <div style={{fontSize:11,color:active?"#fff":"#bbb",fontWeight:active?700:500,marginTop:3,whiteSpace:"nowrap"}}>{m.n}</div>
+          <div style={{fontSize:8,color:"#666",marginTop:2}}>{m.org}</div>
+        </div>;
+      })}
+    </div>
+
+    {/* Detail card */}
+    <div style={{padding:"14px 14px",background:cur.c+"08",border:"1px solid "+cur.c+"33",borderRadius:8,marginBottom:10,minHeight:120}}>
+      <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:8,flexWrap:"wrap"}}>
+        <span style={{fontSize:18,fontWeight:700,color:cur.c}}>{cur.n}</span>
+        <span style={{fontSize:10,color:"#666",...M}}>{cur.y}</span>
+        <Tag c={cur.c}>{cur.tag}</Tag>
+        <span style={{marginLeft:"auto",fontSize:9,color:"#777"}}>params: <span style={{color:cur.c,fontWeight:700,...M}}>{cur.params}</span></span>
+      </div>
+      <div style={{fontSize:11,color:"#ccc",lineHeight:1.8}}>{cur.k}</div>
+    </div>
+
+    {/* Theme arc */}
+    <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:10}}>
+      {[
+        {title:"参数 → 数据 → 推理算力", c:C.blue,   x:"早期堆参数 → Chinchilla 后强调数据 → o1/R1 后开始堆测试时计算"},
+        {title:"闭源 ⇄ 开源拉锯",        c:C.green,  x:"GPT-3 关源 → Llama 2 商用开 → DeepSeek V3/R1 让开源跟到前沿"},
+        {title:"对齐范式",                c:C.purple, x:"SFT → RLHF/PPO → DPO → 纯 RL（GRPO）"},
+        {title:"形态变化",                c:C.orange, x:"文本 → 多模态 → 工具调用 → 长程 agent"},
+      ].map((t, i) => <div key={i} style={{padding:"10px 12px",background:"rgba(255,255,255,0.025)",border:"1px solid "+t.c+"22",borderRadius:6}}>
+        <div style={{fontSize:10,fontWeight:700,color:t.c,marginBottom:3}}>{t.title}</div>
+        <div style={{fontSize:9,color:"#888",lineHeight:1.6}}>{t.x}</div>
+      </div>)}
+    </div>
+
+    <div style={{display:"flex",gap:6}}>
+      <button onClick={()=>setAuto(!auto)} style={{flex:1,padding:"6px 10px",borderRadius:5,fontSize:10,fontWeight:600,cursor:"pointer",border:"1px solid "+C.pink+"55",background:C.pink+"15",color:C.pink}}>{auto ? "⏸ 暂停" : "▶ 自动播放"}</button>
+      <button onClick={()=>{setSel(0);}} style={{padding:"6px 12px",borderRadius:5,fontSize:10,fontWeight:600,cursor:"pointer",border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:"#888"}}>↺ 回到起点</button>
+    </div>
+  </Card>;
 }
 
 // ─── TRAINING DATA FLYWHEEL (Pretrain → SFT → RLHF / DPO) ──────────
@@ -1959,7 +2061,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 <div style={{padding:"24px 16px 12px",textAlign:"center"}}>
 <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)",pointerEvents:"none"}}/>
 <h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
-<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 16 个维度完整拆解</p>
+<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 17 个维度完整拆解</p>
 </div>
 <div style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
 <div style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
@@ -1983,6 +2085,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 {sec==="spec"&&<><div style={{fontSize:16,fontWeight:700,color:C.orange,marginBottom:12}}>🎯 推测解码：小模型起草 + 大模型验证</div><SpecDecode/></>}
 {sec==="quant"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>🗜️ 量化精度：把 16-bit 砍成 8/4-bit</div><Quant/></>}
 {sec==="opt"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>⚡ 优化全景</div><Opt/></>}
+{sec==="evolve"&&<><div style={{fontSize:16,fontWeight:700,color:C.pink,marginBottom:12}}>🕰️ 演进时间线：从 Transformer 到现在</div><Evolve/></>}
 </div>
 <div style={{textAlign:"center",padding:"24px 0",fontSize:9,color:"#333"}}>Built with Claude · LLM Physical × Logical Guide</div>
 <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}@keyframes blink{50%{opacity:0}}@keyframes btnPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0.3)}50%{box-shadow:0 0 12px 2px rgba(245,166,35,0.2)}}@keyframes scanAnim{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}`}</style>
