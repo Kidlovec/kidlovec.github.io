@@ -2328,9 +2328,9 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 <h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
 <p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 19 个维度完整拆解</p>
 </div>
-<div style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
-<div style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
-{TABS.map(s=><button key={s.id} onClick={()=>go(s.id)} style={{padding:"5px 8px",borderRadius:6,fontSize:10,fontWeight:600,cursor:"pointer",border:sec===s.id?"1.5px solid #5B8DEF":"1.5px solid transparent",background:sec===s.id?"rgba(91,141,239,0.12)":"transparent",color:sec===s.id?"#5B8DEF":"#777",whiteSpace:"nowrap",flexShrink:0}}>{s.icon} {s.label}</button>)}
+<div className="tabs-wrap" style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
+<div className="tabs-bar" style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
+{TABS.map(s=><button key={s.id} className="tab-btn" onClick={()=>go(s.id)} style={{padding:"5px 8px",borderRadius:6,fontSize:10,fontWeight:600,cursor:"pointer",border:sec===s.id?"1.5px solid #5B8DEF":"1.5px solid transparent",background:sec===s.id?"rgba(91,141,239,0.12)":"transparent",color:sec===s.id?"#5B8DEF":"#777",whiteSpace:"nowrap",flexShrink:0}}>{s.icon} {s.label}</button>)}
 </div>
 </div>
 <div ref={ref} style={{maxWidth:740,margin:"0 auto",padding:"0 16px"}}>
@@ -2355,7 +2355,26 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 {sec==="sandbox"&&<><div style={{fontSize:16,fontWeight:700,color:C.orange,marginBottom:12}}>🎛️ "如果……会怎样" 沙盒</div><Sandbox/></>}
 </div>
 <div style={{textAlign:"center",padding:"24px 0",fontSize:9,color:"#333"}}>Built with Claude · LLM Physical × Logical Guide</div>
-<style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}@keyframes blink{50%{opacity:0}}@keyframes btnPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0.3)}50%{box-shadow:0 0 12px 2px rgba(245,166,35,0.2)}}@keyframes scanAnim{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}`}</style>
+<style>{`
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{50%{opacity:0}}
+@keyframes btnPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0.3)}50%{box-shadow:0 0 12px 2px rgba(245,166,35,0.2)}}
+@keyframes scanAnim{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+
+/* desktop: hint that more tabs are off-screen */
+.tabs-wrap{position:sticky}
+.tabs-wrap::after{content:"";position:absolute;top:6px;bottom:7px;right:0;width:36px;background:linear-gradient(to left,#08080f 30%,rgba(8,8,15,0));pointer-events:none;z-index:1}
+.tabs-bar{scrollbar-width:thin}
+.tabs-bar::-webkit-scrollbar{height:4px}
+.tabs-bar::-webkit-scrollbar-thumb{background:rgba(91,141,239,0.35);border-radius:2px}
+
+/* mobile: 5×4 grid so all 19 tabs fit one screen */
+@media (max-width:768px){
+  .tabs-bar{display:grid !important;grid-template-columns:repeat(5,1fr) !important;gap:3px;overflow:visible !important;padding:0 6px !important}
+  .tab-btn{font-size:9px !important;padding:5px 3px !important;white-space:normal !important;line-height:1.25 !important;text-align:center;flex-shrink:0}
+  .tabs-wrap::after{display:none}
+}
+`}</style>
 
   </div>;
 }
