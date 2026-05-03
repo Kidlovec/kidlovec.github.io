@@ -702,6 +702,10 @@ body{
             <div class="option-main"><div class="option-name">Centre The Bakery <span class="option-tag zara">Zara</span></div><div class="option-desc">全东京最佳吐司 · 不想 5 点起就选这个</div></div>
             <div class="option-right"><div class="option-price">¥4,000<small>人均2,000</small></div><button class="option-info">i</button></div>
           </div>
+          <div class="option" data-price="6000" data-name="築地寿司清 本店" data-cat="早餐" data-detail="sushisei-honten">
+            <div class="option-main"><div class="option-name">築地寿司清 本店 <span class="option-tag gold">老铺</span></div><div class="option-desc">1889 年创业 · 文傑曾经吃过 · 11:00 开门</div></div>
+            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
+          </div>
         </div>
       </div>
 
@@ -721,8 +725,12 @@ body{
             <div class="option-right"><div class="option-price">¥20,000<small>人均10,000</small></div><button class="option-info">i</button></div>
           </div>
           <div class="option selected" data-price="10000" data-name="资生堂Parlour 银座" data-cat="午餐" data-detail="shiseido">
-            <div class="option-main"><div class="option-name">资生堂 Parlour 银座本店</div><div class="option-desc">洋食代表 · 氛围老派</div></div>
+            <div class="option-main"><div class="option-name">资生堂 Parlour 银座本店</div><div class="option-desc">洋食代表 · 氛围老派 · ⚠️ 5/4 周一可能休</div></div>
             <div class="option-right"><div class="option-price">¥10,000<small>人均5,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="8000" data-name="築地寿司清 銀座四丁目店" data-cat="午餐" data-detail="sushisei-ginza">
+            <div class="option-main"><div class="option-name">築地寿司清 銀座四丁目店 <span class="option-tag gold">怀旧老铺</span></div><div class="option-desc">文傑曾经吃过 · 银座 4 chome 中心 · 周一正常营业</div></div>
+            <div class="option-right"><div class="option-price">¥8,000<small>人均4,000</small></div><button class="option-info">i</button></div>
           </div>
         </div>
       </div>
@@ -1387,6 +1395,31 @@ const details = {
       {label:'Tabelog', url:tabelog('資生堂パーラー 銀座本店')}
     ],
     mapUrl: gmap('資生堂パーラー 銀座本店')},
+
+  'sushisei-honten': {kicker:'5/4 早餐 · 怀旧',name:'築地寿司清 本店',tagline:'1889 年创业 · 文傑以前吃过',
+    book:'<span class="em">Hot Pepper / 电话 03-3541-7720</span> · 不强制预约 · GW 建议提前订。',
+    go:'<span class="em">大江户线「築地市場」A1 出口徒步 1 分</span> / 日比谷线「築地」徒步 5 分 · 跟寿司大同区。',
+    hours:'11:00-22:00 (午市 11:00-15:00)',
+    tip:'<span class="em">11 点开门</span>,不是清晨吃店,适合 5/4 中午来 · ¥1,320 起 7 贯握りセット是性价比之王 · 一贯 ¥300-1000 可单点 · "便宜好吃的江户前"是招牌 · 不是顶级店,稳妥老味道。',
+    bookLinks:[
+      {label:'寿司清官网', url:'http://www.tsukijisushisay.co.jp/'},
+      {label:'Tabelog', url:tabelog('築地寿司清 本店')},
+      {label:'Hot Pepper', url:`https://www.hotpepper.jp/CSP/yyd010/desKwd/?keyword=${enc('築地寿司清 本店')}`}
+    ],
+    mapUrl: gmap('築地寿司清 本店 中央区築地')},
+
+  'sushisei-ginza': {kicker:'5/4 午餐 · 怀旧',name:'築地寿司清 銀座四丁目店',tagline:'银座 4 chome 中心 · 老铺分店',
+    book:'<span class="em">Hot Pepper / 楽天ぐるなび</span> · 平日不强制预约,GW 周一建议订位。',
+    go:'<span class="em">銀座线/丸之内线「銀座」A2 出口徒步 1 分</span> · 銀座 4 chome 路口附近 · 你银座购物路线上。',
+    hours:'11:00-15:00 (L.O. 14:00) / 17:00-22:00',
+    tip:'<span class="em">28 席カウンター</span> · 周一正常营业(资生堂 Parlour 周一休的备份)· 午市套餐 ¥1,320-3,000 / 人 · 茶碗蒸 + 握り 7 贯 + 铁火卷 + 味噌汁 经典组合 · "比久兵衛便宜很多但稳妥"的中段定位。',
+    bookLinks:[
+      {label:'寿司清官网', url:'http://www.tsukijisushisay.co.jp/store/4chome.html'},
+      {label:'Tabelog', url:tabelog('築地寿司清 銀座四丁目店')},
+      {label:'Hot Pepper', url:'https://www.hotpepper.jp/strJ000116930/'},
+      {label:'楽天ぐるなび', url:'https://r.gnavi.co.jp/2amzzsc20000/'}
+    ],
+    mapUrl: gmap('築地寿司清 銀座四丁目店')},
 
   'jiro-roppongi': {kicker:'5/4 晚餐',name:'すきやばし次郎 六本木店',tagline:'神店分店',
     book:'<span class="em">电话 03-5413-0033</span>(只接电话日语预约) · 提前 1-2 个月。或通过酒店 Concierge 介绍。',
