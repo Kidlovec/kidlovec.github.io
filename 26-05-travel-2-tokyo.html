@@ -732,6 +732,18 @@ body{
             <div class="option-main"><div class="option-name">築地寿司清 銀座四丁目店 <span class="option-tag gold">怀旧老铺</span></div><div class="option-desc">文傑曾经吃过 · 银座 4 chome 中心 · 周一正常营业</div></div>
             <div class="option-right"><div class="option-price">¥8,000<small>人均4,000</small></div><button class="option-info">i</button></div>
           </div>
+          <div class="option" data-price="12000" data-name="天ぷら 阿部 銀座本店" data-cat="午餐" data-detail="abe">
+            <div class="option-main"><div class="option-name">天ぷら 阿部 銀座本店 <span class="option-tag gold">天妇罗</span></div><div class="option-desc">银座 8 丁目 · 1 米其林星水准 · 性价比好</div></div>
+            <div class="option-right"><div class="option-price">¥12,000<small>人均6,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="6000" data-name="つな八 銀座大丸店" data-cat="午餐" data-detail="tsunahachi">
+            <div class="option-main"><div class="option-name">つな八 銀座大丸店 <span class="option-tag gold">天妇罗</span></div><div class="option-desc">明治 14 年老铺 · 现场可入 · 东京站丸大旁</div></div>
+            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="30000" data-name="天ぷら 元吉 表参道" data-cat="午餐" data-detail="motoyoshi">
+            <div class="option-main"><div class="option-name">天ぷら 元吉 <span class="option-tag red">独立店</span></div><div class="option-desc">表参道 · 独立店主厨 · ¥15K 起 omakase</div></div>
+            <div class="option-right"><div class="option-price">¥30,000<small>人均15,000</small></div><button class="option-info">i</button></div>
+          </div>
         </div>
       </div>
 
@@ -1420,6 +1432,39 @@ const details = {
       {label:'楽天ぐるなび', url:'https://r.gnavi.co.jp/2amzzsc20000/'}
     ],
     mapUrl: gmap('築地寿司清 銀座四丁目店')},
+
+  'abe': {kicker:'5/4 午餐 · 天妇罗',name:'天ぷら 阿部 銀座本店',tagline:'银座 8 丁目 · 1 米其林星水准 · 比近藤实惠',
+    book:'<span class="em">Tabelog / 一休餐厅 / 电话 03-5568-0432</span> · 提前 1-2 周 · GW 必订。',
+    go:'<span class="em">銀座线/日比谷线「銀座」A4 出口徒步 4 分</span> / JR「新橋」徒步 5 分 · 银座 8-7 中央通り。',
+    hours:'昼 11:30-14:00 / 夜 17:00-22:00 · 周日休',
+    tip:'<span class="em">午市 ¥6,000 起 / 夜市 ¥10,000+</span> · 主厨阿部慎太郎曾在近藤修业 · 蔬菜天妇罗水准接近近藤但价位友好 · 16 席吧台 · 必点玉米天妇罗、芝虾。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('天ぷら 阿部 銀座本店')},
+      {label:'一休餐厅', url:ikyu('天ぷら 阿部 銀座')}
+    ],
+    mapUrl: gmap('天ぷら 阿部 銀座本店')},
+
+  'tsunahachi': {kicker:'5/4 午餐 · 天妇罗',name:'つな八 銀座大丸店',tagline:'明治 14 年(1881)老铺 · 现场可入',
+    book:'<span class="em">不强制预约</span> · 大丸百货内 · GW 中午会满,11:00 开门去保险。',
+    go:'<span class="em">JR/丸之内线/银座线「東京」徒步 1 分</span> · 大丸东京店 12 楼 · 银座路上经过东京站可顺路。',
+    hours:'11:00-21:00 (L.O. 20:00)',
+    tip:'¥3,000-5,000 / 人 · 老铺连锁,品质稳定,无地雷 · 午市定食含天丼、天ぷら盛合せ + 沙拉 + 味噌汁 · 适合不想花大钱但要吃天妇罗的备选 · 浅草本店更正宗但远。',
+    bookLinks:[
+      {label:'つな八官网', url:'https://www.tunahachi.co.jp/'},
+      {label:'Tabelog', url:tabelog('つな八 銀座大丸店')},
+      {label:'Hot Pepper', url:`https://www.hotpepper.jp/CSP/yyd010/desKwd/?keyword=${enc('つな八 銀座大丸')}`}
+    ],
+    mapUrl: gmap('つな八 大丸東京店 12F')},
+
+  'motoyoshi': {kicker:'5/4 午餐 · 天妇罗',name:'天ぷら 元吉',tagline:'表参道独立店 · 主厨亲自掌勺',
+    book:'<span class="em">电话 03-3408-5224</span>(只接电话,日语)/ 通过酒店 Concierge · 提前 1 个月 · GW 极难。',
+    go:'<span class="em">銀座线/半蔵門线/千代田线「表参道」A4 出口徒步 5 分</span> · 南青山 · 离银座有距离,需要绕路。',
+    hours:'昼 12:00-13:30 / 夜 18:00-21:00 · 周日休',
+    tip:'¥15,000 / 人 起 omakase · 全店 7 席 · 主厨元吉和仁前锅前茂木"是山居"修业 · 江户前手法 + 现代演绎 · ⚠️ 不在你银座路线上,需要单独安排,而且很难订。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('天ぷら 元吉 南青山')}
+    ],
+    mapUrl: gmap('天ぷら 元吉 南青山')},
 
   'jiro-roppongi': {kicker:'5/4 晚餐',name:'すきやばし次郎 六本木店',tagline:'神店分店',
     book:'<span class="em">电话 03-5413-0033</span>(只接电话日语预约) · 提前 1-2 个月。或通过酒店 Concierge 介绍。',
