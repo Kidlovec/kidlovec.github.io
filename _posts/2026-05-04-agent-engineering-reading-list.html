@@ -1,0 +1,1187 @@
+---
+layout: null
+title: "Agent Engineering Reading List · Field Guide 2026"
+date: 2026-05-04 12:00:00
+tags: ai agents engineering reading-list
+author: kidlovec
+categories: kidlovec
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Field Guide 2026 · Multi-Agent Systems &amp; Enterprise Agent Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0c0b0a;
+    --ink-2: #131210;
+    --surface: #181613;
+    --surface-2: #1f1c17;
+    --line: #2a26206b;
+    --line-bright: #3a352c;
+    --paper: #c4bca8;
+    --paper-dim: #908872;
+    --paper-faint: #5d5749;
+    --gold: #a8875c;
+    --gold-soft: #8a6d4540;
+    --rust: #9a5e3d;
+  }
+
+  /* === LIGHT MODE — automatic for daytime / non-night-shift reading === */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #ede5d1;          /* warm cream paper */
+      --ink-2: #e4dbc4;        /* slightly deeper cream for sections */
+      --surface: #d9cfb6;      /* card surfaces */
+      --surface-2: #cec3a7;
+      --line: #6e624a40;       /* sepia separator, subtle */
+      --line-bright: #968a6e;
+      --paper: #2a2418;        /* dark sepia ink — body text */
+      --paper-dim: #5a503c;    /* secondary text */
+      --paper-faint: #847a64;  /* meta / labels */
+      --gold: #8a6535;         /* aged bronze — accent */
+      --gold-soft: #8a653540;
+      --rust: #7a4520;         /* deep terracotta */
+    }
+    body {
+      background:
+        radial-gradient(ellipse at 20% 0%, #d8cfb680 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, #c8bf9c80 0%, transparent 50%),
+        var(--ink);
+    }
+    body::before {
+      opacity: 0.06;            /* slightly stronger paper-grain texture */
+    }
+    .lang-toggle {
+      box-shadow: 0 4px 16px rgba(60, 40, 20, 0.12);
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at 20% 0%, #1f1b1280 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, #1a160e80 0%, transparent 50%),
+      var(--ink);
+    background-attachment: fixed;
+    min-height: 100vh;
+    padding: 0 24px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 80px 0 120px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* === LANGUAGE TOGGLE === */
+  .lang-toggle {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 100;
+    display: flex;
+    background: var(--ink-2);
+    border: 1px solid var(--line-bright);
+    border-radius: 999px;
+    padding: 4px;
+    font-family: "JetBrains Mono", monospace;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  .lang-toggle button {
+    background: transparent;
+    border: none;
+    color: var(--paper-faint);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-transform: uppercase;
+  }
+  .lang-toggle button:hover { color: var(--paper-dim); }
+  body.lang-en .lang-toggle button.btn-en,
+  body.lang-zh .lang-toggle button.btn-zh {
+    background: var(--gold);
+    color: var(--ink);
+  }
+
+  /* Language visibility */
+  body.lang-en .lang-zh { display: none; }
+  body.lang-zh .lang-en { display: none; }
+
+  /* Chinese-specific font tuning */
+  body.lang-zh .lede,
+  body.lang-zh .book-why,
+  body.lang-zh .book-bottom-content,
+  body.lang-zh .skipped p {
+    line-height: 1.8;
+    letter-spacing: 0.005em;
+  }
+  body.lang-zh h1 {
+    font-family: "Fraunces", "Noto Serif SC", serif;
+    letter-spacing: -0.005em;
+  }
+
+  /* === HEADER === */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--line-bright);
+    padding-bottom: 24px;
+    margin-bottom: 56px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--paper-faint);
+  }
+  .header .left { display: flex; gap: 24px; flex-wrap: wrap; }
+  .header .dot {
+    display: inline-block; width: 6px; height: 6px;
+    background: var(--gold); border-radius: 50%;
+    margin-right: 8px; vertical-align: middle;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+
+  /* === TITLE === */
+  .title-section { margin-bottom: 96px; position: relative; }
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .eyebrow::before, .eyebrow::after {
+    content: ''; height: 1px; flex: 1;
+    background: linear-gradient(90deg, transparent, var(--gold-soft), transparent);
+  }
+  .eyebrow::before { background: linear-gradient(90deg, transparent, var(--gold-soft)); max-width: 60px; }
+  .eyebrow::after { background: linear-gradient(90deg, var(--gold-soft), transparent); }
+
+  h1 {
+    font-family: "Fraunces", "Noto Serif SC", serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    color: var(--paper);
+    margin-bottom: 32px;
+    font-variation-settings: "opsz" 144, "SOFT" 50;
+  }
+  h1 .amp { color: var(--gold); font-style: italic; font-weight: 200; }
+  h1 .accent { font-weight: 500; font-style: normal; color: var(--paper); }
+
+  .lede {
+    font-size: 18px;
+    line-height: 1.65;
+    color: var(--paper-dim);
+    max-width: 620px;
+    font-weight: 300;
+  }
+  .lede strong { color: var(--paper); font-weight: 500; }
+
+  /* === SECTION === */
+  .section { margin-bottom: 80px; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 40px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-head .num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+  .section-head h2 {
+    font-family: "Fraunces", "Noto Serif SC", serif;
+    font-weight: 400;
+    font-size: 22px;
+    color: var(--paper);
+    letter-spacing: -0.01em;
+    flex: 1;
+  }
+  .section-head .meta {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--paper-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* === SEQUENCE === */
+  .sequence {
+    background: var(--ink-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 32px 28px;
+    margin-bottom: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .sequence::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(180deg, var(--gold) 0%, var(--rust) 100%);
+  }
+  .sequence-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--paper-faint);
+    margin-bottom: 20px;
+  }
+  .sequence-flow {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+  .seq-step {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 14px 16px;
+    border-radius: 3px;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  .seq-step:hover {
+    border-color: var(--gold-soft);
+    transform: translateY(-2px);
+  }
+  .seq-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .seq-title {
+    font-family: "Fraunces", "Noto Serif SC", serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--paper);
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .seq-time {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--paper-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  body.lang-zh .seq-time { letter-spacing: 0.04em; }
+  .seq-arrow {
+    align-self: center;
+    color: var(--paper-faint);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+  }
+
+  /* === BOOK CARD === */
+  .book {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 28px;
+    padding: 40px 0;
+    border-top: 1px solid var(--line);
+    position: relative;
+    transition: padding 0.3s ease;
+  }
+  .book:first-of-type { border-top: none; padding-top: 8px; }
+  .book:hover { padding-left: 12px; }
+  .book::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0;
+    width: 0; height: 100%;
+    background: var(--gold);
+    transition: width 0.3s ease;
+  }
+  .book:hover::before { width: 2px; }
+
+  .book-num {
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-weight: 200;
+    font-size: 56px;
+    color: var(--gold);
+    line-height: 1;
+    opacity: 0.85;
+  }
+  .book-num::after {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--gold-soft);
+    margin-top: 8px;
+  }
+
+  .book-content { min-width: 0; }
+
+  .book-meta-top {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--paper-faint);
+    margin-bottom: 12px;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .book-meta-top .pub-year { color: var(--gold); }
+  .book-meta-top .level {
+    padding: 2px 10px;
+    border: 1px solid var(--line-bright);
+    border-radius: 999px;
+    color: var(--paper-dim);
+  }
+
+  .book-title {
+    font-family: "Fraunces", serif;
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 1.2;
+    color: var(--paper);
+    letter-spacing: -0.015em;
+    margin-bottom: 8px;
+  }
+  .book-title em { font-style: italic; font-weight: 300; }
+
+  .book-author {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 14px;
+    color: var(--paper-dim);
+    font-weight: 400;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+  .book-author .pub { font-style: normal; color: var(--paper-faint); }
+
+  .book-why {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--paper);
+    margin-bottom: 18px;
+    font-weight: 300;
+  }
+  .book-why strong { color: var(--gold); font-weight: 500; }
+  .book-why code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    color: var(--paper-dim);
+    background: var(--surface);
+    padding: 1px 6px;
+    border-radius: 2px;
+    border: 1px solid var(--line);
+  }
+
+  .book-bottom {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+    margin-top: 8px;
+  }
+  .book-bottom-col { flex: 1; min-width: 200px; }
+  .book-bottom-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--paper-faint);
+    margin-bottom: 8px;
+  }
+  .book-bottom-content {
+    font-size: 13px;
+    color: var(--paper-dim);
+    line-height: 1.5;
+  }
+  .topics { display: flex; gap: 6px; flex-wrap: wrap; }
+  .topic {
+    font-family: "JetBrains Mono", "Noto Sans SC", monospace;
+    font-size: 10px;
+    color: var(--paper-dim);
+    background: var(--surface);
+    padding: 3px 8px;
+    border-radius: 2px;
+    border: 1px solid var(--line);
+  }
+
+  /* === BOOK SOURCES — "where to read" section === */
+  .book-sources {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--line);
+  }
+  .book-sources-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--paper-faint);
+    margin-bottom: 14px;
+  }
+  .sources-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .source {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 16px;
+    align-items: baseline;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+  .source-name {
+    font-family: "JetBrains Mono", "Noto Sans SC", monospace;
+    color: var(--paper-dim);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+  .source-note {
+    color: var(--paper-faint);
+    font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif;
+  }
+  .source.featured .source-name {
+    color: var(--gold);
+  }
+  .source.featured .source-name::before {
+    content: '★ ';
+    color: var(--gold);
+  }
+  .source.featured .source-note { color: var(--paper); }
+  body.lang-zh .source-note { line-height: 1.7; }
+  @media (max-width: 600px) {
+    .source { grid-template-columns: 1fr; gap: 2px; }
+  }
+
+  /* === SKIPPED === */
+  .skipped {
+    background: var(--ink-2);
+    border-left: 2px solid var(--rust);
+    padding: 28px 32px;
+    margin-top: 16px;
+    border-radius: 0 4px 4px 0;
+  }
+  .skipped:first-of-type { margin-top: 0; }
+  .skipped h3 {
+    font-family: "Fraunces", "Noto Serif SC", serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 18px;
+    color: var(--paper);
+    margin-bottom: 14px;
+  }
+  .skipped p {
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--paper-dim);
+    margin-bottom: 8px;
+  }
+  .skipped p strong { color: var(--paper); font-weight: 500; }
+
+  /* === FOOTER === */
+  .footer {
+    margin-top: 96px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line-bright);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--paper-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer .gold { color: var(--gold); }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .title-section, .sequence, .book, .skipped {
+    animation: fadeUp 0.7s ease both;
+  }
+  .title-section { animation-delay: 0.05s; }
+  .sequence { animation-delay: 0.15s; }
+  .book:nth-of-type(1) { animation-delay: 0.2s; }
+  .book:nth-of-type(2) { animation-delay: 0.25s; }
+  .book:nth-of-type(3) { animation-delay: 0.3s; }
+  .book:nth-of-type(4) { animation-delay: 0.35s; }
+  .book:nth-of-type(5) { animation-delay: 0.4s; }
+  .book:nth-of-type(6) { animation-delay: 0.45s; }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 600px) {
+    body { padding: 0 16px; }
+    .container { padding: 64px 0 80px; }
+    .lang-toggle { top: 16px; right: 16px; }
+    .lang-toggle button { font-size: 10px; padding: 5px 10px; }
+    .book { grid-template-columns: 1fr; gap: 12px; }
+    .book-num { font-size: 36px; }
+    .book-title { font-size: 22px; }
+    .header { font-size: 9px; gap: 12px; }
+    .seq-arrow { display: none; }
+  }
+</style>
+</head>
+<body class="lang-en">
+
+<!-- LANGUAGE TOGGLE -->
+<div class="lang-toggle" role="group" aria-label="Language">
+  <button class="btn-en" type="button" data-lang="en">EN</button>
+  <button class="btn-zh" type="button" data-lang="zh">中文</button>
+</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="left">
+      <span><span class="dot"></span><span class="lang-en">Field Guide / №01</span><span class="lang-zh">阅读指南 / №01</span></span>
+      <span><span class="lang-en">Curated for 文傑</span><span class="lang-zh">为 文傑 精选</span></span>
+    </div>
+    <div><span class="lang-en">2026 · Shanghai</span><span class="lang-zh">2026 · 上海</span></div>
+  </div>
+
+  <!-- TITLE -->
+  <div class="title-section">
+    <div class="eyebrow"><span class="lang-en">A Reader's Map</span><span class="lang-zh">阅读地图</span></div>
+
+    <h1 class="lang-en">
+      <span class="accent">Multi-Agent</span> systems<br>
+      <span class="amp">&amp;</span> <em>enterprise</em> agent engineering
+    </h1>
+    <h1 class="lang-zh">
+      <span class="accent">Multi-Agent</span> 系统<br>
+      <span class="amp">&amp;</span> <em>企业级</em> Agent 工程
+    </h1>
+
+    <p class="lede lang-en">
+      Six books worth your time, plus three skipped on purpose. Calibrated for someone <strong>already shipping multi-agent systems in production</strong> — so this list trades introductory material for depth on architecture, evaluation, and the patterns that separate a working demo from a system you'd let touch real money. Recency bias is intentional: <strong>everything below was published in 2024 or later.</strong>
+    </p>
+    <p class="lede lang-zh">
+      六本值得读的书，外加三本刻意略过的。这份清单是为<strong>已经在生产环境跑过多智能体系统</strong>的人调校的 —— 因此舍弃了入门内容，把篇幅留给架构、评估、以及"能跑的 demo"和"敢接入真实业务"之间那些关键模式。时效性是刻意的：<strong>下面所有书都出版于 2024 年之后。</strong>
+    </p>
+  </div>
+
+  <!-- READING SEQUENCE -->
+  <div class="sequence">
+    <div class="sequence-label">
+      <span class="lang-en">› Suggested reading sequence</span>
+      <span class="lang-zh">› 建议阅读顺序</span>
+    </div>
+    <div class="sequence-flow">
+      <div class="seq-step">
+        <div class="seq-num">01</div>
+        <div class="seq-title">Designing Multi-Agent Systems</div>
+        <div class="seq-time"><span class="lang-en">2 weeks · foundations</span><span class="lang-zh">2 周 · 基础理论</span></div>
+      </div>
+      <div class="seq-arrow">→</div>
+      <div class="seq-step">
+        <div class="seq-num">02</div>
+        <div class="seq-title">AI Engineering</div>
+        <div class="seq-time"><span class="lang-en">3 weeks · production</span><span class="lang-zh">3 周 · 生产实践</span></div>
+      </div>
+      <div class="seq-arrow">→</div>
+      <div class="seq-step">
+        <div class="seq-num">03 · 04</div>
+        <div class="seq-title"><span class="lang-en">Hands-on companions</span><span class="lang-zh">实战对照读物</span></div>
+        <div class="seq-time"><span class="lang-en">parallel · code-along</span><span class="lang-zh">并行 · 边读边码</span></div>
+      </div>
+      <div class="seq-arrow">→</div>
+      <div class="seq-step">
+        <div class="seq-num">05 · 06</div>
+        <div class="seq-title"><span class="lang-en">Reference shelf</span><span class="lang-zh">参考工具书</span></div>
+        <div class="seq-time"><span class="lang-en">dip in as needed</span><span class="lang-zh">按需查阅</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIER 1 -->
+  <div class="section">
+    <div class="section-head">
+      <span class="num">[ TIER 01 ]</span>
+      <h2><span class="lang-en">The core three</span><span class="lang-zh">核心三本</span></h2>
+      <span class="meta"><span class="lang-en">read in order · ~5 weeks</span><span class="lang-zh">顺序阅读 · 约 5 周</span></span>
+    </div>
+
+    <!-- BOOK 1 -->
+    <div class="book">
+      <div class="book-num">01</div>
+      <div class="book-content">
+        <div class="book-meta-top">
+          <span class="pub-year">Nov 2025</span>
+          <span><span class="lang-en">Self-published</span><span class="lang-zh">作者自出版</span></span>
+          <span class="level"><span class="lang-en">Senior practitioner</span><span class="lang-zh">资深实践者</span></span>
+        </div>
+        <h3 class="book-title"><em>Designing Multi-Agent Systems</em></h3>
+        <div class="book-author">Victor Dibia <span class="pub">· Microsoft Research / creator of AutoGen Studio</span></div>
+
+        <p class="book-why lang-en">
+          The single best on-target book in this list. Dibia spent two years writing it after building <strong>AutoGen and AutoGen Studio</strong>, and he deliberately keeps it <strong>framework-agnostic</strong> — he ships a teaching framework called PicoAgents built from scratch instead of locking the content to LangGraph or CrewAI APIs that age in months. For someone already running ReAct, Plan-and-Execute, and Supervisor patterns in production, this is the book that gives you the <strong>vocabulary and trade-off framing</strong> you've been deriving from blog posts. Strong chapters on trajectory-based evaluation, observability, and interruptibility — the things that actually break in production multi-agent systems.
+        </p>
+        <p class="book-why lang-zh">
+          本清单中最切题的一本。作者在 Microsoft Research 主导构建 <strong>AutoGen 和 AutoGen Studio</strong> 之后，花了整整两年写就此书，并刻意保持 <strong>framework-agnostic（与具体框架解耦）</strong>—— 他从零实现了一个名为 PicoAgents 的教学框架来讲解原理，而不是把内容绑定到几个月就会过时的 LangGraph 或 CrewAI API 上。如果你已经在生产环境跑过 ReAct、Plan-and-Execute、Supervisor 等模式，这本书能把你从博客文章里零散攒起来的概念，整理成一套清晰的<strong>术语体系和权衡框架</strong>。trajectory-based evaluation（轨迹评估）、observability（可观测性）、interruptibility（可中断性）几章尤其扎实 —— 这些恰恰是多智能体系统在生产环境中真正会出问题的地方。
+        </p>
+
+        <div class="book-bottom">
+          <div class="book-bottom-col">
+            <div class="book-bottom-label"><span class="lang-en">Best for</span><span class="lang-zh">适合</span></div>
+            <div class="book-bottom-content">
+              <span class="lang-en">Anyone designing supervisor / hierarchical / collaborative agent topologies and tired of framework-specific tutorials.</span>
+              <span class="lang-zh">正在设计 supervisor / 层级式 / 协作式 agent 拓扑、且厌倦了框架特定教程的人。</span>
+            </div>
+          </div>
+          <div class="book-bottom-col">
+            <div class="book-bottom-label"><span class="lang-en">Topics</span><span class="lang-zh">主题</span></div>
+            <div class="topics">
+              <span class="topic"><span class="lang-en">orchestration patterns</span><span class="lang-zh">编排模式</span></span>
+              <span class="topic"><span class="lang-en">trajectory eval</span><span class="lang-zh">轨迹评估</span></span>
+              <span class="topic"><span class="lang-en">observability</span><span class="lang-zh">可观测性</span></span>
+              <span class="topic"><span class="lang-en">first-principles</span><span class="lang-zh">第一性原理</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="book-sources">
+          <div class="book-sources-label">
+            <span class="lang-en">Where to read</span><span class="lang-zh">获取路径</span>
+          </div>
+          <ul class="sources-list">
+            <li class="source">
+              <span class="source-name">作者站点</span>
+              <span class="source-note">
+                <span class="lang-en">buy.multiagentbook.com — digital PDF/EPUB, lifetime updates</span>
+                <span class="lang-zh">buy.multiagentbook.com —— 数字版 PDF/EPUB，作者承诺终身免费更新</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">Amazon</span>
+              <span class="source-note">
+                <span class="lang-en">Paperback &amp; hardcover (ASIN B0G2BCQQJY)</span>
+                <span class="lang-zh">纸质平装与精装版（ASIN B0G2BCQQJY）</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">GitHub</span>
+              <span class="source-note">
+                <span class="lang-en">First 2 chapters free + full code at github.com/victordibia/designing-multiagent-systems</span>
+                <span class="lang-zh">免费试读前两章 + 完整代码：github.com/victordibia/designing-multiagent-systems</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">中文版</span>
+              <span class="source-note">
+                <span class="lang-en">Not yet translated (just released Nov 2025)</span>
+                <span class="lang-zh">暂无中文版（2025 年 11 月才出版，可关注图灵 / 异步社区动向）</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOK 2 -->
+    <div class="book">
+      <div class="book-num">02</div>
+      <div class="book-content">
+        <div class="book-meta-top">
+          <span class="pub-year">2025</span>
+          <span>O'Reilly</span>
+          <span class="level"><span class="lang-en">All levels</span><span class="lang-zh">各层级通用</span></span>
+        </div>
+        <h3 class="book-title"><em>AI Engineering</em></h3>
+        <div class="book-author">Chip Huyen <span class="pub">· author of Designing ML Systems</span></div>
+
+        <p class="book-why lang-en">
+          The closest thing the field has to a canonical text. Where Dibia goes deep on multi-agent design, Huyen goes wide on the <strong>full stack of production LLM systems</strong>: evaluation frameworks, prompt design, latency/cost/quality trade-offs, and a serious treatment of <strong>building robust evals for non-deterministic, multi-step agents</strong> — the hardest unsolved problem in the space. Engineering-first, not research-first. If your team has been arguing about how to actually measure agent quality past "looks right to me," this gives you a defensible vocabulary for those conversations. Pairs naturally with what you've been building for interview rubrics.
+        </p>
+        <p class="book-why lang-zh">
+          目前这个领域最接近"经典教材"的一本。如果说 Dibia 在多智能体架构上做的是"深度挖掘"，Huyen 这本则是"广度覆盖"—— 涵盖<strong>生产级 LLM 系统的全栈</strong>：评估框架、prompt（提示词）设计、延迟/成本/质量的权衡，以及一段非常硬核的内容：<strong>如何为非确定性、多步骤的 agent 构建鲁棒的 evals（评估体系）</strong>—— 这是整个领域目前最难、最未解决的问题。视角是"工程优先"而非"研究优先"。如果你的团队还在为"agent 的质量到底怎么衡量"反复争论（除了"看起来对"之外），这本书能给你一套可辩护、可落地的话语体系。和你最近在做的面试评估 rubric（评分量表）工作完美互补。
+        </p>
+
+        <div class="book-bottom">
+          <div class="book-bottom-col">
+            <div class="book-bottom-label"><span class="lang-en">Best for</span><span class="lang-zh">适合</span></div>
+            <div class="book-bottom-content">
+              <span class="lang-en">Engineering leads who need to think about evals, observability, and trade-offs across an entire LLM platform — not just one agent.</span>
+              <span class="lang-zh">需要从整个 LLM 平台层面（而不仅是单个 agent）思考评估、可观测性与权衡的工程负责人。</span>
+            </div>
+          </div>
+          <div class="book-bottom-col">
+            <div class="book-bottom-label"><span class="lang-en">Topics</span><span class="lang-zh">主题</span></div>
+            <div class="topics">
+              <span class="topic"><span class="lang-en">evaluation</span><span class="lang-zh">评估体系</span></span>
+              <span class="topic">RAG</span>
+              <span class="topic">LLMOps</span>
+              <span class="topic"><span class="lang-en">trade-offs</span><span class="lang-zh">权衡设计</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="book-sources">
+          <div class="book-sources-label">
+            <span class="lang-en">Where to read</span><span class="lang-zh">获取路径</span>
+          </div>
+          <ul class="sources-list">
+            <li class="source featured">
+              <span class="source-name">微信读书</span>
+              <span class="source-note">
+                <span class="lang-en">《AI 工程：大模型应用开发实战》— Chinese ed. by 图灵社区, free trial available</span>
+                <span class="lang-zh">《AI 工程：大模型应用开发实战》—— 图灵社区出品中文版，可免费试读</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">O'Reilly</span>
+              <span class="source-note">
+                <span class="lang-en">Learning Platform — most-read book since release (English)</span>
+                <span class="lang-zh">O'Reilly Learning Platform 英文原版（自上线起阅读量最高）</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">图灵社区</span>
+              <span class="source-note">
+                <span class="lang-en">ituring.com.cn — Chinese print + PDF/EPUB</span>
+                <span class="lang-zh">ituring.com.cn —— 中文版纸书 + PDF/EPUB</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">Amazon</span>
+              <span class="source-note">
+                <span class="lang-en">Paperback / Kindle (ISBN 9781098166304)</span>
+                <span class="lang-zh">英文纸质 / Kindle（ISBN 9781098166304）</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOK 3 -->
+    <div class="book">
+      <div class="book-num">03</div>
+      <div class="book-content">
+        <div class="book-meta-top">
+          <span class="pub-year">2025 · 2nd ed</span>
+          <span>Packt</span>
+          <span class="level"><span class="lang-en">Hands-on</span><span class="lang-zh">实操</span></span>
+        </div>
+        <h3 class="book-title"><em>Generative AI with LangChain</em></h3>
+        <div class="book-author">Ben Auffarth &amp; Leonid Kuligin <span class="pub">· founder of Chelsea AI Ventures</span></div>
+
+        <p class="book-why lang-en">
+          The 2nd edition is essentially a different book — fully rewritten around <strong>LangGraph multi-agent architectures and enterprise deployment</strong>. The first edition focused on individual developers; this one explicitly addresses engineering teams. Chapters on Tree-of-Thoughts, structured generation, agent handoffs with error handling, and hybrid-search/re-ranking RAG pipelines. If your AgentScope Java work eventually needs a sibling on the Python side — or if you're benchmarking your in-house orchestration against LangGraph patterns — this is the most complete reference.
+        </p>
+        <p class="book-why lang-zh">
+          第二版几乎可视作一本全新的书 —— 围绕 <strong>LangGraph 多智能体架构与企业级部署</strong>完全重写。第一版面向个人开发者，第二版则明确面向工程团队。涵盖 Tree-of-Thoughts（思维树）、structured generation（结构化输出）、agent 间带错误处理的 handoff（交接）、以及 hybrid-search（混合检索）+ re-ranking（重排序）的高级 RAG 管线。如果你的 AgentScope Java 工作之后需要一个 Python 端的对照实现，或想拿团队自研的编排逻辑去对标 LangGraph 的模式，这本是覆盖最全的参考。
+        </p>
+
+        <div class="book-bottom">
+          <div class="book-bottom-col">
+            <div class="book-bottom-label"><span class="lang-en">Best for</span><span class="lang-zh">适合</span></div>
+            <div class="book-bottom-content">
+              <span class="lang-en">Teams committing to LangGraph for production, or anyone wanting a thorough patterns-and-code companion to Tier 01 + 02.</span>
+              <span class="lang-zh">决定用 LangGraph 上生产的团队，或想要 Tier 01 + 02 的"模式 + 代码"完整对照读物的人。</span>
+            </div>
+          </div>
+          <div class="book-bottom-col">
+            <div class="book-bottom-label"><span class="lang-en">Topics</span><span class="lang-zh">主题</span></div>
+            <div class="topics">
+              <span class="topic">LangGraph</span>
+              <span class="topic"><span class="lang-en">multi-agent</span><span class="lang-zh">多智能体</span></span>
+              <span class="topic"><span class="lang-en">advanced RAG</span><span class="lang-zh">高级 RAG</span></span>
+              <span class="topic"><span class="lang-en">enterprise deploy</span><span class="lang-zh">企业级部署</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="book-sources">
+          <div class="book-sources-label">
+            <span class="lang-en">Where to read</span><span class="lang-zh">获取路径</span>
+          </div>
+          <ul class="sources-list">
+            <li class="source">
+              <span class="source-name">Packt</span>
+              <span class="source-note">
+                <span class="lang-en">packtpub.com — official PDF/EPUB, free e-book with print purchase</span>
+                <span class="lang-zh">packtpub.com 官网 —— PDF/EPUB，购买纸书赠送电子版</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">O'Reilly</span>
+              <span class="source-note">
+                <span class="lang-en">Available on Learning Platform (English)</span>
+                <span class="lang-zh">O'Reilly Learning Platform 上可看（英文，订阅）</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">Amazon</span>
+              <span class="source-note">
+                <span class="lang-en">Paperback / Kindle (ISBN 9781837022014)</span>
+                <span class="lang-zh">英文纸质 / Kindle（ISBN 9781837022014）</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">中文版</span>
+              <span class="source-note">
+                <span class="lang-en">2nd ed not yet translated (1st ed had a Chinese version, but 2nd is essentially a different book)</span>
+                <span class="lang-zh">第二版暂无中文版（第一版有中译，但第二版相当于全新一本书）</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TIER 2 -->
+  <div class="section">
+    <div class="section-head">
+      <span class="num">[ TIER 02 ]</span>
+      <h2><span class="lang-en">Specialized depth</span><span class="lang-zh">深度专题</span></h2>
+      <span class="meta"><span class="lang-en">pick by focus</span><span class="lang-zh">按需选读</span></span>
+    </div>
+
+    <!-- BOOK 4 -->
+    <div class="book">
+      <div class="book-num">04</div>
+      <div class="book-content">
+        <div class="book-meta-top">
+          <span class="pub-year">2025</span>
+          <span>Manning</span>
+          <span class="level"><span class="lang-en">Hands-on</span><span class="lang-zh">实操</span></span>
+        </div>
+        <h3 class="book-title"><em>AI Agents and Applications: With LangChain, LangGraph and MCP</em></h3>
+        <div class="book-author">Roberto Infante <span class="pub">· London hedge fund quant</span></div>
+
+        <p class="book-why lang-en">
+          Notable as one of the first practitioner books with an <strong>explicit MCP chapter</strong> covering exposing, composing, and consuming plug-and-play tools — directly relevant to the <code>shizhuang-data</code> MCP work. Less theoretical than Dibia, more cookbook-shaped: prompt and context engineering, advanced RAG, tool-based agents, multi-agent systems. The FinTech background shows in the chapters on cost/latency budgeting and maintainability. Read alongside Tier 01·02, not after.
+        </p>
+        <p class="book-why lang-zh">
+          目前少数有专门 <strong>MCP（Model Context Protocol）章节</strong>的实战书 —— 涵盖如何"暴露、组合、消费"即插即用的工具，与你正在做的 <code>shizhuang-data</code> MCP Server 直接相关。理论性不如 Dibia 那本，更偏 cookbook（菜谱）风格：prompt 与 context engineering（上下文工程）、高级 RAG、工具型 agent、多智能体系统。作者的 FinTech 背景体现在成本/延迟预算与可维护性几章上。建议与 Tier 01·02 并行阅读，而不是读完它们之后再看。
+        </p>
+
+        <div class="book-bottom">
+          <div class="book-bottom-col">
+            <div class="book-bottom-label"><span class="lang-en">Best for</span><span class="lang-zh">适合</span></div>
+            <div class="book-bottom-content">
+              <span class="lang-en">MCP server builders, anyone who wants concrete code for tool orchestration with branching logic.</span>
+              <span class="lang-zh">MCP server 构建者，以及想要"带条件分支的工具编排"具体代码的人。</span>
+            </div>
+          </div>
+          <div class="book-bottom-col">
+            <div class="book-bottom-label"><span class="lang-en">Topics</span><span class="lang-zh">主题</span></div>
+            <div class="topics">
+              <span class="topic">MCP</span>
+              <span class="topic">LangGraph</span>
+              <span class="topic"><span class="lang-en">tool agents</span><span class="lang-zh">工具型 agent</span></span>
+              <span class="topic"><span class="lang-en">context eng</span><span class="lang-zh">上下文工程</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="book-sources">
+          <div class="book-sources-label">
+            <span class="lang-en">Where to read</span><span class="lang-zh">获取路径</span>
+          </div>
+          <ul class="sources-list">
+            <li class="source">
+              <span class="source-name">Manning</span>
+              <span class="source-note">
+                <span class="lang-en">manning.com — MEAP early access, includes liveBook + PDF/EPUB</span>
+                <span class="lang-zh">manning.com 官网 —— 含 MEAP 早期访问，购买后获得 liveBook + PDF/EPUB</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">Amazon</span>
+              <span class="source-note">
+                <span class="lang-en">Print edition after final release</span>
+                <span class="lang-zh">实体书正式出版后通过 Amazon 购买</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">中文版</span>
+              <span class="source-note">
+                <span class="lang-en">Not yet translated</span>
+                <span class="lang-zh">暂无中文版</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOK 5 -->
+    <div class="book">
+      <div class="book-num">05</div>
+      <div class="book-content">
+        <div class="book-meta-top">
+          <span class="pub-year">2025</span>
+          <span>O'Reilly</span>
+          <span class="level"><span class="lang-en">Reference</span><span class="lang-zh">工具书</span></span>
+        </div>
+        <h3 class="book-title"><em>Generative AI Design Patterns</em></h3>
+        <div class="book-author">Valliappa Lakshmanan <span class="pub">· author of ML Design Patterns</span></div>
+
+        <p class="book-why lang-en">
+          Thirty-two named patterns covering RAG variants, reasoning strategies, tool use, and agent topologies — written in the same Gang-of-Four style as his earlier ML Design Patterns book. Not a tutorial. Treat it as the <strong>reference shelf you reach for when you've named a problem and want to see the catalog of solutions</strong>. Particularly useful when reviewing an architecture proposal: "is this Pattern X with the trade-offs we talked about, or are we inventing one?"
+        </p>
+        <p class="book-why lang-zh">
+          32 个命名模式，覆盖 RAG 的各种变体、reasoning（推理）策略、工具调用、agent 拓扑结构 —— 沿用作者上一本《ML Design Patterns》的 Gang-of-Four（设计模式四人帮）写作风格。不是 tutorial，而是<strong>工具书 —— 当你已经能命名一个问题、想查阅可选方案目录时翻开它</strong>。在做架构评审时尤其好用："这是不是我们之前讨论过的 X 模式（连同它的权衡）？还是我们在重新发明轮子？"
+        </p>
+
+        <div class="book-bottom">
+          <div class="book-bottom-col">
+            <div class="book-bottom-label"><span class="lang-en">Best for</span><span class="lang-zh">适合</span></div>
+            <div class="book-bottom-content">
+              <span class="lang-en">Architecture reviews, design docs, and getting unstuck when you suspect there's a known pattern you're missing.</span>
+              <span class="lang-zh">架构评审、设计文档、以及当你怀疑"漏掉了某个已知模式"时的解药。</span>
+            </div>
+          </div>
+          <div class="book-bottom-col">
+            <div class="book-bottom-label"><span class="lang-en">Topics</span><span class="lang-zh">主题</span></div>
+            <div class="topics">
+              <span class="topic"><span class="lang-en">design patterns</span><span class="lang-zh">设计模式</span></span>
+              <span class="topic"><span class="lang-en">RAG variants</span><span class="lang-zh">RAG 变体</span></span>
+              <span class="topic"><span class="lang-en">reasoning</span><span class="lang-zh">推理策略</span></span>
+              <span class="topic"><span class="lang-en">framework-agnostic</span><span class="lang-zh">框架无关</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="book-sources">
+          <div class="book-sources-label">
+            <span class="lang-en">Where to read</span><span class="lang-zh">获取路径</span>
+          </div>
+          <ul class="sources-list">
+            <li class="source">
+              <span class="source-name">O'Reilly</span>
+              <span class="source-note">
+                <span class="lang-en">Learning Platform — full access via subscription</span>
+                <span class="lang-zh">O'Reilly Learning Platform —— 订阅可看完整版</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">Amazon</span>
+              <span class="source-note">
+                <span class="lang-en">Paperback / Kindle</span>
+                <span class="lang-zh">英文纸质 / Kindle</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">中文版</span>
+              <span class="source-note">
+                <span class="lang-en">Not yet translated; author's prior《ML Design Patterns》has a Chinese ed.《机器学习设计模式》on weread for stylistic reference</span>
+                <span class="lang-zh">暂无中文版；作者上一本《ML Design Patterns》在微信读书有中译《机器学习设计模式》，可作风格参考</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOK 6 -->
+    <div class="book">
+      <div class="book-num">06</div>
+      <div class="book-content">
+        <div class="book-meta-top">
+          <span class="pub-year">Late 2024</span>
+          <span>Packt</span>
+          <span class="level"><span class="lang-en">Engineering ops</span><span class="lang-zh">工程运维</span></span>
+        </div>
+        <h3 class="book-title"><em>LLM Engineer's Handbook</em></h3>
+        <div class="book-author">Paul Iusztin &amp; Maxime Labonne <span class="pub">· Decoding ML</span></div>
+
+        <p class="book-why lang-en">
+          The most explicit "how do you actually run this in production" book on the list — fine-tuning, deployment, monitoring, data pipelines for LLM apps, and an end-to-end project. Less agent-centric than the others, more concerned with the surrounding <strong>MLOps/LLMOps machinery</strong> that lets agents exist reliably. Useful counterweight: a lot of agent writing assumes the model layer is solved; this book is the reminder that it isn't.
+        </p>
+        <p class="book-why lang-zh">
+          清单中最直接回答"这东西到底怎么跑在生产环境"的一本 —— fine-tuning（微调）、部署、监控、LLM 应用的数据管线、以及一个端到端项目。Agent 视角比其他几本少，更关注让 agent 能可靠运行所必需的 <strong>MLOps / LLMOps 基础设施</strong>。一个有用的"反向制衡"：大多数 agent 类书籍假设模型层的问题已经解决，这本书提醒你 —— 并没有。
+        </p>
+
+        <div class="book-bottom">
+          <div class="book-bottom-col">
+            <div class="book-bottom-label"><span class="lang-en">Best for</span><span class="lang-zh">适合</span></div>
+            <div class="book-bottom-content">
+              <span class="lang-en">Platform engineers responsible for the model-serving and data-pipeline layers under an agent system.</span>
+              <span class="lang-zh">负责 agent 系统底层模型服务与数据管线的平台工程师。</span>
+            </div>
+          </div>
+          <div class="book-bottom-col">
+            <div class="book-bottom-label"><span class="lang-en">Topics</span><span class="lang-zh">主题</span></div>
+            <div class="topics">
+              <span class="topic">LLMOps</span>
+              <span class="topic"><span class="lang-en">fine-tuning</span><span class="lang-zh">微调</span></span>
+              <span class="topic"><span class="lang-en">deployment</span><span class="lang-zh">部署</span></span>
+              <span class="topic"><span class="lang-en">data pipelines</span><span class="lang-zh">数据管线</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="book-sources">
+          <div class="book-sources-label">
+            <span class="lang-en">Where to read</span><span class="lang-zh">获取路径</span>
+          </div>
+          <ul class="sources-list">
+            <li class="source featured">
+              <span class="source-name">微信读书</span>
+              <span class="source-note">
+                <span class="lang-en">《大语言模型工程师手册：从概念到生产实践》— Chinese ed. by 人邮出版社, translators 孟凡杰 &amp; 方佳瑞</span>
+                <span class="lang-zh">《大语言模型工程师手册：从概念到生产实践》—— 人邮出版社中文版（孟凡杰、方佳瑞 译）</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">Packt</span>
+              <span class="source-note">
+                <span class="lang-en">packtpub.com — original English PDF/EPUB</span>
+                <span class="lang-zh">packtpub.com 官网 —— 英文原版 PDF/EPUB</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">繁體版</span>
+              <span class="source-note">
+                <span class="lang-en">《LLM 工程師開發手冊》via 博客來 (tw)</span>
+                <span class="lang-zh">繁體中文《LLM 工程師開發手冊》—— 通过台湾博客來购买</span>
+              </span>
+            </li>
+            <li class="source">
+              <span class="source-name">Amazon</span>
+              <span class="source-note">
+                <span class="lang-en">Paperback / Kindle (ISBN 9781836200079)</span>
+                <span class="lang-zh">英文纸质 / Kindle（ISBN 9781836200079）</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SKIPPED -->
+  <div class="section">
+    <div class="section-head">
+      <span class="num">[ TIER 00 ]</span>
+      <h2><span class="lang-en">Skipped on purpose</span><span class="lang-zh">刻意未选</span></h2>
+      <span class="meta"><span class="lang-en">and why</span><span class="lang-zh">及原因</span></span>
+    </div>
+
+    <div class="skipped">
+      <h3>Build a Large Language Model (From Scratch) — Sebastian Raschka</h3>
+      <p class="lang-en">Excellent book, wrong altitude for this list. <strong>Worth reading if you want to deepen LLM internals</strong>, but as a senior agent engineer your bottleneck is almost certainly orchestration and evaluation, not transformer math.</p>
+      <p class="lang-zh">非常好的书，但不在这个清单的"高度"上。<strong>如果想深入理解 LLM 内部机制，值得一读</strong>；但作为资深 agent 工程师，你的瓶颈几乎一定在编排与评估，而不是 transformer 数学。</p>
+    </div>
+
+    <div class="skipped">
+      <h3>Building LLMs for Production — Bouchard &amp; Peters</h3>
+      <p class="lang-en">Solid entry-to-mid-level book, but <strong>substantially overlapped by Huyen and Iusztin</strong>. Pick those instead unless you specifically want the Towards AI house perspective.</p>
+      <p class="lang-zh">中等难度、扎实，但<strong>内容与 Huyen 和 Iusztin 那两本大幅重合</strong>。除非你特别想看 Towards AI 团队的视角，否则优先选那两本。</p>
+    </div>
+
+    <div class="skipped">
+      <h3><span class="lang-en">Any framework-specific deep dive (CrewAI, AutoGen, etc.)</span><span class="lang-zh">任何框架特定的深度专著（CrewAI、AutoGen 等）</span></h3>
+      <p class="lang-en">Their APIs <strong>shift faster than print cycles</strong>. Read the docs and the source. Dibia explicitly excluded these from his own recommendations for the same reason.</p>
+      <p class="lang-zh">这类框架的 <strong>API 变化速度远快于纸书出版周期</strong>。直接读文档和源码。Dibia 自己也基于同样原因，把这类书从他的推荐里排除了。</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div><span class="lang-en">End of guide / 完 ·</span><span class="lang-zh">指南完 · END ·</span></div>
+    <div class="gold">
+      <span class="lang-en">Want depth on any one of these? Just ask.</span>
+      <span class="lang-zh">想深入了解某一本？随时问我。</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  const body = document.body;
+  const buttons = document.querySelectorAll('.lang-toggle button');
+
+  function setLang(lang) {
+    body.classList.remove('lang-en', 'lang-zh');
+    body.classList.add('lang-' + lang);
+    document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-Hans' : 'en');
+  }
+
+  buttons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      setLang(btn.getAttribute('data-lang'));
+    });
+  });
+
+  // Auto-detect Chinese browsers on first load
+  const browserLang = (navigator.language || 'en').toLowerCase();
+  if (browserLang.indexOf('zh') === 0) {
+    setLang('zh');
+  }
+})();
+</script>
+
+</body>
+</html>
