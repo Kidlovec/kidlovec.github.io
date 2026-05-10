@@ -282,7 +282,12 @@ body{
   .options[data-group="hakone-pass"],
   .options[data-group="romance-car"],
   .options[data-group="extra-night"],
-  .options[data-group="yokohama-transport"]{
+  .options[data-group="yokohama-transport"],
+  .options[data-group="yoyogi"],
+  .options[data-group="ebisu-shops"],
+  .options[data-group="d4-transport"],
+  .options[data-group="inokashira"],
+  .options[data-group="meguro-river"]{
     grid-template-columns:1fr
   }
 }
@@ -564,9 +569,9 @@ body{
     <div class="day-nav-desktop-label">— 日程 —</div>
     <a class="day-nav-item" href="#day-3" data-day="3"><span class="nav-num">03</span><span class="nav-text">抵达·赤坂</span></a>
     <a class="day-nav-item" href="#day-4" data-day="4"><span class="nav-num">04</span><span class="nav-text">筑地·银座</span></a>
-    <a class="day-nav-item" href="#day-5" data-day="5"><span class="nav-num">05</span><span class="nav-text">横浜日归</span></a>
-    <a class="day-nav-item" href="#day-6" data-day="6"><span class="nav-num">06</span><span class="nav-text">→ 镰仓</span></a>
-    <a class="day-nav-item" href="#day-7" data-day="7"><span class="nav-num">07</span><span class="nav-text">江之岛</span></a>
+    <a class="day-nav-item" href="#day-5" data-day="5"><span class="nav-num">05</span><span class="nav-text">东京游 → 横浜</span></a>
+    <a class="day-nav-item" href="#day-6" data-day="6"><span class="nav-num">06</span><span class="nav-text">吉祥寺</span></a>
+    <a class="day-nav-item" href="#day-7" data-day="7"><span class="nav-num">07</span><span class="nav-text">自由之丘</span></a>
     <a class="day-nav-item" href="#day-8" data-day="8"><span class="nav-num">08</span><span class="nav-text">东京最后</span></a>
     <a class="day-nav-item" href="#day-9" data-day="9"><span class="nav-num">09</span><span class="nav-text">回上海</span></a>
   </div>
@@ -591,9 +596,9 @@ body{
   <div class="day-nav-mobile-inner">
     <a class="day-nav-pill" href="#day-3" data-day="3"><span class="pill-num">03</span><span class="pill-day">日</span><span class="pill-place">赤坂</span></a>
     <a class="day-nav-pill" href="#day-4" data-day="4"><span class="pill-num">04</span><span class="pill-day">月</span><span class="pill-place">筑地·银座</span></a>
-    <a class="day-nav-pill" href="#day-5" data-day="5"><span class="pill-num">05</span><span class="pill-day">火</span><span class="pill-place">横浜见友</span></a>
-    <a class="day-nav-pill" href="#day-6" data-day="6"><span class="pill-num">06</span><span class="pill-day">水</span><span class="pill-place">→ 镰仓</span></a>
-    <a class="day-nav-pill" href="#day-7" data-day="7"><span class="pill-num">07</span><span class="pill-day">木</span><span class="pill-place">江ノ島</span></a>
+    <a class="day-nav-pill" href="#day-5" data-day="5"><span class="pill-num">05</span><span class="pill-day">火</span><span class="pill-place">东京→横浜</span></a>
+    <a class="day-nav-pill" href="#day-6" data-day="6"><span class="pill-num">06</span><span class="pill-day">水</span><span class="pill-place">吉祥寺</span></a>
+    <a class="day-nav-pill" href="#day-7" data-day="7"><span class="pill-num">07</span><span class="pill-day">木</span><span class="pill-place">自由之丘</span></a>
     <a class="day-nav-pill" href="#day-8" data-day="8"><span class="pill-num">08</span><span class="pill-day">金</span><span class="pill-place">东京最后</span></a>
     <a class="day-nav-pill" href="#day-9" data-day="9"><span class="pill-num">09</span><span class="pill-day">土</span><span class="pill-place">→ 成田</span></a>
   </div>
@@ -702,6 +707,10 @@ body{
             <div class="option-main"><div class="option-name">Centre The Bakery <span class="option-tag zara">Zara</span></div><div class="option-desc">全东京最佳吐司 · 不想 5 点起就选这个</div></div>
             <div class="option-right"><div class="option-price">¥4,000<small>人均2,000</small></div><button class="option-info">i</button></div>
           </div>
+          <div class="option" data-price="6000" data-name="築地寿司清 本店" data-cat="早餐" data-detail="sushisei-honten">
+            <div class="option-main"><div class="option-name">築地寿司清 本店 <span class="option-tag gold">老铺</span></div><div class="option-desc">1889 年创业 · 文傑曾经吃过 · 11:00 开门</div></div>
+            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
+          </div>
         </div>
       </div>
 
@@ -721,8 +730,24 @@ body{
             <div class="option-right"><div class="option-price">¥20,000<small>人均10,000</small></div><button class="option-info">i</button></div>
           </div>
           <div class="option selected" data-price="10000" data-name="资生堂Parlour 银座" data-cat="午餐" data-detail="shiseido">
-            <div class="option-main"><div class="option-name">资生堂 Parlour 银座本店</div><div class="option-desc">洋食代表 · 氛围老派</div></div>
+            <div class="option-main"><div class="option-name">资生堂 Parlour 银座本店</div><div class="option-desc">洋食代表 · 氛围老派 · ⚠️ 5/4 周一可能休</div></div>
             <div class="option-right"><div class="option-price">¥10,000<small>人均5,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="8000" data-name="築地寿司清 銀座四丁目店" data-cat="午餐" data-detail="sushisei-ginza">
+            <div class="option-main"><div class="option-name">築地寿司清 銀座四丁目店 <span class="option-tag gold">怀旧老铺</span></div><div class="option-desc">文傑曾经吃过 · 银座 4 chome 中心 · 周一正常营业</div></div>
+            <div class="option-right"><div class="option-price">¥8,000<small>人均4,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="12000" data-name="天ぷら 阿部 銀座本店" data-cat="午餐" data-detail="abe">
+            <div class="option-main"><div class="option-name">天ぷら 阿部 銀座本店 <span class="option-tag gold">天妇罗</span></div><div class="option-desc">银座 8 丁目 · 1 米其林星水准 · 性价比好</div></div>
+            <div class="option-right"><div class="option-price">¥12,000<small>人均6,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="6000" data-name="つな八 銀座大丸店" data-cat="午餐" data-detail="tsunahachi">
+            <div class="option-main"><div class="option-name">つな八 銀座大丸店 <span class="option-tag gold">天妇罗</span></div><div class="option-desc">明治 14 年老铺 · 现场可入 · 东京站丸大旁</div></div>
+            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="30000" data-name="天ぷら 元吉 表参道" data-cat="午餐" data-detail="motoyoshi">
+            <div class="option-main"><div class="option-name">天ぷら 元吉 <span class="option-tag red">独立店</span></div><div class="option-desc">表参道 · 独立店主厨 · ¥15K 起 omakase</div></div>
+            <div class="option-right"><div class="option-price">¥30,000<small>人均15,000</small></div><button class="option-info">i</button></div>
           </div>
         </div>
       </div>
@@ -763,16 +788,26 @@ body{
 
   <!-- 5/5 -->
   <div class="day-card" id="day-5">
-    <div class="day-header"><div class="day-date"><span class="num">05</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">火曜日</div><div>横浜 日归 · 见友</div></div></div>
+    <div class="day-header"><div class="day-date"><span class="num">05</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">火曜日</div><div>清澄白河 → 表参道 → 中目黑 → 横浜</div></div></div>
     <div class="day-body">
       <div class="schedule">
-        <div class="schedule-row"><div class="schedule-time">10:30</div><div class="schedule-text">赤坂 → 品川 → 横浜 (45分钟)</div></div>
-        <div class="schedule-row"><div class="schedule-time">11:30</div><div class="schedule-text">中华街午餐 (与朋友碰头)</div></div>
-        <div class="schedule-row"><div class="schedule-time">14:00</div><div class="schedule-text">山下公园 + 玫瑰园 (5月盛开 · 免费)</div></div>
-        <div class="schedule-row"><div class="schedule-time">15:00</div><div class="schedule-text">下午景点 (杯面博物馆 / 缆车 / 红砖仓库)</div></div>
-        <div class="schedule-row"><div class="schedule-time">17:30</div><div class="schedule-text">Landmark Tower 69F 看夕阳 + 富士山</div></div>
-        <div class="schedule-row"><div class="schedule-time">19:00</div><div class="schedule-text">晚餐</div></div>
-        <div class="schedule-row"><div class="schedule-time">21:30</div><div class="schedule-text">横浜 → 赤坂 (返 the b)</div></div>
+        <div class="schedule-row"><div class="schedule-time">09:30</div><div class="schedule-text">赤坂出发 → 清澄白河</div></div>
+        <div class="schedule-row"><div class="schedule-time">09:50</div><div class="schedule-text">☕ Blue Bottle 旗舰店 早餐(华夫饼/热三明治)</div></div>
+        <div class="schedule-row"><div class="schedule-time">10:30</div><div class="schedule-text">☕ ARiSE Coffee 再来一杯</div></div>
+        <div class="schedule-row"><div class="schedule-time">11:10</div><div class="schedule-text">→ 表参道 (大江户线/銀座线 30 分)</div></div>
+        <div class="schedule-row"><div class="schedule-time">12:00</div><div class="schedule-text">🦞 LUKE'S LOBSTER 龙虾堡午餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">12:30</div><div class="schedule-text">👕 45R 南青山店(逛本店)</div></div>
+        <div class="schedule-row"><div class="schedule-time">13:00</div><div class="schedule-text">🏠 ACTUS / H.P.DECO / Carl Hansen 家居店</div></div>
+        <div class="schedule-row"><div class="schedule-time">13:45</div><div class="schedule-text">→ 代代木公园(走路 · 散步 30 分)</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:30</div><div class="schedule-text">公园出来往涩谷方向</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:35</div><div class="schedule-text">👕 Margaret Howell 神南店(代代木南口 5 分)</div></div>
+        <div class="schedule-row"><div class="schedule-time">15:00</div><div class="schedule-text">涩谷 → 中目黑(東横線 2 分)</div></div>
+        <div class="schedule-row"><div class="schedule-time">15:15</div><div class="schedule-text">🏠 unico / ZAPADY-DOO / greeniche</div></div>
+        <div class="schedule-row"><div class="schedule-time">15:45</div><div class="schedule-text">☕ 代官山 蔦屋書店 咖啡</div></div>
+        <div class="schedule-row"><div class="schedule-time">16:30</div><div class="schedule-text">→ 惠比寿(走路 8 分)花园广场 + 🏠 ASPLUND</div></div>
+        <div class="schedule-row"><div class="schedule-time">17:00</div><div class="schedule-text">中目黑 → 横浜(東急東横線 35 分)</div></div>
+        <div class="schedule-row"><div class="schedule-time">17:35</div><div class="schedule-text">✅ 抵达横浜 · 与老友聚餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">21:30</div><div class="schedule-text">横浜 → 赤坂(返 the b · 約 50 分)</div></div>
       </div>
 
       <div class="choice">
@@ -786,67 +821,111 @@ body{
       </div>
 
       <div class="choice">
-        <div class="choice-label"><span class="choice-icon special">交</span><span class="choice-title">5/5 赤坂 ↔ 横浜 交通</span><span class="choice-hint">来回</span></div>
-        <div class="options" data-group="yokohama-transport">
-          <div class="option selected" data-price="2000" data-name="JR · 品川→横浜" data-cat="交通" data-detail="jr-yokohama">
-            <div class="option-main"><div class="option-name">JR 东海道线 · 品川↔横浜</div><div class="option-desc">15分钟直达 · 来回 ¥1,000/人</div></div>
-            <div class="option-right"><div class="option-price">¥2,000<small>2人来回</small></div><button class="option-info">i</button></div>
+        <div class="choice-label"><span class="choice-icon bfast">咖</span><span class="choice-title">5/5 早晨 · 清澄白河咖啡</span><span class="choice-hint">2 选 1 + 1</span></div>
+        <div class="options" data-group="d3-coffee">
+          <div class="option selected" data-price="3000" data-name="Blue Bottle 清澄白河旗舰店" data-cat="早餐" data-detail="bluebottle">
+            <div class="option-main"><div class="option-name">Blue Bottle 旗舰店 <span class="option-tag gold">必去</span></div><div class="option-desc">日本 1 号店 · 华夫饼 + 热三明治</div></div>
+            <div class="option-right"><div class="option-price">¥3,000<small>人均1,500</small></div><button class="option-info">i</button></div>
           </div>
-          <div class="option" data-price="1800" data-name="京急 · 品川→横浜" data-cat="交通" data-detail="keikyu-yokohama">
-            <div class="option-main"><div class="option-name">京急本线 · 品川↔横浜</div><div class="option-desc">17分钟 · 比 JR 略便宜</div></div>
-            <div class="option-right"><div class="option-price">¥1,800<small>2人来回</small></div><button class="option-info">i</button></div>
+          <div class="option selected" data-price="1600" data-name="ARiSE Coffee Roasters" data-cat="早餐" data-detail="arise">
+            <div class="option-main"><div class="option-name">ARiSE Coffee Roasters</div><div class="option-desc">小巷里的精品烘豆店 · 再来一杯</div></div>
+            <div class="option-right"><div class="option-price">¥1,600<small>人均800</small></div><button class="option-info">i</button></div>
           </div>
         </div>
       </div>
 
       <div class="choice">
-        <div class="choice-label"><span class="choice-icon lunch">午</span><span class="choice-title">5/5 中华街午餐</span><span class="choice-hint">与朋友 · 必预约</span></div>
+        <div class="choice-label"><span class="choice-icon lunch">午</span><span class="choice-title">5/5 午餐 · 表参道</span></div>
         <div class="options" data-group="d3-lunch">
-          <div class="option selected" data-price="12000" data-name="菜香新館 · 广东" data-cat="午餐" data-detail="saiko">
-            <div class="option-main"><div class="option-name">菜香新館 <span class="option-tag gold">推荐</span></div><div class="option-desc">广东 + 飲茶 · 朋友聚会氛围最佳</div></div>
-            <div class="option-right"><div class="option-price">¥12,000<small>人均6,000</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option" data-price="8000" data-name="京華樓 本館 · 四川" data-cat="午餐" data-detail="kyokaro">
-            <div class="option-main"><div class="option-name">京華樓 本館 <span class="option-tag red">麻婆豆腐</span></div><div class="option-desc">当地人公认麻婆第一 · 性价比好</div></div>
-            <div class="option-right"><div class="option-price">¥8,000<small>人均4,000</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option" data-price="20000" data-name="重慶飯店 · 四川老铺" data-cat="午餐" data-detail="jukei">
-            <div class="option-main"><div class="option-name">重慶飯店 <span class="option-tag red">老铺</span></div><div class="option-desc">1959 创业 · 接待档次 · Rose Hotel 内</div></div>
-            <div class="option-right"><div class="option-price">¥20,000<small>人均10,000</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option" data-price="7400" data-name="皇朝レストラン · 食べ放題" data-cat="午餐" data-detail="kocho">
-            <div class="option-main"><div class="option-name">皇朝レストラン</div><div class="option-desc">120 品 buffet · 世界点心冠军 · 量大热闹</div></div>
-            <div class="option-right"><div class="option-price">¥7,400<small>人均3,700</small></div><button class="option-info">i</button></div>
+          <div class="option selected" data-price="6000" data-name="LUKE'S LOBSTER 表参道" data-cat="午餐" data-detail="lukes">
+            <div class="option-main"><div class="option-name">LUKE'S LOBSTER <span class="option-tag red">龙虾堡</span></div><div class="option-desc">缅因龙虾堡 · 表参道路上 · 排队 20-30 分</div></div>
+            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
           </div>
         </div>
       </div>
 
       <div class="choice">
-        <div class="choice-label"><span class="choice-icon attr">景</span><span class="choice-title">5/5 横浜下午景点</span><span class="choice-hint">2人 · 选 1-2 个</span></div>
-        <div class="options" data-group="yokohama-pm">
-          <div class="option selected" data-price="2000" data-name="Landmark Tower 69F 展望" data-cat="景点" data-detail="landmark">
-            <div class="option-main"><div class="option-name">Landmark Tower 69F <span class="option-tag teal">夕阳</span></div><div class="option-desc">看富士山 + 港夜景 · 黄昏最佳</div></div>
-            <div class="option-right"><div class="option-price">¥2,000<small>2人</small></div><button class="option-info">i</button></div>
+        <div class="choice-label"><span class="choice-icon attr">逛</span><span class="choice-title">5/5 表参道 / 南青山 店铺</span><span class="choice-hint">购物</span></div>
+        <div class="options" data-group="omotesando-shops">
+          <div class="option selected" data-price="0" data-name="45R 南青山本店" data-cat="景点" data-detail="r45">
+            <div class="option-main"><div class="option-name">45R 南青山本店 <span class="option-tag teal">服饰</span></div><div class="option-desc">日本天然染色 + 牛仔老铺 · 本店</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
           </div>
-          <div class="option" data-price="2000" data-name="Cup Noodle Museum 杯面博物馆" data-cat="景点" data-detail="cupnoodle">
-            <div class="option-main"><div class="option-name">Cup Noodle Museum <span class="option-tag teal">DIY</span></div><div class="option-desc">DIY 杯面 · 适合朋友一起 · GW 需 WEB 预约</div></div>
-            <div class="option-right"><div class="option-price">¥2,000<small>2人</small></div><button class="option-info">i</button></div>
+          <div class="option selected" data-price="0" data-name="ACTUS 青山" data-cat="景点" data-detail="actus">
+            <div class="option-main"><div class="option-name">ACTUS 青山 <span class="option-tag teal">家居</span></div><div class="option-desc">日本人气家居 · 1969 创业 · 北欧风</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
           </div>
-          <div class="option" data-price="2000" data-name="横浜 Air Cabin 缆车" data-cat="景点" data-detail="aircabin">
-            <div class="option-main"><div class="option-name">横浜 Air Cabin <span class="option-tag teal">缆车</span></div><div class="option-desc">日本首座都市缆车 · 港景 5 分钟</div></div>
-            <div class="option-right"><div class="option-price">¥2,000<small>2人单程</small></div><button class="option-info">i</button></div>
+          <div class="option selected" data-price="0" data-name="H.P.DECO" data-cat="景点" data-detail="hpdeco">
+            <div class="option-main"><div class="option-name">H.P.DECO <span class="option-tag teal">选物</span></div><div class="option-desc">青山高端选物店 · 家居 + 杂货</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
           </div>
-          <div class="option" data-price="0" data-name="山下公园 + 红砖仓库 (免费)" data-cat="景点" data-detail="yamashita">
-            <div class="option-main"><div class="option-name">山下公园 + 红砖仓库</div><div class="option-desc">免费 · 玫瑰园 5 月盛 · 海边散步</div></div>
+          <div class="option selected" data-price="0" data-name="Carl Hansen & Søn 表参道" data-cat="景点" data-detail="carlhansen">
+            <div class="option-main"><div class="option-name">Carl Hansen & Søn <span class="option-tag teal">丹麦家具</span></div><div class="option-desc">Y Chair 王家 · 丹麦经典家具旗舰店</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon attr">公</span><span class="choice-title">5/5 代代木公园 · 散步</span><span class="choice-hint">免费</span></div>
+        <div class="options" data-group="yoyogi">
+          <div class="option selected" data-price="0" data-name="代代木公园 + Margaret Howell 神南店" data-cat="景点" data-detail="yoyogi">
+            <div class="option-main"><div class="option-name">代代木公园 + MHL 神南店</div><div class="option-desc">从青山徒步 15 分到公园 · 公园南口 5 分到 MHL</div></div>
             <div class="option-right"><div class="option-price">¥0<small>免费</small></div><button class="option-info">i</button></div>
           </div>
         </div>
       </div>
 
       <div class="choice">
-        <div class="choice-label"><span class="choice-icon">晚</span><span class="choice-title">5/5 晚餐</span></div>
+        <div class="choice-label"><span class="choice-icon attr">逛</span><span class="choice-title">5/5 中目黑 / 代官山 店铺</span><span class="choice-hint">家居+咖啡</span></div>
+        <div class="options" data-group="nakameguro-shops">
+          <div class="option selected" data-price="0" data-name="unico 中目黑" data-cat="景点" data-detail="unico">
+            <div class="option-main"><div class="option-name">unico 中目黑 <span class="option-tag teal">家居</span></div><div class="option-desc">大众价位北欧风 · 沙发/桌椅出名</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="0" data-name="ZAPADY-DOO" data-cat="景点" data-detail="zapady">
+            <div class="option-main"><div class="option-name">ZAPADY-DOO BABY <span class="option-tag teal">vintage</span></div><div class="option-desc">中目黑 vintage 家居选物店</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="0" data-name="greeniche" data-cat="景点" data-detail="greeniche">
+            <div class="option-main"><div class="option-name">greeniche <span class="option-tag teal">家居</span></div><div class="option-desc">原创木家具 + 北欧 vintage 选品</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="3000" data-name="代官山 蔦屋書店 + 咖啡" data-cat="早餐" data-detail="tsutaya">
+            <div class="option-main"><div class="option-name">代官山 蔦屋書店 <span class="option-tag gold">咖啡</span></div><div class="option-desc">书店 + Anjin 咖啡馆 · 全日本最美书店</div></div>
+            <div class="option-right"><div class="option-price">¥3,000<small>人均1,500</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon attr">逛</span><span class="choice-title">5/5 惠比寿</span><span class="choice-hint">花园广场</span></div>
+        <div class="options" data-group="ebisu-shops">
+          <div class="option selected" data-price="0" data-name="惠比寿花园广场 + ASPLUND" data-cat="景点" data-detail="ebisu">
+            <div class="option-main"><div class="option-name">惠比寿花园广场 + ASPLUND</div><div class="option-desc">从代官山步行 8 分 · 花园广场可能有快闪</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon special">交</span><span class="choice-title">5/5 中目黑 → 横浜</span><span class="choice-hint">17:00 出发</span></div>
+        <div class="options" data-group="yokohama-transport">
+          <div class="option selected" data-price="3000" data-name="東急東横線 · 中目黑→横浜" data-cat="交通" data-detail="toyoko">
+            <div class="option-main"><div class="option-name">東急東横線 · 中目黑→横浜</div><div class="option-desc">35 分钟直达 · 急行不换乘 · 来回 ¥1,500/人</div></div>
+            <div class="option-right"><div class="option-price">¥3,000<small>2人来回</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon">晚</span><span class="choice-title">5/5 晚餐 · 横浜聚餐</span><span class="choice-hint">与老友</span></div>
         <div class="options" data-group="d3-dinner">
-          <div class="option selected" data-price="14000" data-name="MILANO|GRILL 横浜港景" data-cat="晚餐" data-detail="milano-grill">
+          <div class="option selected" data-price="12000" data-name="菜香新館 · 广东" data-cat="晚餐" data-detail="saiko">
+            <div class="option-main"><div class="option-name">菜香新館 <span class="option-tag gold">推荐</span></div><div class="option-desc">广东 + 飲茶 · 朋友聚会氛围最佳</div></div>
+            <div class="option-right"><div class="option-price">¥12,000<small>人均6,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="14000" data-name="MILANO|GRILL 横浜港景" data-cat="晚餐" data-detail="milano-grill">
             <div class="option-main"><div class="option-name">MILANO|GRILL <span class="option-tag gold">港景</span></div><div class="option-desc">Hyatt Regency 内 · 意法料理 + 海景</div></div>
             <div class="option-right"><div class="option-price">¥14,000<small>人均7,000</small></div><button class="option-info">i</button></div>
           </div>
@@ -854,9 +933,9 @@ body{
             <div class="option-main"><div class="option-name">Hotel New Grand · ル・ノルマンディ</div><div class="option-desc">1927 老铺洋食 · 海军咖喱发祥地</div></div>
             <div class="option-right"><div class="option-price">¥20,000<small>人均10,000</small></div><button class="option-info">i</button></div>
           </div>
-          <div class="option" data-price="6000" data-name="回东京 · 简餐" data-cat="晚餐" data-detail="back-tokyo">
-            <div class="option-main"><div class="option-name">回东京吃简餐(中午吃饱)</div><div class="option-desc">21 点回赤坂 · 一兰拉面 / 篝拉面</div></div>
-            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
+          <div class="option" data-price="8000" data-name="京華樓 本館 · 四川" data-cat="晚餐" data-detail="kyokaro">
+            <div class="option-main"><div class="option-name">京華樓 本館 <span class="option-tag red">麻婆豆腐</span></div><div class="option-desc">当地人公认麻婆第一 · 性价比好</div></div>
+            <div class="option-right"><div class="option-price">¥8,000<small>人均4,000</small></div><button class="option-info">i</button></div>
           </div>
         </div>
       </div>
@@ -867,121 +946,198 @@ body{
 
   <!-- 5/6 -->
   <div class="day-card" id="day-6">
-    <div class="day-header"><div class="day-date"><span class="num">06</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">水曜日</div><div>东京 → 镰仓</div></div></div>
+    <div class="day-header"><div class="day-date"><span class="num">06</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">水曜日</div><div>吉祥寺 · 井之头公园</div></div></div>
     <div class="day-body">
       <div class="schedule">
-        <div class="schedule-row"><div class="schedule-time">10:00</div><div class="schedule-text">退房 the b · 赤坂 → 品川 → 镰仓 (1小时 JR 横須賀线)</div></div>
-        <div class="schedule-row"><div class="schedule-time">12:30</div><div class="schedule-text">镰仓午餐 + 寄存行李</div></div>
-        <div class="schedule-row"><div class="schedule-time">14:30</div><div class="schedule-text">镰仓大佛 + 长谷寺 (Hase 区域)</div></div>
-        <div class="schedule-row"><div class="schedule-time">17:00</div><div class="schedule-text">七里浜看夕阳 (日落 18:30) + 入住镰仓王子</div></div>
-        <div class="schedule-row"><div class="schedule-time">19:00</div><div class="schedule-text">晚餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">10:00</div><div class="schedule-text">退房 the b · 行李寄五反田 · → 吉祥寺(山手→中央线 35 分)</div></div>
+        <div class="schedule-row"><div class="schedule-time">11:30</div><div class="schedule-text">井之头公园散步(新绿期 · 免费)</div></div>
+        <div class="schedule-row"><div class="schedule-time">12:30</div><div class="schedule-text">吉祥寺午餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:00</div><div class="schedule-text">中道通 + 七井橋通 杂货店巡游</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:30</div><div class="schedule-text">📚 36 Sublo 文具店</div></div>
+        <div class="schedule-row"><div class="schedule-time">15:00</div><div class="schedule-text">🎨 Free Design 选物店</div></div>
+        <div class="schedule-row"><div class="schedule-time">15:30</div><div class="schedule-text">☕ 下午茶(Café Zenon / 紅茶専門店 chai break)</div></div>
+        <div class="schedule-row"><div class="schedule-time">16:30</div><div class="schedule-text">🍶 ハーモニカ横丁 老横丁散步</div></div>
+        <div class="schedule-row"><div class="schedule-time">18:00</div><div class="schedule-text">晚餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">20:30</div><div class="schedule-text">回五反田 三井花园 入住</div></div>
       </div>
 
       <div class="choice">
-        <div class="choice-label"><span class="choice-icon lunch">午</span><span class="choice-title">5/6 镰仓午餐</span></div>
+        <div class="choice-label"><span class="choice-icon special">交</span><span class="choice-title">5/6 行李 + 交通</span></div>
+        <div class="options" data-group="d4-transport">
+          <div class="option selected" data-price="2000" data-name="赤坂 → 五反田 → 吉祥寺" data-cat="交通" data-detail="d4-route">
+            <div class="option-main"><div class="option-name">赤坂 → 五反田寄行李 → 吉祥寺</div><div class="option-desc">10:00 退 the b · 五反田寄行李 · 山手+中央线到吉祥寺</div></div>
+            <div class="option-right"><div class="option-price">¥2,000<small>2人来回</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon attr">公</span><span class="choice-title">5/6 井之头公园</span><span class="choice-hint">免费</span></div>
+        <div class="options" data-group="inokashira">
+          <div class="option selected" data-price="0" data-name="井之头公园散步" data-cat="景点" data-detail="inokashira">
+            <div class="option-main"><div class="option-name">井之头恩賜公园 <span class="option-tag teal">绿地</span></div><div class="option-desc">东京最受欢迎都市公园 · 5月新绿期 · 池畔散步</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>免费</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon lunch">午</span><span class="choice-title">5/6 吉祥寺午餐</span></div>
         <div class="options" data-group="d4-lunch">
-          <div class="option selected" data-price="10000" data-name="鎌倉 松原庵 · 午餐" data-cat="午餐" data-detail="matsubaran">
-            <div class="option-main"><div class="option-name">鎌倉 松原庵 <span class="option-tag gold">推荐</span></div><div class="option-desc">古民家荞麦 · 庭院氛围一流</div></div>
+          <div class="option selected" data-price="6000" data-name="てんぐ 吉祥寺" data-cat="午餐" data-detail="tengu">
+            <div class="option-main"><div class="option-name">てんぐ 吉祥寺 <span class="option-tag gold">老铺</span></div><div class="option-desc">吉祥寺老铺洋食 · 蛋包饭 + 汉堡排</div></div>
+            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="4000" data-name="さとう 牛肉可乐饼 + 元祖メンチ" data-cat="午餐" data-detail="satou">
+            <div class="option-main"><div class="option-name">さとう 元祖メンチ + 串烧 <span class="option-tag red">名物</span></div><div class="option-desc">吉祥寺神店 · 排队 30 分 · 现炸メンチカツ</div></div>
+            <div class="option-right"><div class="option-price">¥4,000<small>人均2,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="8000" data-name="武蔵野焼鳥 いせや 公園店" data-cat="午餐" data-detail="iseya">
+            <div class="option-main"><div class="option-name">いせや 公園店 <span class="option-tag gold">推荐</span></div><div class="option-desc">1928 创业烧鸟老铺 · 公园旁老建筑</div></div>
+            <div class="option-right"><div class="option-price">¥8,000<small>人均4,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="10000" data-name="楓 KAEDE 家庭法餐" data-cat="午餐" data-detail="kaede">
+            <div class="option-main"><div class="option-name">楓 KAEDE</div><div class="option-desc">小巷家庭法餐 · 中道通附近</div></div>
             <div class="option-right"><div class="option-price">¥10,000<small>人均5,000</small></div><button class="option-info">i</button></div>
           </div>
-          <div class="option" data-price="5000" data-name="Garden House" data-cat="午餐" data-detail="gardenhouse">
-            <div class="option-main"><div class="option-name">Garden House</div><div class="option-desc">Café 风 · 镰仓站旁</div></div>
-            <div class="option-right"><div class="option-price">¥5,000<small>人均2,500</small></div><button class="option-info">i</button></div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon attr">逛</span><span class="choice-title">5/6 吉祥寺杂货店</span></div>
+        <div class="options" data-group="kichijoji-shops">
+          <div class="option selected" data-price="0" data-name="36 Sublo 文具店" data-cat="景点" data-detail="sublo">
+            <div class="option-main"><div class="option-name">36 Sublo <span class="option-tag teal">文具</span></div><div class="option-desc">中道通隐藏文具店 · 复古文具 + 包装</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
           </div>
-          <div class="option" data-price="3000" data-name="しらすや 镰仓駅前" data-cat="午餐" data-detail="shirasuya">
-            <div class="option-main"><div class="option-name">しらすや 镰仓 <span class="option-tag gold">名物</span></div><div class="option-desc">镰仓名物魩仔鱼丼 · 5 月正季</div></div>
+          <div class="option selected" data-price="0" data-name="Free Design" data-cat="景点" data-detail="freedesign">
+            <div class="option-main"><div class="option-name">Free Design <span class="option-tag teal">选物</span></div><div class="option-desc">2003 创业北欧选物 · 杂货 + 服饰</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="0" data-name="Outbound 工艺品" data-cat="景点" data-detail="outbound">
+            <div class="option-main"><div class="option-name">Outbound <span class="option-tag teal">工艺品</span></div><div class="option-desc">日本作家器物选物 · 茶具 + 漆器</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="3000" data-name="紅茶専門店 chai break" data-cat="早餐" data-detail="chaibreak">
+            <div class="option-main"><div class="option-name">紅茶専門店 chai break <span class="option-tag gold">下午茶</span></div><div class="option-desc">井之头公园边的红茶专门店</div></div>
             <div class="option-right"><div class="option-price">¥3,000<small>人均1,500</small></div><button class="option-info">i</button></div>
           </div>
         </div>
       </div>
 
       <div class="choice">
-        <div class="choice-label"><span class="choice-icon">晚</span><span class="choice-title">5/6 晚餐 · 镰仓七里浜</span></div>
+        <div class="choice-label"><span class="choice-icon">晚</span><span class="choice-title">5/6 吉祥寺晚餐</span></div>
         <div class="options" data-group="d4-dinner">
-          <div class="option selected" data-price="20000" data-name="AMALFI DELLA SERA" data-cat="晚餐" data-detail="amalfi">
-            <div class="option-main"><div class="option-name">AMALFI DELLA SERA <span class="option-tag red">日落餐厅</span></div><div class="option-desc">七里滨意餐看海 · 必订位</div></div>
-            <div class="option-right"><div class="option-price">¥20,000<small>人均10,000</small></div><button class="option-info">i</button></div>
+          <div class="option selected" data-price="14000" data-name="天音 鰻鱼" data-cat="晚餐" data-detail="amane">
+            <div class="option-main"><div class="option-name">天音(あまね)<span class="option-tag red">鳗鱼</span></div><div class="option-desc">吉祥寺名物 · 鰻重老铺 · 必预约</div></div>
+            <div class="option-right"><div class="option-price">¥14,000<small>人均7,000</small></div><button class="option-info">i</button></div>
           </div>
-          <div class="option" data-price="10000" data-name="bills 七里ヶ浜" data-cat="晚餐" data-detail="bills">
-            <div class="option-main"><div class="option-name">bills 七里ヶ浜 <span class="option-tag gold">名店</span></div><div class="option-desc">世界第一早餐店 · 晚餐也有</div></div>
-            <div class="option-right"><div class="option-price">¥10,000<small>人均5,000</small></div><button class="option-info">i</button></div>
+          <div class="option" data-price="8000" data-name="いせや 本店 烧鸟" data-cat="晚餐" data-detail="iseyahonten">
+            <div class="option-main"><div class="option-name">いせや 本店 <span class="option-tag gold">老铺</span></div><div class="option-desc">1928 创业烧鸟 · 庶民氛围</div></div>
+            <div class="option-right"><div class="option-price">¥8,000<small>人均4,000</small></div><button class="option-info">i</button></div>
           </div>
-          <div class="option" data-price="15000" data-name="酒店内 Le Trianon" data-cat="晚餐" data-detail="trianon">
-            <div class="option-main"><div class="option-name">酒店内 Le Trianon</div><div class="option-desc">海景法餐 · 最省心</div></div>
-            <div class="option-right"><div class="option-price">¥15,000<small>人均7,500</small></div><button class="option-info">i</button></div>
+          <div class="option" data-price="6000" data-name="ハーモニカ横丁 居酒屋巡游" data-cat="晚餐" data-detail="harmonica">
+            <div class="option-main"><div class="option-name">ハーモニカ横丁 巡游</div><div class="option-desc">老横丁里小店续摊 · 各家¥1,500-3,000</div></div>
+            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="3000" data-name="回五反田 简餐" data-cat="晚餐" data-detail="back-gotanda">
+            <div class="option-main"><div class="option-name">回五反田吃简餐</div><div class="option-desc">吉祥寺早回 · 五反田附近吃</div></div>
+            <div class="option-right"><div class="option-price">¥3,000<small>人均1,500</small></div><button class="option-info">i</button></div>
           </div>
         </div>
       </div>
 
-      <div class="hotel-fixed"><span class="hotel-name">镰仓王子大酒店</span><span class="hotel-tag">已订 · 不计入</span></div>
+      <div class="hotel-fixed"><span class="hotel-name">三井花园酒店 五反田</span><span class="hotel-tag">加订 1 晚 · 计入预算</span></div>
     </div>
   </div>
 
   <!-- 5/7 -->
   <div class="day-card" id="day-7">
-    <div class="day-header"><div class="day-date"><span class="num">07</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">木曜日</div><div>镰仓 → 五反田</div></div></div>
+    <div class="day-header"><div class="day-date"><span class="num">07</span><span class="month">MAY</span></div><div class="day-meta"><div class="weekday">木曜日</div><div>自由之丘 + 目黒川绿道</div></div></div>
     <div class="day-body">
       <div class="schedule">
-        <div class="schedule-row"><div class="schedule-time">07:30</div><div class="schedule-text">早餐</div></div>
-        <div class="schedule-row"><div class="schedule-time">09:00</div><div class="schedule-text">镰仓大佛 + 长谷寺</div></div>
-        <div class="schedule-row"><div class="schedule-time">12:30</div><div class="schedule-text">小町通 + 镰仓午餐</div></div>
-        <div class="schedule-row"><div class="schedule-time">14:30</div><div class="schedule-text">江ノ電 → 江之岛</div></div>
-        <div class="schedule-row"><div class="schedule-time">17:00</div><div class="schedule-text">镰仓→品川→五反田</div></div>
-        <div class="schedule-row"><div class="schedule-time">20:00</div><div class="schedule-text">晚餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">10:00</div><div class="schedule-text">五反田 → 自由之丘(東急目黒+大井町线 25 分)</div></div>
+        <div class="schedule-row"><div class="schedule-time">10:30</div><div class="schedule-text">自由之丘巡游</div></div>
+        <div class="schedule-row"><div class="schedule-time">10:45</div><div class="schedule-text">🍰 Mont St. Clair 甜点(辻口博啓)</div></div>
+        <div class="schedule-row"><div class="schedule-time">11:30</div><div class="schedule-text">🛒 Today's Special / IDÉE / 古桑庵附近</div></div>
+        <div class="schedule-row"><div class="schedule-time">12:30</div><div class="schedule-text">午餐</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:00</div><div class="schedule-text">自由之丘 → 中目黑(東横線 8 分)</div></div>
+        <div class="schedule-row"><div class="schedule-time">14:30</div><div class="schedule-text">🌳 目黒川绿道散步(新绿)</div></div>
+        <div class="schedule-row"><div class="schedule-time">15:30</div><div class="schedule-text">☕ Onibus Coffee / Sidewalk Stand</div></div>
+        <div class="schedule-row"><div class="schedule-time">16:30</div><div class="schedule-text">Starbucks Reserve Roastery 中目黑(4 楼 · 落地窗)</div></div>
+        <div class="schedule-row"><div class="schedule-time">18:00</div><div class="schedule-text">回五反田或留中目黑吃晚餐</div></div>
       </div>
 
       <div class="choice">
-        <div class="choice-label"><span class="choice-icon attr">景</span><span class="choice-title">5/7 江之岛景点</span><span class="choice-hint">2人</span></div>
-        <div class="options" data-group="d5-attr">
-          <div class="option selected" data-price="5600" data-name="新江ノ島水族館" data-cat="景点" data-detail="enosui">
-            <div class="option-main"><div class="option-name">新江ノ島水族館 <span class="option-tag teal">水族馆</span></div><div class="option-desc">海豚秀 + 相模湾大水槽 + 水母</div></div>
-            <div class="option-right"><div class="option-price">¥5,600<small>2人成人</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option" data-price="1000" data-name="江之岛展望塔 Sea Candle" data-cat="景点" data-detail="seacandle">
-            <div class="option-main"><div class="option-name">江之岛展望塔 + 神社</div><div class="option-desc">看富士山 + 走江ノ岛</div></div>
-            <div class="option-right"><div class="option-price">¥1,000<small>2人</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option" data-price="0" data-name="不去江之岛 · 直接回东京" data-cat="景点">
-            <div class="option-main"><div class="option-name">不去江之岛 · 早回东京</div><div class="option-desc">镰仓玩深一点 · 早点回酒店</div></div>
-            <div class="option-right"><div class="option-price">¥0<small>—</small></div></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="choice">
-        <div class="choice-label"><span class="choice-icon bfast">早</span><span class="choice-title">5/7 早餐</span></div>
-        <div class="options" data-group="d5-bfast">
-          <div class="option selected" data-price="6000" data-name="bills 七里ヶ浜 早餐" data-cat="早餐" data-detail="bills">
-            <div class="option-main"><div class="option-name">bills 七里ヶ浜 <span class="option-tag red">必吃</span></div><div class="option-desc">世界第一早餐 · 排队</div></div>
-            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option" data-price="0" data-name="酒店早餐 (含)" data-cat="早餐">
-            <div class="option-main"><div class="option-name">酒店内早餐</div><div class="option-desc">省心 · 通常已含房费</div></div>
-            <div class="option-right"><div class="option-price">¥0<small>已含</small></div></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="choice">
-        <div class="choice-label"><span class="choice-icon lunch">午</span><span class="choice-title">5/7 午餐 · 镰仓</span></div>
-        <div class="options" data-group="d5-lunch">
-          <div class="option selected" data-price="10000" data-name="鎌倉松原庵" data-cat="午餐" data-detail="matsubaran">
-            <div class="option-main"><div class="option-name">鎌倉 松原庵 <span class="option-tag gold">推荐</span></div><div class="option-desc">古民家荞麦 · 庭院氛围一流</div></div>
-            <div class="option-right"><div class="option-price">¥10,000<small>人均5,000</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option" data-price="5000" data-name="Garden House" data-cat="午餐" data-detail="gardenhouse">
-            <div class="option-main"><div class="option-name">Garden House</div><div class="option-desc">Café 风 · 镰仓站旁</div></div>
-            <div class="option-right"><div class="option-price">¥5,000<small>人均2,500</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option" data-price="3000" data-name="イワタコーヒー" data-cat="午餐" data-detail="iwata">
-            <div class="option-main"><div class="option-name">イワタコーヒー</div><div class="option-desc">古早咖啡 · 川端康成御用</div></div>
+        <div class="choice-label"><span class="choice-icon attr">逛</span><span class="choice-title">5/7 自由之丘巡游</span></div>
+        <div class="options" data-group="jiyugaoka">
+          <div class="option selected" data-price="3000" data-name="Mont St. Clair 甜点" data-cat="早餐" data-detail="mont-st-clair">
+            <div class="option-main"><div class="option-name">Mont St. Clair <span class="option-tag red">名店</span></div><div class="option-desc">辻口博啓主厨 · 全日本最佳甜点之一</div></div>
             <div class="option-right"><div class="option-price">¥3,000<small>人均1,500</small></div><button class="option-info">i</button></div>
           </div>
+          <div class="option selected" data-price="0" data-name="Today's Special 自由之丘" data-cat="景点" data-detail="todays-special">
+            <div class="option-main"><div class="option-name">Today's Special <span class="option-tag teal">选物</span></div><div class="option-desc">日本生活杂货品牌旗舰店</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="0" data-name="IDÉE SHOP 自由之丘" data-cat="景点" data-detail="idee">
+            <div class="option-main"><div class="option-name">IDÉE SHOP <span class="option-tag teal">家居</span></div><div class="option-desc">日本知名家居 · 自由之丘旗舰</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option selected" data-price="0" data-name="古桑庵 茶寮" data-cat="景点" data-detail="kosouan">
+            <div class="option-main"><div class="option-name">古桑庵 <span class="option-tag teal">古民家</span></div><div class="option-desc">大正昭和古民家 · 庭院 + 抹茶</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>逛店</small></div><button class="option-info">i</button></div>
+          </div>
         </div>
       </div>
 
       <div class="choice">
-        <div class="choice-label"><span class="choice-icon">晚</span><span class="choice-title">5/7 晚餐 · 五反田</span></div>
+        <div class="choice-label"><span class="choice-icon lunch">午</span><span class="choice-title">5/7 自由之丘午餐</span></div>
+        <div class="options" data-group="d5-lunch">
+          <div class="option selected" data-price="8000" data-name="古桑庵 蕎麦 + 抹茶" data-cat="午餐" data-detail="kosouan-soba">
+            <div class="option-main"><div class="option-name">古桑庵 茶寮 <span class="option-tag gold">古民家</span></div><div class="option-desc">大正昭和古民家庭院 · 荞麦 + 抹茶</div></div>
+            <div class="option-right"><div class="option-price">¥8,000<small>人均4,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="6000" data-name="Frères de Lille 法式" data-cat="午餐" data-detail="freres">
+            <div class="option-main"><div class="option-name">Frères de Lille <span class="option-tag gold">法式</span></div><div class="option-desc">北法菜 · galette 可丽饼 + 苹果酒</div></div>
+            <div class="option-right"><div class="option-price">¥6,000<small>人均3,000</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="4000" data-name="ピーターラビット ガーデンカフェ" data-cat="午餐" data-detail="peter-rabbit">
+            <div class="option-main"><div class="option-name">Peter Rabbit Café</div><div class="option-desc">主题 café · 适合休闲午餐</div></div>
+            <div class="option-right"><div class="option-price">¥4,000<small>人均2,000</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon attr">绿</span><span class="choice-title">5/7 目黒川绿道散步</span><span class="choice-hint">免费</span></div>
+        <div class="options" data-group="meguro-river">
+          <div class="option selected" data-price="0" data-name="目黒川绿道散步" data-cat="景点" data-detail="meguro-river">
+            <div class="option-main"><div class="option-name">目黒川绿道 <span class="option-tag teal">绿地</span></div><div class="option-desc">5 月新绿 · 沿河 4 公里散步道 · 中目黑→池尻大桥</div></div>
+            <div class="option-right"><div class="option-price">¥0<small>免费</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon bfast">咖</span><span class="choice-title">5/7 中目黑咖啡</span></div>
+        <div class="options" data-group="d5-coffee">
+          <div class="option selected" data-price="2500" data-name="Starbucks Reserve Roastery" data-cat="早餐" data-detail="reserve-roastery">
+            <div class="option-main"><div class="option-name">Starbucks Reserve Roastery <span class="option-tag red">必去</span></div><div class="option-desc">全球第 5 家 · 4 楼烘豆 · 坐落目黒川旁</div></div>
+            <div class="option-right"><div class="option-price">¥2,500<small>人均1,250</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="1500" data-name="Onibus Coffee 中目黑" data-cat="早餐" data-detail="onibus">
+            <div class="option-main"><div class="option-name">Onibus Coffee <span class="option-tag gold">精品</span></div><div class="option-desc">中目黑站旁 · 老民家改造 · 单品手冲</div></div>
+            <div class="option-right"><div class="option-price">¥1,500<small>人均750</small></div><button class="option-info">i</button></div>
+          </div>
+          <div class="option" data-price="1500" data-name="Sidewalk Stand 中目黑" data-cat="早餐" data-detail="sidewalk">
+            <div class="option-main"><div class="option-name">Sidewalk Stand</div><div class="option-desc">目黒川旁站着喝 · 简餐 + 啤酒也有</div></div>
+            <div class="option-right"><div class="option-price">¥1,500<small>人均750</small></div><button class="option-info">i</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice">
+        <div class="choice-label"><span class="choice-icon">晚</span><span class="choice-title">5/7 晚餐 · 五反田 / 中目黑</span></div>
         <div class="options" data-group="d5-dinner">
           <div class="option" data-price="30000" data-name="TTOAHISU · 米其林1星法餐" data-cat="晚餐" data-detail="ttoahisu">
             <div class="option-main"><div class="option-name">TTOAHISU <span class="option-tag red">米其林1星</span></div><div class="option-desc">五反田法餐 · 高完成度</div></div>
@@ -991,6 +1147,10 @@ body{
             <div class="option-main"><div class="option-name">鮨 いち兆 五反田 <span class="option-tag gold">寿司</span></div><div class="option-desc">寿司 · 性价比之王</div></div>
             <div class="option-right"><div class="option-price">¥15,000<small>人均7,500</small></div><button class="option-info">i</button></div>
           </div>
+          <div class="option" data-price="20000" data-name="Na Camo guro 中目黑" data-cat="晚餐" data-detail="nacamoguro">
+            <div class="option-main"><div class="option-name">Na Camo guro <span class="option-tag zara">Zara</span></div><div class="option-desc">中目黑创意日料 4.3 · 直接当地吃</div></div>
+            <div class="option-right"><div class="option-price">¥20,000<small>人均10,000</small></div><button class="option-info">i</button></div>
+          </div>
           <div class="option" data-price="10000" data-name="目黒のさんま 居酒屋" data-cat="晚餐" data-detail="sanma">
             <div class="option-main"><div class="option-name">目黒のさんま</div><div class="option-desc">居酒屋氛围满分 · 打车10分</div></div>
             <div class="option-right"><div class="option-price">¥10,000<small>人均5,000</small></div><button class="option-info">i</button></div>
@@ -998,10 +1158,6 @@ body{
           <div class="option" data-price="8000" data-name="五反田 鳥かど 烧鸟" data-cat="晚餐" data-detail="torikado">
             <div class="option-main"><div class="option-name">五反田 鳥かど</div><div class="option-desc">本地烧鸟 · 平易近人</div></div>
             <div class="option-right"><div class="option-price">¥8,000<small>人均4,000</small></div><button class="option-info">i</button></div>
-          </div>
-          <div class="option" data-price="20000" data-name="Na Camo guro 中目黑" data-cat="晚餐" data-detail="nacamoguro">
-            <div class="option-main"><div class="option-name">Na Camo guro <span class="option-tag zara">Zara</span></div><div class="option-desc">中目黑创意日料 4.3 · 五反田10分</div></div>
-            <div class="option-right"><div class="option-price">¥20,000<small>人均10,000</small></div><button class="option-info">i</button></div>
           </div>
         </div>
       </div>
@@ -1388,6 +1544,64 @@ const details = {
     ],
     mapUrl: gmap('資生堂パーラー 銀座本店')},
 
+  'sushisei-honten': {kicker:'5/4 早餐 · 怀旧',name:'築地寿司清 本店',tagline:'1889 年创业 · 文傑以前吃过',
+    book:'<span class="em">Hot Pepper / 电话 03-3541-7720</span> · 不强制预约 · GW 建议提前订。',
+    go:'<span class="em">大江户线「築地市場」A1 出口徒步 1 分</span> / 日比谷线「築地」徒步 5 分 · 跟寿司大同区。',
+    hours:'11:00-22:00 (午市 11:00-15:00)',
+    tip:'<span class="em">11 点开门</span>,不是清晨吃店,适合 5/4 中午来 · ¥1,320 起 7 贯握りセット是性价比之王 · 一贯 ¥300-1000 可单点 · "便宜好吃的江户前"是招牌 · 不是顶级店,稳妥老味道。',
+    bookLinks:[
+      {label:'寿司清官网', url:'http://www.tsukijisushisay.co.jp/'},
+      {label:'Tabelog', url:tabelog('築地寿司清 本店')},
+      {label:'Hot Pepper', url:`https://www.hotpepper.jp/CSP/yyd010/desKwd/?keyword=${enc('築地寿司清 本店')}`}
+    ],
+    mapUrl: gmap('築地寿司清 本店 中央区築地')},
+
+  'sushisei-ginza': {kicker:'5/4 午餐 · 怀旧',name:'築地寿司清 銀座四丁目店',tagline:'银座 4 chome 中心 · 老铺分店',
+    book:'<span class="em">Hot Pepper / 楽天ぐるなび</span> · 平日不强制预约,GW 周一建议订位。',
+    go:'<span class="em">銀座线/丸之内线「銀座」A2 出口徒步 1 分</span> · 銀座 4 chome 路口附近 · 你银座购物路线上。',
+    hours:'11:00-15:00 (L.O. 14:00) / 17:00-22:00',
+    tip:'<span class="em">28 席カウンター</span> · 周一正常营业(资生堂 Parlour 周一休的备份)· 午市套餐 ¥1,320-3,000 / 人 · 茶碗蒸 + 握り 7 贯 + 铁火卷 + 味噌汁 经典组合 · "比久兵衛便宜很多但稳妥"的中段定位。',
+    bookLinks:[
+      {label:'寿司清官网', url:'http://www.tsukijisushisay.co.jp/store/4chome.html'},
+      {label:'Tabelog', url:tabelog('築地寿司清 銀座四丁目店')},
+      {label:'Hot Pepper', url:'https://www.hotpepper.jp/strJ000116930/'},
+      {label:'楽天ぐるなび', url:'https://r.gnavi.co.jp/2amzzsc20000/'}
+    ],
+    mapUrl: gmap('築地寿司清 銀座四丁目店')},
+
+  'abe': {kicker:'5/4 午餐 · 天妇罗',name:'天ぷら 阿部 銀座本店',tagline:'银座 8 丁目 · 1 米其林星水准 · 比近藤实惠',
+    book:'<span class="em">Tabelog / 一休餐厅 / 电话 03-5568-0432</span> · 提前 1-2 周 · GW 必订。',
+    go:'<span class="em">銀座线/日比谷线「銀座」A4 出口徒步 4 分</span> / JR「新橋」徒步 5 分 · 银座 8-7 中央通り。',
+    hours:'昼 11:30-14:00 / 夜 17:00-22:00 · 周日休',
+    tip:'<span class="em">午市 ¥6,000 起 / 夜市 ¥10,000+</span> · 主厨阿部慎太郎曾在近藤修业 · 蔬菜天妇罗水准接近近藤但价位友好 · 16 席吧台 · 必点玉米天妇罗、芝虾。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('天ぷら 阿部 銀座本店')},
+      {label:'一休餐厅', url:ikyu('天ぷら 阿部 銀座')}
+    ],
+    mapUrl: gmap('天ぷら 阿部 銀座本店')},
+
+  'tsunahachi': {kicker:'5/4 午餐 · 天妇罗',name:'つな八 銀座大丸店',tagline:'明治 14 年(1881)老铺 · 现场可入',
+    book:'<span class="em">不强制预约</span> · 大丸百货内 · GW 中午会满,11:00 开门去保险。',
+    go:'<span class="em">JR/丸之内线/银座线「東京」徒步 1 分</span> · 大丸东京店 12 楼 · 银座路上经过东京站可顺路。',
+    hours:'11:00-21:00 (L.O. 20:00)',
+    tip:'¥3,000-5,000 / 人 · 老铺连锁,品质稳定,无地雷 · 午市定食含天丼、天ぷら盛合せ + 沙拉 + 味噌汁 · 适合不想花大钱但要吃天妇罗的备选 · 浅草本店更正宗但远。',
+    bookLinks:[
+      {label:'つな八官网', url:'https://www.tunahachi.co.jp/'},
+      {label:'Tabelog', url:tabelog('つな八 銀座大丸店')},
+      {label:'Hot Pepper', url:`https://www.hotpepper.jp/CSP/yyd010/desKwd/?keyword=${enc('つな八 銀座大丸')}`}
+    ],
+    mapUrl: gmap('つな八 大丸東京店 12F')},
+
+  'motoyoshi': {kicker:'5/4 午餐 · 天妇罗',name:'天ぷら 元吉',tagline:'表参道独立店 · 主厨亲自掌勺',
+    book:'<span class="em">电话 03-3408-5224</span>(只接电话,日语)/ 通过酒店 Concierge · 提前 1 个月 · GW 极难。',
+    go:'<span class="em">銀座线/半蔵門线/千代田线「表参道」A4 出口徒步 5 分</span> · 南青山 · 离银座有距离,需要绕路。',
+    hours:'昼 12:00-13:30 / 夜 18:00-21:00 · 周日休',
+    tip:'¥15,000 / 人 起 omakase · 全店 7 席 · 主厨元吉和仁前锅前茂木"是山居"修业 · 江户前手法 + 现代演绎 · ⚠️ 不在你银座路线上,需要单独安排,而且很难订。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('天ぷら 元吉 南青山')}
+    ],
+    mapUrl: gmap('天ぷら 元吉 南青山')},
+
   'jiro-roppongi': {kicker:'5/4 晚餐',name:'すきやばし次郎 六本木店',tagline:'神店分店',
     book:'<span class="em">电话 03-5413-0033</span>(只接电话日语预约) · 提前 1-2 个月。或通过酒店 Concierge 介绍。',
     go:'大江户线/日比谷线「六本木」直结,六本木 Hills 内。',
@@ -1747,6 +1961,7 @@ const details = {
     mapUrl: gmap('品川プリンスホテル リムジンバス乗り場')},
 
   // ============= 5/5 横浜 日归 =============
+  // ============= 5/5 清澄白河 → 表参道 → 中目黑 → 横浜 =============
   'extra-b': {kicker:'5/5 加订住宿',name:'the b akasaka 加订 1 晚',tagline:'原箱根改回东京 · 行李不用搬',
     book:'<span class="em">直接联系酒店前台或 Booking.com</span> 加订 5/5 一晚 · 同房型继续住最简单。',
     go:'已经在住的酒店,不用动。',
@@ -1759,28 +1974,409 @@ const details = {
     ],
     mapUrl: gmap('the b akasaka mitsuke')},
 
-  'jr-yokohama': {kicker:'5/5 交通',name:'JR 东海道线 · 品川 ↔ 横浜',tagline:'15 分钟直达',
-    book:'Suica/PASMO 刷卡进站 · 无需提前订票。',
-    go:'<span class="em">赤坂見附 → 银座线/南北线到品川 → JR 东海道线 1 站到横浜</span> · 总用时约 35-45 分钟。',
-    hours:'始发车 5:00,末班 24:00 后',
-    tip:'¥500/人 单程 · 来回 ¥1,000/人 · GW 周二夜班车很挤,21:30 前回避高峰。',
+  'bluebottle': {kicker:'5/5 早晨 · 咖啡',name:'Blue Bottle Coffee 清澄白河旗舰店',tagline:'日本 1 号店 · 2015 创立',
+    book:'无需预约 · 现场排队 · 高峰 10-20 分。',
+    go:'<span class="em">大江户线/半蔵門线「清澄白河」徒步 7 分</span> · 赤坂見附 → 大江户线直达「清澄白河」约 25 分。',
+    hours:'08:00-19:00',
+    tip:'¥600-1,200 / 杯 · ¥800-1,500 早餐(华夫饼/热三明治/格子饼)· 旗舰店有烘焙咖啡豆现场表演 · 工业风仓库改造,空间舒服。',
     bookLinks:[
-      {label:'JR EAST 路线查询', url:'https://www.jreast.co.jp/tc/'},
-      {label:'Google 路线', url:'https://www.google.com/maps/dir/Akasaka-mitsuke+Station/Yokohama+Station'}
+      {label:'Blue Bottle 官网', url:'https://store.bluebottlecoffee.jp/pages/kiyosumi'},
+      {label:'Tabelog', url:tabelog('Blue Bottle Coffee 清澄白河')}
     ],
-    mapUrl: gmap('JR 横浜駅')},
+    mapUrl: gmap('Blue Bottle Coffee 清澄白河 旗艦店')},
 
-  'keikyu-yokohama': {kicker:'5/5 交通',name:'京急本线 · 品川 ↔ 横浜',tagline:'17 分钟 · 略便宜',
+  'arise': {kicker:'5/5 早晨 · 咖啡',name:'ARiSE Coffee Roasters',tagline:'清澄白河小巷烘豆店',
+    book:'无需预约。',
+    go:'<span class="em">从 Blue Bottle 步行 5 分</span> · 大江户线「清澄白河」徒步 5 分。',
+    hours:'09:30-18:00 · 周一休',
+    tip:'¥500-700 / 杯 · 单品手冲为主 · 主理人元清水康广 · 小巷里安静,8 人左右就满 · 跟 Blue Bottle 是同区两风格。',
+    bookLinks:[
+      {label:'ARiSE 官网', url:'https://arisecoffee.jp/'},
+      {label:'Tabelog', url:tabelog('ARiSE Coffee Roasters 清澄白河')}
+    ],
+    mapUrl: gmap('ARiSE Coffee Roasters 清澄白河')},
+
+  'lukes': {kicker:'5/5 午餐',name:"LUKE'S LOBSTER 表参道",tagline:'缅因龙虾堡 · 美式快食',
+    book:'无需预约 · 排队制 · 12 点高峰 20-30 分。',
+    go:'<span class="em">銀座线/半蔵門线「表参道」A1 / A2 出口徒步 3 分</span> · 表参道大街上。',
+    hours:'11:00-21:00',
+    tip:'¥2,000-3,000 / 人 · 龙虾堡 / 螃蟹堡 / 虾堡三选一 · 推荐 Lobster Roll 经典款 · 紧凑用餐,15-20 分钟吃完继续逛。',
+    bookLinks:[
+      {label:"LUKE'S 官网", url:'https://lukeslobster.jp/'},
+      {label:'Tabelog', url:tabelog("LUKE'S LOBSTER 表参道")}
+    ],
+    mapUrl: gmap("LUKE'S LOBSTER 表参道")},
+
+  'r45': {kicker:'5/5 逛 · 表参道',name:'45R 南青山本店',tagline:'天然染色 + 牛仔老铺 · 1977 创业',
+    book:'无需预约 · 自由进出。',
+    go:'<span class="em">銀座线/半蔵門线「表参道」A4 出口徒步 5 分</span> · 南青山 5-7-2。',
+    hours:'11:00-20:00',
+    tip:'本店全 3 楼 · 蓝染 + 草木染色为主 · T 恤 ¥10,000-15,000 / 件 · 牛仔 ¥30,000+ · 跟其他分店相比本店货品最齐全。',
+    bookLinks:[
+      {label:'45R 官网', url:'https://45r.net/'},
+      {label:'店铺信息', url:'https://45r.net/pages/store-list'}
+    ],
+    mapUrl: gmap('45R 南青山本店')},
+
+  'actus': {kicker:'5/5 逛 · 青山',name:'ACTUS 青山店',tagline:'日本人气家居 · 1969 创业',
+    book:'无需预约。',
+    go:'<span class="em">銀座线「外苑前」3 出口徒步 4 分</span> · 北青山 2-12-28。',
+    hours:'11:00-20:00 · 不定休',
+    tip:'地下 1 楼 + 地上 2 楼 · 北欧风为主 · 沙发、餐桌、灯具齐全 · 大件家具有海外配送服务,但费用不便宜。',
+    bookLinks:[
+      {label:'ACTUS 官网', url:'https://www.actus-interior.com/shop/aoyama/'}
+    ],
+    mapUrl: gmap('ACTUS 青山店')},
+
+  'hpdeco': {kicker:'5/5 逛 · 青山',name:'H.P.DECO',tagline:'青山高端选物 · 家居 + 杂货',
+    book:'无需预约。',
+    go:'<span class="em">銀座线「外苑前」徒步 5 分</span> · 南青山 5-2-11。',
+    hours:'11:00-19:00',
+    tip:'选物店,不只是家居 · 欧洲艺术家品 + 日本工艺 + 古董 · 有 H.P.DECO 自家品牌 · 价位偏高,逛眼界。',
+    bookLinks:[
+      {label:'H.P.DECO 官网', url:'https://www.hpdeco.com/'}
+    ],
+    mapUrl: gmap('H.P.DECO 青山')},
+
+  'carlhansen': {kicker:'5/5 逛 · 表参道',name:'Carl Hansen & Søn 表参道店',tagline:'丹麦经典家具 · Y Chair 王家',
+    book:'无需预约 · 自由参观。',
+    go:'<span class="em">銀座线「表参道」A4 出口徒步 3 分</span> · 北青山 3-6-14 表参道 5454 大楼 1F。',
+    hours:'11:00-19:00',
+    tip:'Hans Wegner Y Chair / CH24 / Wishbone Chair 全系列展示 · 单椅 ¥150,000+ · 进店随意试坐拍照 · 一切不上手都可以,氛围像艺廊。',
+    bookLinks:[
+      {label:'Carl Hansen 官网', url:'https://www.carlhansen.com/ja-jp'}
+    ],
+    mapUrl: gmap('Carl Hansen Son 表参道')},
+
+  'yoyogi': {kicker:'5/5 散步',name:'代代木公园 + Margaret Howell 神南店',tagline:'公园散步 + MHL 旗舰',
+    book:'无需。',
+    go:'<span class="em">从青山徒步 15 分到代代木公园北门</span> · 公园南口出来 5 分钟到 MHL 神南店(神南 1-15-3)。',
+    hours:'公园 24 小时 · MHL 11:00-20:00',
+    tip:'代代木公园 5 月新绿很美 · 周日有跳蚤市场 · 5/5 是儿童节但公园不会爆满 · MHL 神南店是 MARGARET HOWELL 系列日本最大店。',
+    bookLinks:[
+      {label:'代代木公园官网', url:'https://www.tokyo-park.or.jp/park/format/index039.html'},
+      {label:'Margaret Howell 神南', url:'https://www.margarethowell.jp/'}
+    ],
+    mapUrl: gmap('代々木公園')},
+
+  'unico': {kicker:'5/5 逛 · 中目黑',name:'unico 中目黑',tagline:'大众价位北欧风家居',
+    book:'无需预约。',
+    go:'<span class="em">東急東横線/日比谷线「中目黑」徒步 3 分</span> · 上目黑 3-1-5。',
+    hours:'11:00-20:00',
+    tip:'比 ACTUS 便宜一档 · 沙发 ¥80,000+ · 桌椅 ¥30,000+ · 适合年轻家庭 · 装潢风格清新,不少 IG 网红打卡。',
+    bookLinks:[
+      {label:'unico 官网', url:'https://www.unico-fan.co.jp/shop/nakameguro/'}
+    ],
+    mapUrl: gmap('unico 中目黒')},
+
+  'zapady': {kicker:'5/5 逛 · 中目黑',name:'ZAPADY-DOO BABY',tagline:'中目黑 vintage 家居选物',
+    book:'无需预约。',
+    go:'<span class="em">東急東横線「中目黑」徒步 5 分</span> · 上目黑 1-7-13。',
+    hours:'12:00-20:00 · 不定休',
+    tip:'欧美 vintage 家具 + 日本作家器物 · 选品有特色,挑得动眼力 · 价位偏高,小件 ¥5,000+ · 大件家具 ¥100,000+。',
+    bookLinks:[
+      {label:'Tabelog 评论', url:tabelog('ZAPADY-DOO BABY 中目黒')}
+    ],
+    mapUrl: gmap('ZAPADY-DOO BABY 中目黒')},
+
+  'greeniche': {kicker:'5/5 逛 · 中目黑',name:'greeniche',tagline:'原创木家具 + 北欧 vintage',
+    book:'无需预约。',
+    go:'<span class="em">東急東横線「中目黑」徒步 6 分</span> · 上目黒 2-7-13。',
+    hours:'11:00-19:00 · 周三休',
+    tip:'自家品牌橡木家具 · 北欧 mid-century vintage 选品 · 餐桌 ¥150,000-300,000 · 适合居家 + 慢生活的客群。',
+    bookLinks:[
+      {label:'greeniche 官网', url:'https://greeniche.jp/'}
+    ],
+    mapUrl: gmap('greeniche 中目黒')},
+
+  'tsutaya': {kicker:'5/5 咖啡 · 代官山',name:'代官山 蔦屋書店',tagline:'全日本最美书店 + Anjin 咖啡',
+    book:'无需预约。',
+    go:'<span class="em">東横線「代官山」徒步 5 分</span> / 中目黑徒步 12 分 · 猿楽町 17-5。',
+    hours:'09:00-22:00',
+    tip:'三栋低矮建筑组成的书店"村" · 2 楼 Anjin 咖啡馆是雑誌のラウンジ · ¥1,200 一杯咖啡 + 6 万册老 magazine 随便翻 · 代官山 T-Site 整个 complex 至少花 1.5 小时。',
+    bookLinks:[
+      {label:'蔦屋書店官网', url:'https://store.tsite.jp/daikanyama/'}
+    ],
+    mapUrl: gmap('代官山 蔦屋書店')},
+
+  'ebisu': {kicker:'5/5 逛 · 惠比寿',name:'惠比寿花园广场 + ASPLUND',tagline:'花园广场 + 北欧家居',
+    book:'无需预约。',
+    go:'<span class="em">从代官山徒步 8 分</span> / JR「惠比寿」东口徒步 7 分 · 花园广场内 ASPLUND 在 B1F。',
+    hours:'花园广场 24h · ASPLUND 11:00-20:00',
+    tip:'5/5 GW 期间花园广场常有快闪市集或活动 · ASPLUND 是日本知名北欧家居选物店之一 · ATRE 惠比寿购物中心也在站内,可顺逛。',
+    bookLinks:[
+      {label:'惠比寿花园广场', url:'https://gardenplace.jp/'},
+      {label:'ASPLUND 官网', url:'https://asplund.jp/'}
+    ],
+    mapUrl: gmap('恵比寿ガーデンプレイス')},
+
+  'toyoko': {kicker:'5/5 交通',name:'東急東横線 · 中目黑 → 横浜',tagline:'35 分钟直达 · 急行不换乘',
     book:'Suica/PASMO 刷卡 · 无需订票。',
-    go:'赤坂見附 → 银座线品川 → 京急本线 1 站到横浜。',
-    hours:'始发车 5:00,末班 24:00 后',
-    tip:'¥330/人 单程 · 比 JR 便宜 · 班次比 JR 略少。坐快特/特急更快。',
+    go:'<span class="em">東急東横線「中目黑」站</span> · 搭"急行"或"特急"列车一路坐到横浜终点。',
+    hours:'始发 5:00,末班 24:00 后',
+    tip:'¥510 / 人单程 · 中目黑站东急东横线急行 35 分到横浜 · 17:00 出发 17:35 到横浜刚好 · 21:30 回程末班车 22:30 左右。',
     bookLinks:[
-      {label:'京急官网中文', url:'https://www.haneda-tokyo-access.com/cn/'}
+      {label:'東急路线图', url:'https://www.tokyu.co.jp/railway/'}
     ],
-    mapUrl: gmap('京急 横浜駅')},
+    mapUrl: gmap('東急東横線 中目黒駅')},
 
-  'saiko': {kicker:'5/5 午餐 · 横浜中华街',name:'菜香新館',tagline:'广东 + 飲茶 · 朋友聚会氛围最佳',
+  // ============= 5/6 吉祥寺 + 井之头公园 =============
+  'd4-route': {kicker:'5/6 交通',name:'赤坂 → 五反田 → 吉祥寺',tagline:'退房 + 寄行李 + 出发',
+    book:'Suica/PASMO 刷卡 · 无需订票。',
+    go:'<span class="em">10:00 退 the b · 银座线到品川或新桥 · 山手线到涩谷 · 中央线特快到吉祥寺</span> · 总用时约 50 分。回程晚上从吉祥寺 → 五反田 直接搭中央线 + 山手线 35 分。',
+    hours:'当日交通',
+    tip:'⚠️ 三井花园 check-in 通常 15:00 · 早到的话先到酒店前台寄行李 · 行李给前台说"<span class="em">荷物を預けます</span>"即可,不收费。',
+    bookLinks:[
+      {label:'JR EAST 路线', url:'https://www.jreast.co.jp/tc/'}
+    ],
+    mapUrl: gmap('JR 吉祥寺駅')},
+
+  'inokashira': {kicker:'5/6 公园',name:'井之头恩賜公园',tagline:'东京最受欢迎都市公园 · 1917 开园',
+    book:'无需。',
+    go:'<span class="em">JR 中央线/京王井之头线「吉祥寺」南口徒步 5 分</span>。',
+    hours:'24 小时开放',
+    tip:'5 月新绿期最美 · 池畔散步 1 周 30 分 · 池中天鹅船 ¥800/30 分 ⚠️ GW 排队 1 小时(你说不用了所以跳过)· 公园西侧有吉卜力美术馆(必预约,5/3 才订基本无希望)。',
+    bookLinks:[
+      {label:'井之头公园官网', url:'https://www.kensetsu.metro.tokyo.lg.jp/jimusho/seibuk/inokashira/'}
+    ],
+    mapUrl: gmap('井の頭恩賜公園 吉祥寺')},
+
+  'tengu': {kicker:'5/6 午餐',name:'てんぐ 吉祥寺',tagline:'吉祥寺老铺洋食',
+    book:'Tabelog · 平日不强制 · GW 周三建议提前订位。',
+    go:'<span class="em">JR 吉祥寺站北口徒步 3 分</span> · 吉祥寺本町 1-13-7。',
+    hours:'11:30-15:00 / 17:00-22:00 · 周二休',
+    tip:'¥2,000-3,500 / 人 · 蛋包饭、汉堡排、咖喱饭老派洋食 · 吉祥寺本地家庭餐厅氛围 · 不是网红店,胜在味道稳。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('てんぐ 吉祥寺')}
+    ],
+    mapUrl: gmap('てんぐ 吉祥寺')},
+
+  'satou': {kicker:'5/6 午餐',name:'さとう 元祖メンチカツ',tagline:'吉祥寺神店 · 必排队',
+    book:'<span class="em">不接受预约</span> · 排队制 · GW 中午 30-60 分。',
+    go:'<span class="em">JR 吉祥寺站徒步 3 分</span> · ハーモニカ横丁北侧 · 吉祥寺本町 1-1-8。',
+    hours:'10:00-19:00',
+    tip:'¥260 / 一个メンチカツ · ¥2,800 / 200g 牛肉切落 · "元祖メンチカツ"是发明者 · 老板亲手现炸 · 一边吃一边逛。如果太挤可以买回酒店吃。',
+    bookLinks:[
+      {label:'官网', url:'https://www.shop-satou.com/'},
+      {label:'Tabelog', url:tabelog('さとう 吉祥寺 メンチ')}
+    ],
+    mapUrl: gmap('さとう 元祖メンチカツ 吉祥寺')},
+
+  'iseya': {kicker:'5/6 午餐',name:'いせや 公園店',tagline:'1928 创业烧鸟老铺 · 公园旁',
+    book:'Tabelog · 不强制预约 · 排队 30-60 分常态。',
+    go:'<span class="em">JR 吉祥寺站南口徒步 3 分</span> · 井の头公园入口旁 · 御殿山 1-2-1。',
+    hours:'12:00-22:00 · 周一休',
+    tip:'¥3,500-5,000 / 人 · 100 元一串烧鸟 · 啤酒大杯 · 充满昭和老建筑气氛 · 一边吃一边看公园人来人往 · 名物店但价位平民。',
+    bookLinks:[
+      {label:'いせや官网', url:'http://www.kichijoji-iseya.jp/'},
+      {label:'Tabelog', url:tabelog('いせや 公園店 吉祥寺')}
+    ],
+    mapUrl: gmap('いせや 公園店 吉祥寺')},
+
+  'kaede': {kicker:'5/6 午餐',name:'楓 KAEDE',tagline:'小巷家庭法餐',
+    book:'<span class="em">Tabelog</span> · 提前 1 周 · 5 桌左右小店。',
+    go:'<span class="em">JR 吉祥寺站北口徒步 6 分</span> · 中道通附近 · 吉祥寺本町 2。',
+    hours:'昼 12:00-14:00 / 夜 18:00-22:00 · 周日一休',
+    tip:'¥4,000-6,000 / 人 午餐 · 主厨家庭法餐 · 季节蔬菜为主 · 安静吃顿饭的好去处。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('楓 KAEDE 吉祥寺')}
+    ],
+    mapUrl: gmap('楓 KAEDE 吉祥寺')},
+
+  'sublo': {kicker:'5/6 逛 · 吉祥寺',name:'36 Sublo',tagline:'中道通隐藏文具店',
+    book:'无需预约。',
+    go:'<span class="em">JR 吉祥寺站北口徒步 5 分</span> · 中道通的小巷里 2 楼 · 吉祥寺本町 2-4-16。',
+    hours:'12:00-19:00 · 周二休',
+    tip:'复古文具 + 包装纸 + 印章 · 老板亲选 · 楼梯有点难找,在 cosme kitchen 隔壁 · 少量好货,30 分逛完。',
+    bookLinks:[
+      {label:'36 Sublo 官网', url:'https://www.sublo.net/'}
+    ],
+    mapUrl: gmap('36 Sublo 吉祥寺')},
+
+  'freedesign': {kicker:'5/6 逛 · 吉祥寺',name:'Free Design',tagline:'2003 创业北欧选物店',
+    book:'无需预约。',
+    go:'<span class="em">JR 吉祥寺站北口徒步 5 分</span> · 中道通 · 吉祥寺本町 2-18-2 2F。',
+    hours:'11:00-20:00',
+    tip:'北欧杂货 + 服饰 + 餐具 · 主理人选品 · iittala / Marimekko / 国内作家 · 30-60 分逛完。',
+    bookLinks:[
+      {label:'Free Design 官网', url:'https://www.freedesign.jp/'}
+    ],
+    mapUrl: gmap('Free Design 吉祥寺')},
+
+  'outbound': {kicker:'5/6 逛 · 吉祥寺',name:'Outbound',tagline:'日本作家器物选物',
+    book:'无需预约。',
+    go:'<span class="em">JR 吉祥寺站徒步 8 分</span> · 中道通深处 · 吉祥寺本町 2-7-4-101。',
+    hours:'11:00-19:00 · 周二休',
+    tip:'日本作家陶艺 + 漆器 + 木器 + 茶具 · 价格中高 · 适合喜欢"和の美"的人 · 主理人对每件作品有强烈观点。',
+    bookLinks:[
+      {label:'Outbound 官网', url:'https://outbound.to/'}
+    ],
+    mapUrl: gmap('Outbound 吉祥寺')},
+
+  'chaibreak': {kicker:'5/6 下午茶',name:'紅茶専門店 chai break',tagline:'井之头公园边的红茶专门店',
+    book:'无需预约 · GW 高峰可能等 15-20 分。',
+    go:'<span class="em">JR 吉祥寺站南口徒步 5 分</span> · 御殿山 1-3-2。井之头公园入口边。',
+    hours:'10:00-19:00 · 周二休',
+    tip:'¥1,200-1,500 / 人 · 红茶 + 司康 + 三明治 · 60 多种红茶 · 散步井之头公园后的下午茶。',
+    bookLinks:[
+      {label:'chai break 官网', url:'http://www.chai-break.com/'}
+    ],
+    mapUrl: gmap('紅茶専門店 chai break 吉祥寺')},
+
+  'amane': {kicker:'5/6 晚餐',name:'天音(あまね)',tagline:'吉祥寺老铺鳗鱼',
+    book:'<span class="em">电话 0422-22-3122 / Tabelog</span> · 提前 1-2 周 · 5 月鰻鱼旺季。',
+    go:'<span class="em">JR 吉祥寺站北口徒步 5 分</span> · 吉祥寺本町 1-13-7。',
+    hours:'11:30-14:00 / 17:00-21:00 · 周二三休',
+    tip:'¥4,000-7,000 / 人 · うな重 + 肝吸 + 漬物经典套餐 · 关东风蒸过再烤的鳗鱼 · 等待 30-40 分钟现烤 · 适合慢慢吃顿好饭。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('天音 吉祥寺')}
+    ],
+    mapUrl: gmap('天音 鰻 吉祥寺')},
+
+  'iseyahonten': {kicker:'5/6 晚餐',name:'いせや 本店',tagline:'1928 老铺烧鸟 · 庶民氛围',
+    book:'<span class="em">不接受预约</span> · 排队制 · 17 点开店去最稳。',
+    go:'<span class="em">JR 吉祥寺站北口徒步 1 分</span> · 吉祥寺本町 1-2-1。',
+    hours:'17:00-22:00 · 周二休',
+    tip:'¥2,500-4,000 / 人 · 比公园店更老更接地气 · 1 串 ¥100 起 · 大杯啤酒 ¥600 · 完全昭和老照片场景 · 排队 30 分必备。',
+    bookLinks:[
+      {label:'いせや官网', url:'http://www.kichijoji-iseya.jp/'},
+      {label:'Tabelog', url:tabelog('いせや 本店 吉祥寺')}
+    ],
+    mapUrl: gmap('いせや 本店 吉祥寺')},
+
+  'harmonica': {kicker:'5/6 晚餐',name:'ハーモニカ横丁 巡游',tagline:'战后老横丁 · 100 多家小店',
+    book:'各家不预约 · 直接走进去。',
+    go:'<span class="em">JR 吉祥寺站北口徒步 1 分</span> · 站边大马路对面老建筑群。',
+    hours:'各店 17:00-23:00 居多',
+    tip:'¥1,500-3,000 / 家 · 续摊 2-3 家最舒服 · 推荐:てっちゃん(烧鸟)/ ハモニカキッチン(小酒馆)/ 麺通団(乌冬)· 5 月夜晚天气好,人挤人但氛围足。',
+    bookLinks:[
+      {label:'横丁官网', url:'https://hamoyoko.jp/'}
+    ],
+    mapUrl: gmap('ハーモニカ横丁 吉祥寺')},
+
+  'back-gotanda': {kicker:'5/6 晚餐',name:'回五反田吃简餐',tagline:'吉祥寺早回的备选',
+    book:'各店无需预约。',
+    go:'吉祥寺 → JR 中央线特快 → 涩谷 → 山手线 → 五反田 · 约 35 分。',
+    hours:'各店见详情',
+    tip:'五反田站附近 · 鮨いち兆 / 鳥かど / 24h 一兰拉面 都可以 · ¥3K / 人。',
+    bookLinks:[],
+    mapUrl: gmap('五反田駅')},
+
+  // ============= 5/7 自由之丘 + 目黒川 =============
+  'mont-st-clair': {kicker:'5/7 早晨甜点',name:'Mont St. Clair',tagline:'辻口博啓 · 全日本最佳甜点之一',
+    book:'<span class="em">不接受预约</span> · 上午 10 点开门去最稳。',
+    go:'<span class="em">東急東横線/大井町線「自由が丘」正面口徒步 7 分</span> · 自由が丘 2-22-4。',
+    hours:'11:00-19:00 · 周三休',
+    tip:'¥800-1,500 / 人 · 招牌"セラヴィ"(草莓奶油层蛋糕)+ "ハーモニー" · 1 楼外带为主,2 楼有 8 席堂食 · 早上去最不挤。',
+    bookLinks:[
+      {label:'Mont St. Clair 官网', url:'https://ms-clair.co.jp/'},
+      {label:'Tabelog', url:tabelog('モンサンクレール 自由が丘')}
+    ],
+    mapUrl: gmap('Mont St Clair 自由が丘')},
+
+  'todays-special': {kicker:'5/7 逛 · 自由之丘',name:"Today's Special 自由之丘",tagline:'日本生活杂货品牌旗舰',
+    book:'无需预约。',
+    go:'<span class="em">東急東横線「自由が丘」徒步 4 分</span> · 自由が丘 2-17-8。',
+    hours:'11:00-20:00',
+    tip:'4 楼独栋大店 · 厨房用具 + 食品 + 文具 + 衣物 · 价位中等 · 礼物之选,1 小时左右逛完。',
+    bookLinks:[
+      {label:"TS 官网", url:'https://www.todaysspecial.jp/'}
+    ],
+    mapUrl: gmap("Today's Special 自由が丘")},
+
+  'idee': {kicker:'5/7 逛 · 自由之丘',name:'IDÉE SHOP 自由之丘',tagline:'日本知名家居 · 1982 创业',
+    book:'无需预约。',
+    go:'<span class="em">東急東横線「自由が丘」徒步 5 分</span> · 自由が丘 2-16-29。',
+    hours:'11:00-20:00',
+    tip:'IDÉE 是日本设计家具老牌 · 沙发 ¥150,000+ · 灯具、地毯、家居小物完整 · 逛大概 30-45 分钟。',
+    bookLinks:[
+      {label:'IDÉE 官网', url:'https://www.idee.co.jp/shop/jiyugaoka/'}
+    ],
+    mapUrl: gmap('IDEE SHOP 自由が丘')},
+
+  'kosouan': {kicker:'5/7 逛 · 自由之丘',name:'古桑庵',tagline:'大正昭和古民家 + 庭院茶寮',
+    book:'<span class="em">不接受预约</span> · 排队 15-30 分常态。',
+    go:'<span class="em">東急東横線「自由が丘」正面口徒步 5 分</span> · 自由が丘 1-24-23。',
+    hours:'11:00-18:30 · 周三休',
+    tip:'¥1,200-1,800 / 人 · 抹茶 + 季节和菓子 · 庭院席最佳 · 也能吃荞麦 ¥1,600 · 自由之丘最有"和の美"的店。',
+    bookLinks:[
+      {label:'古桑庵官网', url:'http://www.kosoan.co.jp/'},
+      {label:'Tabelog', url:tabelog('古桑庵 自由が丘')}
+    ],
+    mapUrl: gmap('古桑庵 自由が丘')},
+
+  'kosouan-soba': {kicker:'5/7 午餐',name:'古桑庵 茶寮(荞麦 + 抹茶)',tagline:'古民家庭院里慢慢吃',
+    book:'<span class="em">不接受预约</span> · 排队 15-30 分常态。',
+    go:'<span class="em">東急東横線「自由が丘」正面口徒步 5 分</span> · 自由が丘 1-24-23。',
+    hours:'11:00-18:30 · 周三休',
+    tip:'¥1,600 / 荞麦 + ¥1,200 / 抹茶套餐 · 庭院席要早占位 · 5 月新绿穿过茶室外的红枫嫩叶 · 一顿饭 + 抹茶 1 小时。',
+    bookLinks:[
+      {label:'古桑庵官网', url:'http://www.kosoan.co.jp/'},
+      {label:'Tabelog', url:tabelog('古桑庵 自由が丘')}
+    ],
+    mapUrl: gmap('古桑庵 自由が丘')},
+
+  'freres': {kicker:'5/7 午餐',name:'Frères de Lille',tagline:'北法菜 · 可丽饼 + 苹果酒',
+    book:'<span class="em">Tabelog</span> · 提前 1 周 · 旺季周末满。',
+    go:'<span class="em">東急東横線「自由が丘」正面口徒步 4 分</span> · 自由が丘 1-9-9。',
+    hours:'11:30-22:00',
+    tip:'¥3,000-4,000 / 人 · galette 套餐(咸 + 甜)· 法国 cidre 苹果酒 · 巴黎风格小餐厅 · 适合愿景拍照的午餐。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('Frères de Lille 自由が丘')}
+    ],
+    mapUrl: gmap('Frères de Lille 自由が丘')},
+
+  'peter-rabbit': {kicker:'5/7 午餐',name:'Peter Rabbit Garden Café',tagline:'主题 café',
+    book:'OpenTable · 提前 1 周。',
+    go:'<span class="em">東急東横線「自由が丘」正面口徒步 5 分</span> · 自由が丘 1-25-20。',
+    hours:'11:00-21:00',
+    tip:'¥1,800-2,500 / 人 · Peter Rabbit 主题装饰 · 可爱拍照向 · 适合喜欢童话氛围。',
+    bookLinks:[
+      {label:'Peter Rabbit 官网', url:'https://www.peterrabbit-japan.com/cafe/'}
+    ],
+    mapUrl: gmap('Peter Rabbit Garden Cafe 自由が丘')},
+
+  'meguro-river': {kicker:'5/7 散步',name:'目黒川绿道',tagline:'4 公里沿河散步道 · 5 月新绿',
+    book:'无需。',
+    go:'<span class="em">東急東横線「中目黑」站徒步 1 分到河边</span> · 一路向上游(池尻大桥)走 4 公里 · 一路咖啡店 + 选物店。',
+    hours:'24 小时',
+    tip:'5 月新绿期(4 月初樱花 + 11 月下旬枫红是最美季)· 5 月嫩绿色凉爽宜人 · 沿途 Sidewalk Stand / Onibus / Yukai BAR / Cow Books 都很顺路 · 走 1-2 小时刚好。',
+    bookLinks:[
+      {label:'中目黑商店街', url:'http://www.nakameguro.ne.jp/'}
+    ],
+    mapUrl: gmap('目黒川 中目黒')},
+
+  'reserve-roastery': {kicker:'5/7 咖啡 · 必去',name:'Starbucks Reserve Roastery 中目黑',tagline:'全球第 5 家烘焙工坊',
+    book:'<span class="em">不接受预约</span> · 周末 30-60 分排队 · 平日中午进得快。',
+    go:'<span class="em">東急東横線「中目黑」徒步 14 分 / 池尻大桥徒步 14 分</span> · 目黒川旁 · 青葉台 2-19-23 · 4 楼独栋。',
+    hours:'07:00-22:00',
+    tip:'¥800-1,500 / 杯(精品咖啡价位)· 隈研吾设计建筑 · 4 楼烘焙机 + 大落地窗看目黒川 · 1 楼咖啡 + 2 楼茶 + 3 楼鸡尾酒 + 4 楼烘豆 · 至少留 1 小时。',
+    bookLinks:[
+      {label:'Starbucks Reserve 官网', url:'https://www.starbucksreserve.com/locations/tokyo'}
+    ],
+    mapUrl: gmap('Starbucks Reserve Roastery 中目黒')},
+
+  'onibus': {kicker:'5/7 咖啡',name:'Onibus Coffee 中目黑',tagline:'老民家改造精品咖啡',
+    book:'无需预约。',
+    go:'<span class="em">東急東横線「中目黑」徒步 1 分</span> · 上目黒 2-14-1。',
+    hours:'09:00-18:00',
+    tip:'¥500-700 / 杯 · 单品手冲为主 · 楼上有 4-5 个吧台席 · "Onibus"是巴西公交,主理人在巴西修业过。',
+    bookLinks:[
+      {label:'Onibus 官网', url:'https://onibuscoffee.com/'}
+    ],
+    mapUrl: gmap('Onibus Coffee 中目黒')},
+
+  'sidewalk': {kicker:'5/7 咖啡',name:'Sidewalk Stand 中目黑',tagline:'目黒川旁站着喝',
+    book:'无需。',
+    go:'<span class="em">東急東横線「中目黑」徒步 5 分</span> · 目黒川河岸 · 青葉台 1-23-14。',
+    hours:'08:00-22:00',
+    tip:'¥500-1,000 / 杯 + 简餐 · 站着或河边长椅 · 早上 espresso · 晚上有酒 · 是中目黑年轻人最 chill 的角落。',
+    bookLinks:[
+      {label:'Tabelog', url:tabelog('Sidewalk Stand 中目黒')}
+    ],
+    mapUrl: gmap('Sidewalk Stand 中目黒')},
+
+  'saiko': {kicker:'5/5 晚餐 · 横浜中华街',name:'菜香新館',tagline:'广东 + 飲茶 · 朋友聚会氛围最佳',
     book:'<span class="em">官网 / 一休餐厅 / Hot Pepper</span> · 提前 1-2 周 · GW 必早订。',
     go:'<span class="em">みなとみらい线「元町・中華街」徒歩 3 分</span> · 横浜駅 → 元町中華街 8 分钟。',
     hours:'11:30-15:00 / 17:00-22:00',
@@ -2096,30 +2692,36 @@ const presets = {
   economy: {
     'airport-in':'电车 · 京急→银座线','d1-dinner':'一兰拉面赤坂',
     'd2-bfast':'きつねや 牛丼','d2-lunch':'资生堂Parlour 银座','d2-dinner':'銀座 篝 拉面',
-    'extra-night':'the b 加订 1 晚','yokohama-transport':'京急 · 品川→横浜',
-    'd3-lunch':'皇朝レストラン · 食べ放題','yokohama-pm':'山下公园 + 红砖仓库 (免费)','d3-dinner':'回东京 · 简餐',
-    'd4-lunch':'しらすや 镰仓駅前','d4-dinner':'bills 七里ヶ浜',
-    'd5-attr':'江之岛展望塔 Sea Candle','d5-bfast':'酒店早餐 (含)','d5-lunch':'イワタコーヒー','d5-dinner':'五反田 鳥かど 烧鸟',
+    'extra-night':'the b 加订 1 晚',
+    'yokohama-transport':'東急東横線 · 中目黑→横浜',
+    'd3-lunch':"LUKE'S LOBSTER 表参道",
+    'd3-dinner':'京華樓 本館 · 四川',
+    'd4-lunch':'さとう 牛肉可乐饼 + 元祖メンチ','d4-dinner':'ハーモニカ横丁 居酒屋巡游',
+    'd5-lunch':'古桑庵 蕎麦 + 抹茶','d5-coffee':'Onibus Coffee 中目黑','d5-dinner':'五反田 鳥かど 烧鸟',
     'd6-route':'C · 横浜中华街','d6-aquarium':'不加水族馆','d6-dinner':'銀座 篝 拉面',
     'airport-out':"N'EX 成田特快"
   },
   balanced: {
     'airport-in':'电车 · 京急→银座线','d1-dinner':'人形町今半 紀尾井町店',
     'd2-bfast':'大江戸 寿司','d2-lunch':'银座久兵衛','d2-dinner':'鳥福 銀座',
-    'extra-night':'the b 加订 1 晚','yokohama-transport':'JR · 品川→横浜',
-    'd3-lunch':'菜香新館 · 广东','yokohama-pm':'Landmark Tower 69F 展望','d3-dinner':'MILANO|GRILL 横浜港景',
-    'd4-lunch':'鎌倉 松原庵 · 午餐','d4-dinner':'AMALFI DELLA SERA',
-    'd5-attr':'新江ノ島水族館','d5-bfast':'bills 七里ヶ浜 早餐','d5-lunch':'鎌倉松原庵','d5-dinner':'鮨いち兆 五反田',
+    'extra-night':'the b 加订 1 晚',
+    'yokohama-transport':'東急東横線 · 中目黑→横浜',
+    'd3-lunch':"LUKE'S LOBSTER 表参道",
+    'd3-dinner':'菜香新館 · 广东',
+    'd4-lunch':'てんぐ 吉祥寺','d4-dinner':'天音 鰻鱼',
+    'd5-lunch':'古桑庵 蕎麦 + 抹茶','d5-coffee':'Starbucks Reserve Roastery','d5-dinner':'鮨いち兆 五反田',
     'd6-route':'A · 东京美食日','d6-aquarium':'不加水族馆','d6-dinner':'Den · 米其林2星',
     'airport-out':"N'EX 成田特快"
   },
   luxury: {
     'airport-in':'打车 · 羽田→赤坂','d1-dinner':'赤坂浅田 · 怀石',
     'd2-bfast':'寿司大 筑地店','d2-lunch':'天ぷら近藤','d2-dinner':'鮨 銀座おのでら 本店',
-    'extra-night':'the b 加订 1 晚','yokohama-transport':'JR · 品川→横浜',
-    'd3-lunch':'重慶飯店 · 四川老铺','yokohama-pm':'Landmark Tower 69F 展望','d3-dinner':'Hotel New Grand · ル・ノルマンディ',
-    'd4-lunch':'鎌倉 松原庵 · 午餐','d4-dinner':'AMALFI DELLA SERA',
-    'd5-attr':'新江ノ島水族館','d5-bfast':'bills 七里ヶ浜 早餐','d5-lunch':'鎌倉松原庵','d5-dinner':'TTOAHISU · 米其林1星法餐',
+    'extra-night':'the b 加订 1 晚',
+    'yokohama-transport':'東急東横線 · 中目黑→横浜',
+    'd3-lunch':"LUKE'S LOBSTER 表参道",
+    'd3-dinner':'Hotel New Grand · ル・ノルマンディ',
+    'd4-lunch':'楓 KAEDE 家庭法餐','d4-dinner':'天音 鰻鱼',
+    'd5-lunch':'古桑庵 蕎麦 + 抹茶','d5-coffee':'Starbucks Reserve Roastery','d5-dinner':'TTOAHISU · 米其林1星法餐',
     'd6-route':'B · 日光当日往返','d6-aquarium':'アクアパーク品川','d6-dinner':'鮨さいとう 六本木分店',
     'airport-out':"N'EX 成田特快"
   }
