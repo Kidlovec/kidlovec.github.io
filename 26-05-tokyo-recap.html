@@ -1,0 +1,1799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>東京七日 · 美食之旅复盘</title>
+<meta name="theme-color" content="#f5efe4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e0b08" media="(prefers-color-scheme: dark)">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JG8SFYTY2D"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-JG8SFYTY2D');
+</script>
+<script>
+  // Set theme before paint to avoid flash
+  (function(){
+    try{
+      var saved = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    }catch(e){}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500&family=Shippori+Mincho:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f5efe4;
+  --bg-deep:#e8dfcc;
+  --bg-card:#fdfaf3;
+  --ink:#1a1410;
+  --ink-soft:#4a423a;
+  --ink-muted:#8a7f72;
+  --accent:#a82920;
+  --accent-deep:#7a1f17;
+  --accent-soft:rgba(168,41,32,0.06);
+  --gold:#9a7c4a;
+  --gold-deep:#6e572f;
+  --teal:#3d6b6e;
+  --line:#d9cfb8;
+  --line-soft:#ebe3d0;
+  /* 反色块（stats/lessons/footer） */
+  --block-bg:#1a1410;
+  --block-fg:#f5efe4;
+  --block-fg-soft:rgba(245,239,228,0.7);
+  --block-fg-muted:rgba(245,239,228,0.55);
+  --block-fg-faint:rgba(245,239,228,0.5);
+  --block-card-bg:rgba(245,239,228,0.04);
+  --block-card-line:rgba(245,239,228,0.12);
+  --noise:rgba(26,20,16,0.012);
+  --glow:rgba(154,124,74,0.08);
+  --accent-shadow:rgba(168,41,32,0.04);
+  --shadow-card:0 1px 0 rgba(26,20,16,0.04);
+}
+[data-theme="dark"]{
+  --bg:#1a1410;
+  --bg-deep:#0e0b08;
+  --bg-card:#231d17;
+  --ink:#f0e8d8;
+  --ink-soft:#c8bda8;
+  --ink-muted:#8a7f72;
+  --accent:#d8483b;
+  --accent-deep:#b73930;
+  --accent-soft:rgba(216,72,59,0.10);
+  --gold:#d4a96a;
+  --gold-deep:#9a7c4a;
+  --teal:#6ba0a4;
+  --line:#332b22;
+  --line-soft:#221d17;
+  --block-bg:#0a0705;
+  --block-fg:#f0e8d8;
+  --block-fg-soft:rgba(240,232,216,0.72);
+  --block-fg-muted:rgba(240,232,216,0.55);
+  --block-fg-faint:rgba(240,232,216,0.5);
+  --block-card-bg:rgba(240,232,216,0.04);
+  --block-card-line:rgba(240,232,216,0.12);
+  --noise:rgba(240,232,216,0.015);
+  --glow:rgba(212,169,106,0.10);
+  --accent-shadow:rgba(216,72,59,0.07);
+  --shadow-card:0 1px 0 rgba(0,0,0,0.4);
+}
+html,body{transition:background-color .3s ease,color .3s ease}
+
+/* ============ THEME TOGGLE ============ */
+.theme-toggle{
+  position:fixed;
+  top:18px;
+  right:18px;
+  z-index:50;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:var(--bg-card);
+  color:var(--ink);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  line-height:1;
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  transition:transform .25s ease,background .25s ease,border-color .25s ease,color .25s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.theme-toggle:hover{transform:rotate(15deg);border-color:var(--accent);color:var(--accent)}
+.theme-toggle .ic{display:none}
+[data-theme="light"] .theme-toggle .ic-moon,
+:root:not([data-theme="dark"]) .theme-toggle .ic-moon{display:block}
+[data-theme="dark"] .theme-toggle .ic-sun{display:block}
+@media(max-width:820px){
+  .theme-toggle{top:12px;right:12px;width:38px;height:38px;font-size:16px}
+}
+html{
+  scroll-behavior:smooth;
+  background:var(--bg-deep);
+}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Noto Sans SC',sans-serif;
+  font-size:16px;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:"palt";
+  background-image:
+    radial-gradient(ellipse at top,var(--glow) 0%,transparent 50%),
+    repeating-linear-gradient(0deg,transparent 0,transparent 2px,var(--noise) 2px,var(--noise) 3px);
+}
+
+/* ============ TYPOGRAPHY ============ */
+.serif{font-family:'Noto Serif SC',serif}
+.mincho{font-family:'Shippori Mincho',serif}
+.italic-serif{font-family:'Cormorant Garamond',serif;font-style:italic}
+
+/* ============ LAYOUT ============ */
+.wrap{
+  max-width:780px;
+  margin:0 auto;
+  padding:0 28px;
+}
+.wrap-wide{
+  max-width:1080px;
+  margin:0 auto;
+  padding:0 28px;
+}
+
+/* ============ HERO ============ */
+.hero{
+  position:relative;
+  min-height:96vh;
+  padding:80px 28px 60px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  overflow:hidden;
+  border-bottom:1px solid var(--line);
+}
+.hero::before{
+  content:'';
+  position:absolute;
+  top:30%;
+  right:-10%;
+  width:600px;
+  height:600px;
+  background:radial-gradient(circle,var(--accent-shadow) 0%,transparent 60%);
+  pointer-events:none;
+}
+.hero-mark{
+  position:absolute;
+  top:80px;
+  left:50%;
+  transform:translateX(-50%);
+  width:36px;
+  height:36px;
+  border:1.5px solid var(--accent);
+  border-radius:50%;
+}
+.hero-mark::after{
+  content:'';
+  position:absolute;
+  inset:8px;
+  background:var(--accent);
+  border-radius:50%;
+}
+.hero-top{
+  position:absolute;
+  top:140px;
+  left:50%;
+  transform:translateX(-50%);
+  text-align:center;
+  width:100%;
+  padding:0 28px;
+}
+.hero-issue{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:14px;
+  letter-spacing:0.3em;
+  color:var(--ink-muted);
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+.hero-issue::before,.hero-issue::after{
+  content:'—';
+  margin:0 12px;
+  color:var(--line);
+}
+.hero-center{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  position:relative;
+}
+.hero-jp-vertical{
+  font-family:'Shippori Mincho',serif;
+  font-size:13px;
+  letter-spacing:1em;
+  color:var(--accent);
+  writing-mode:vertical-rl;
+  text-orientation:upright;
+  margin-bottom:32px;
+  font-weight:500;
+}
+.hero h1{
+  font-family:'Noto Serif SC',serif;
+  font-weight:700;
+  font-size:clamp(60px,12vw,128px);
+  line-height:0.95;
+  letter-spacing:-0.02em;
+  color:var(--ink);
+  margin-bottom:24px;
+}
+.hero h1 .accent{
+  color:var(--accent);
+  font-weight:900;
+}
+.hero h1 .small{
+  display:block;
+  font-size:0.55em;
+  font-weight:500;
+  margin-top:0.2em;
+  letter-spacing:0;
+}
+.hero-tagline{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:clamp(18px,2.4vw,24px);
+  color:var(--ink-soft);
+  letter-spacing:0.05em;
+  margin-bottom:8px;
+}
+.hero-cn-tagline{
+  font-family:'Noto Serif SC',serif;
+  font-size:13px;
+  letter-spacing:0.5em;
+  color:var(--ink-muted);
+  font-weight:400;
+}
+.hero-bottom{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  font-family:'Shippori Mincho',serif;
+  font-size:11px;
+  letter-spacing:0.3em;
+  color:var(--ink-soft);
+}
+.hero-bottom div{flex:1}
+.hero-bottom .center{text-align:center}
+.hero-bottom .right{text-align:right}
+.hero-dates{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:14px;
+  letter-spacing:0.15em;
+  color:var(--accent);
+  margin-bottom:6px;
+  font-weight:500;
+}
+
+/* ============ STATS BAND ============ */
+.stats{
+  background:var(--block-bg);
+  color:var(--block-fg);
+  padding:80px 28px;
+  text-align:center;
+  position:relative;
+}
+.stats::before,.stats::after{
+  content:'';
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  width:40px;
+  height:1px;
+  background:var(--gold);
+}
+.stats::before{top:30px}
+.stats::after{bottom:30px}
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:32px;
+  max-width:900px;
+  margin:0 auto;
+}
+.stat{
+  text-align:center;
+  position:relative;
+}
+.stat:not(:last-child)::after{
+  content:'';
+  position:absolute;
+  right:-16px;
+  top:30%;
+  bottom:30%;
+  width:1px;
+  background:var(--block-card-line);
+}
+.stat-num{
+  font-family:'Noto Serif SC',serif;
+  font-size:clamp(36px,6vw,72px);
+  font-weight:600;
+  line-height:1;
+  letter-spacing:-0.02em;
+  color:var(--block-fg);
+  margin-bottom:12px;
+}
+.stat-num .unit{
+  font-size:0.4em;
+  color:var(--gold);
+  margin-left:4px;
+  font-weight:400;
+}
+.stat-label{
+  font-family:'Shippori Mincho',serif;
+  font-size:11px;
+  letter-spacing:0.3em;
+  color:var(--block-fg-muted);
+  text-transform:uppercase;
+}
+
+/* ============ SECTIONS ============ */
+.section{
+  padding:120px 0 60px;
+  position:relative;
+}
+.section-marker{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:13px;
+  letter-spacing:0.3em;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:24px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.section-marker::before{
+  content:'';
+  width:32px;
+  height:1px;
+  background:var(--gold);
+  display:inline-block;
+}
+.section-title{
+  font-family:'Noto Serif SC',serif;
+  font-size:clamp(32px,5vw,56px);
+  font-weight:600;
+  line-height:1.15;
+  margin-bottom:20px;
+  letter-spacing:-0.01em;
+  color:var(--ink);
+}
+.section-title .red{color:var(--accent)}
+.section-lead{
+  font-family:'Noto Serif SC',serif;
+  font-size:clamp(18px,2.2vw,22px);
+  line-height:1.65;
+  color:var(--ink-soft);
+  font-weight:400;
+  margin-bottom:60px;
+  max-width:640px;
+}
+.section-lead .drop{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:1.4em;
+  color:var(--accent);
+  font-weight:500;
+}
+
+/* ============ PROLOGUE ============ */
+.prologue{
+  padding:80px 0 40px;
+  background:linear-gradient(180deg,var(--bg) 0%,var(--bg-card) 100%);
+}
+.prologue p{
+  font-family:'Noto Serif SC',serif;
+  font-size:clamp(17px,2vw,21px);
+  line-height:1.85;
+  color:var(--ink-soft);
+  font-weight:400;
+  margin-bottom:1.4em;
+}
+.prologue .first-letter{
+  font-family:'Noto Serif SC',serif;
+  font-size:5em;
+  font-weight:700;
+  color:var(--accent);
+  float:left;
+  line-height:0.85;
+  margin:0.05em 0.1em -0.1em 0;
+  padding-top:0.1em;
+}
+.prologue p strong{
+  color:var(--ink);
+  font-weight:600;
+}
+
+/* ============ ARCHIVE MAP ============ */
+.archive{
+  padding:60px 0 80px;
+  background:linear-gradient(180deg,var(--bg-card) 0%,var(--bg) 100%);
+}
+.archive-figure{
+  max-width:920px;
+  margin:0 auto;
+  padding:0 24px;
+}
+.archive-marker{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:13px;
+  letter-spacing:0.3em;
+  color:var(--gold);
+  text-transform:uppercase;
+  text-align:center;
+  margin-bottom:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+}
+.archive-marker::before,.archive-marker::after{
+  content:'';
+  width:32px;
+  height:1px;
+  background:var(--gold);
+  display:inline-block;
+}
+.archive-title{
+  font-family:'Noto Serif SC',serif;
+  font-size:clamp(22px,3vw,30px);
+  font-weight:600;
+  text-align:center;
+  margin-bottom:32px;
+  color:var(--ink);
+  letter-spacing:-0.005em;
+}
+.archive-title .red{color:var(--accent)}
+.archive-img-wrap{
+  position:relative;
+  background:var(--bg-card);
+  border:1px solid var(--line);
+  padding:14px;
+  box-shadow:0 8px 32px rgba(26,20,16,0.08),0 2px 8px rgba(26,20,16,0.04);
+  border-radius:2px;
+  transition:box-shadow .3s ease;
+}
+[data-theme="dark"] .archive-img-wrap{
+  box-shadow:0 8px 32px rgba(0,0,0,0.5),0 2px 8px rgba(0,0,0,0.3);
+}
+.archive-img{
+  display:block;
+  width:100%;
+  height:auto;
+  border-radius:1px;
+}
+[data-theme="dark"] .archive-img{
+  /* 水彩档案是浅米黄底，深色模式下保持亮度但稍降以减少刺眼 */
+  filter:brightness(0.92) saturate(0.95);
+}
+.archive-cap{
+  margin-top:18px;
+  text-align:center;
+  font-family:'Shippori Mincho',serif;
+  font-size:12px;
+  letter-spacing:0.2em;
+  color:var(--ink-muted);
+}
+.archive-cap em{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  color:var(--gold);
+  letter-spacing:0.15em;
+}
+@media(max-width:820px){
+  .archive{padding:40px 0 60px}
+  .archive-figure{padding:0 16px}
+  .archive-img-wrap{padding:8px}
+  .archive-cap{font-size:11px;letter-spacing:0.15em}
+}
+
+/* ============ DAY STORIES ============ */
+.days{
+  background:var(--bg-card);
+  padding:60px 0 100px;
+  position:relative;
+}
+.days::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent 0%,var(--line) 30%,var(--line) 70%,transparent 100%);
+}
+.day-entry{
+  display:grid;
+  grid-template-columns:140px 1fr;
+  gap:48px;
+  padding:80px 0;
+  border-bottom:1px solid var(--line);
+  position:relative;
+}
+.day-entry:last-child{border-bottom:none}
+.day-side{
+  position:sticky;
+  top:24px;
+  align-self:start;
+  height:fit-content;
+}
+.day-num{
+  font-family:'Noto Serif SC',serif;
+  font-size:96px;
+  font-weight:300;
+  line-height:1;
+  color:var(--accent);
+  letter-spacing:-0.04em;
+}
+.day-month{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:14px;
+  letter-spacing:0.3em;
+  color:var(--ink-muted);
+  text-transform:uppercase;
+  margin-top:4px;
+}
+.day-weekday{
+  font-family:'Shippori Mincho',serif;
+  font-size:13px;
+  color:var(--accent);
+  margin-top:8px;
+  letter-spacing:0.2em;
+}
+.day-spend{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:13px;
+  color:var(--ink-muted);
+  margin-top:24px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+  letter-spacing:0.05em;
+}
+.day-spend strong{
+  font-family:'Noto Serif SC',serif;
+  font-style:normal;
+  font-weight:600;
+  color:var(--ink);
+  font-size:1.1em;
+  display:block;
+  margin-top:2px;
+}
+.day-content{padding-top:8px}
+.day-theme{
+  font-family:'Noto Serif SC',serif;
+  font-size:clamp(28px,4vw,40px);
+  font-weight:600;
+  line-height:1.2;
+  color:var(--ink);
+  margin-bottom:14px;
+  letter-spacing:-0.01em;
+}
+.day-theme .sub{
+  display:block;
+  font-size:0.5em;
+  font-weight:400;
+  color:var(--ink-muted);
+  margin-top:8px;
+  letter-spacing:0.05em;
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+}
+.day-story{
+  font-family:'Noto Serif SC',serif;
+  font-size:17px;
+  line-height:1.85;
+  color:var(--ink-soft);
+  font-weight:400;
+}
+.day-story p{margin-bottom:1.2em}
+.day-story em{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  color:var(--accent);
+  font-weight:500;
+  font-size:1.05em;
+}
+.day-story strong{
+  color:var(--ink);
+  font-weight:600;
+  font-style:normal;
+}
+.day-tag{
+  display:inline-block;
+  font-family:'Shippori Mincho',serif;
+  font-size:10px;
+  letter-spacing:0.25em;
+  padding:3px 10px;
+  border:1px solid var(--accent);
+  color:var(--accent);
+  margin-right:6px;
+  margin-bottom:4px;
+  border-radius:1px;
+}
+.day-tag.warn{
+  border-color:var(--ink);
+  color:var(--ink);
+  background:var(--bg-deep);
+}
+.day-tag.gold{
+  border-color:var(--gold);
+  color:var(--gold);
+}
+.day-tag.miss{
+  border-color:var(--ink-muted);
+  color:var(--ink-muted);
+  text-decoration:line-through;
+}
+
+/* ============ PULL QUOTE ============ */
+.pull-quote{
+  padding:100px 0;
+  text-align:center;
+  background:var(--bg);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  position:relative;
+}
+.pull-quote::before{
+  content:'❝';
+  position:absolute;
+  top:30px;
+  left:50%;
+  transform:translateX(-50%);
+  font-family:'Noto Serif SC',serif;
+  font-size:80px;
+  color:var(--accent);
+  opacity:0.2;
+  line-height:1;
+}
+.pull-quote blockquote{
+  font-family:'Noto Serif SC',serif;
+  font-size:clamp(22px,3.2vw,34px);
+  line-height:1.5;
+  color:var(--ink);
+  font-weight:500;
+  letter-spacing:-0.005em;
+  max-width:780px;
+  margin:0 auto;
+  padding:0 28px;
+}
+.pull-quote blockquote .red{color:var(--accent)}
+.pull-quote cite{
+  display:block;
+  margin-top:32px;
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:14px;
+  letter-spacing:0.2em;
+  color:var(--ink-muted);
+  text-transform:uppercase;
+}
+
+/* ============ HIGHLIGHT CARDS ============ */
+.highlights{
+  background:linear-gradient(180deg,var(--bg-card) 0%,var(--bg) 100%);
+  padding:120px 0;
+}
+.highlight-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:32px;
+  margin-top:60px;
+}
+.highlight-card{
+  background:var(--bg-card);
+  border:1px solid var(--line);
+  padding:32px 28px 36px;
+  position:relative;
+  transition:transform 0.3s ease;
+}
+.highlight-card:hover{transform:translateY(-4px)}
+.highlight-rank{
+  position:absolute;
+  top:-14px;
+  left:28px;
+  background:var(--accent);
+  color:#f5efe4;
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:12px;
+  letter-spacing:0.3em;
+  padding:4px 14px;
+  text-transform:uppercase;
+}
+.highlight-stars{
+  font-size:18px;
+  color:var(--accent);
+  letter-spacing:4px;
+  margin-bottom:14px;
+}
+.highlight-title{
+  font-family:'Noto Serif SC',serif;
+  font-size:24px;
+  font-weight:600;
+  line-height:1.25;
+  margin-bottom:6px;
+  color:var(--ink);
+}
+.highlight-jp{
+  font-family:'Shippori Mincho',serif;
+  font-size:12px;
+  color:var(--ink-muted);
+  margin-bottom:20px;
+  letter-spacing:0.1em;
+}
+.highlight-body{
+  font-family:'Noto Serif SC',serif;
+  font-size:14.5px;
+  line-height:1.75;
+  color:var(--ink-soft);
+  margin-bottom:24px;
+}
+.highlight-meta{
+  padding-top:18px;
+  border-top:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  font-size:11px;
+  font-family:'Shippori Mincho',serif;
+  letter-spacing:0.15em;
+  color:var(--ink-muted);
+}
+.highlight-meta .price{
+  color:var(--ink);
+  font-weight:600;
+}
+
+/* ============ AWARDS ============ */
+.awards{
+  padding:120px 0;
+  background:var(--bg);
+}
+.awards-list{
+  border-top:1px solid var(--ink);
+  margin-top:60px;
+}
+.award-row{
+  display:grid;
+  grid-template-columns:80px 1fr auto auto;
+  gap:24px;
+  padding:24px 0;
+  border-bottom:1px solid var(--line);
+  align-items:baseline;
+  font-family:'Noto Serif SC',serif;
+  transition:padding 0.2s ease;
+}
+.award-row:hover{padding-left:8px;background:var(--accent-soft)}
+.award-tier{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:14px;
+  letter-spacing:0.2em;
+  color:var(--gold);
+  text-transform:uppercase;
+}
+.award-tier.tier-3{color:var(--accent);font-weight:500}
+.award-tier.tier-2{color:var(--gold)}
+.award-tier.tier-1{color:var(--ink-muted)}
+.award-tier.tier-miss{color:var(--ink-muted);text-decoration:line-through}
+.award-name{
+  font-size:18px;
+  font-weight:500;
+  color:var(--ink);
+}
+.award-name .jp{
+  font-family:'Shippori Mincho',serif;
+  font-size:12px;
+  color:var(--ink-muted);
+  font-weight:400;
+  margin-left:8px;
+  letter-spacing:0.1em;
+}
+.award-cat{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:13px;
+  color:var(--ink-muted);
+  letter-spacing:0.1em;
+}
+.award-stars{
+  font-size:14px;
+  color:var(--accent);
+  letter-spacing:3px;
+  white-space:nowrap;
+}
+.award-stars.gold{color:var(--gold)}
+.award-stars.miss{color:var(--ink-muted)}
+
+/* ============ LESSONS (split block) ============ */
+.lessons{
+  background:var(--block-bg);
+  color:var(--block-fg);
+  padding:120px 0;
+  position:relative;
+}
+.lessons .section-marker{color:var(--gold)}
+.lessons .section-marker::before{background:var(--gold)}
+.lessons .section-title{color:var(--block-fg)}
+.lessons .section-lead{color:var(--block-fg-soft)}
+.lesson-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:48px;
+  margin-top:60px;
+}
+.lesson-card{
+  position:relative;
+  padding:40px 32px;
+  background:var(--block-card-bg);
+  border:1px solid var(--block-card-line);
+}
+.lesson-rank{
+  position:absolute;
+  top:-1px;
+  left:-1px;
+  background:var(--accent);
+  color:#f5efe4;
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:11px;
+  letter-spacing:0.3em;
+  padding:6px 14px;
+  text-transform:uppercase;
+}
+.lesson-amount{
+  font-family:'Noto Serif SC',serif;
+  font-size:48px;
+  font-weight:300;
+  color:var(--accent);
+  line-height:1;
+  margin:24px 0 12px;
+  letter-spacing:-0.02em;
+}
+.lesson-amount .yen{
+  font-size:0.5em;
+  color:var(--gold);
+  margin-right:4px;
+}
+.lesson-name{
+  font-family:'Noto Serif SC',serif;
+  font-size:22px;
+  font-weight:600;
+  color:var(--block-fg);
+  margin-bottom:6px;
+}
+.lesson-cat{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:13px;
+  color:var(--gold);
+  letter-spacing:0.15em;
+  margin-bottom:24px;
+  text-transform:uppercase;
+}
+.lesson-text{
+  font-family:'Noto Serif SC',serif;
+  font-size:15px;
+  line-height:1.8;
+  color:var(--block-fg-soft);
+}
+.lesson-text strong{color:var(--block-fg);font-weight:600}
+
+/* ============ NUMBERS BREAKDOWN ============ */
+.numbers{
+  padding:120px 0;
+  background:var(--bg-card);
+}
+.budget-bar{
+  margin-top:60px;
+}
+.budget-row{
+  display:grid;
+  grid-template-columns:140px 1fr 100px;
+  gap:20px;
+  padding:18px 0;
+  align-items:center;
+  border-bottom:1px solid var(--line-soft);
+}
+.budget-label{
+  font-family:'Noto Serif SC',serif;
+  font-size:14px;
+  font-weight:500;
+  color:var(--ink);
+  letter-spacing:0.05em;
+}
+.budget-track{
+  height:8px;
+  background:var(--bg-deep);
+  border-radius:0;
+  overflow:hidden;
+  position:relative;
+}
+.budget-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent) 0%,var(--accent-deep) 100%);
+  transition:width 1s ease;
+}
+.budget-fill.gold{background:linear-gradient(90deg,var(--gold) 0%,var(--gold-deep) 100%)}
+.budget-fill.teal{background:linear-gradient(90deg,var(--teal) 0%,#2c5054 100%)}
+.budget-fill.ink{background:linear-gradient(90deg,var(--ink-soft) 0%,var(--ink) 100%)}
+.budget-amount{
+  font-family:'Noto Serif SC',serif;
+  font-weight:600;
+  text-align:right;
+  font-size:14px;
+  color:var(--ink);
+}
+.budget-amount small{
+  display:block;
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-weight:400;
+  color:var(--ink-muted);
+  font-size:11px;
+  margin-top:2px;
+  letter-spacing:0.05em;
+}
+.budget-total{
+  margin-top:24px;
+  padding:32px 0 0;
+  border-top:2px solid var(--ink);
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+}
+.budget-total-label{
+  font-family:'Shippori Mincho',serif;
+  font-size:13px;
+  letter-spacing:0.3em;
+  color:var(--ink-soft);
+  text-transform:uppercase;
+}
+.budget-total-amount{
+  font-family:'Noto Serif SC',serif;
+  font-size:36px;
+  font-weight:600;
+  color:var(--ink);
+  letter-spacing:-0.01em;
+}
+.budget-total-amount .yen{
+  color:var(--accent);
+  font-size:0.7em;
+  margin-right:4px;
+}
+
+/* ============ MAP / BADGES ============ */
+.map{
+  padding:120px 0;
+  background:var(--bg);
+}
+.map-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:48px;
+}
+.region{
+  font-family:'Shippori Mincho',serif;
+  font-size:13px;
+  letter-spacing:0.1em;
+  padding:8px 16px;
+  border:1px solid var(--line);
+  background:var(--bg-card);
+  color:var(--ink);
+  transition:all 0.2s ease;
+  position:relative;
+}
+.region:hover{
+  border-color:var(--accent);
+  background:var(--accent);
+  color:var(--bg);
+  cursor:default;
+}
+.region.skipped{
+  border-style:dashed;
+  border-color:var(--ink-muted);
+  background:transparent;
+  color:var(--ink-muted);
+  text-decoration:line-through;
+  text-decoration-style:wavy;
+  text-decoration-color:rgba(168,41,32,0.4);
+}
+.map-stat{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:14px;
+  color:var(--ink-muted);
+  margin-top:32px;
+  padding-top:20px;
+  border-top:1px solid var(--line);
+  letter-spacing:0.05em;
+  display:flex;
+  gap:48px;
+}
+.map-stat strong{
+  font-family:'Noto Serif SC',serif;
+  font-style:normal;
+  color:var(--accent);
+  font-weight:600;
+  font-size:1.4em;
+  margin-right:6px;
+}
+
+/* ============ CLOSING ============ */
+.closing{
+  padding:160px 0 100px;
+  text-align:center;
+  background:linear-gradient(180deg,var(--bg) 0%,var(--bg-deep) 100%);
+  position:relative;
+}
+.closing-mark{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  background:var(--accent);
+  border-radius:50%;
+  margin-bottom:32px;
+  position:relative;
+}
+.closing-mark::before,.closing-mark::after{
+  content:'';
+  position:absolute;
+  top:50%;
+  width:60px;
+  height:1px;
+  background:var(--line);
+}
+.closing-mark::before{right:24px}
+.closing-mark::after{left:24px}
+.closing-title{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:14px;
+  letter-spacing:0.4em;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:32px;
+}
+.closing-quote{
+  font-family:'Noto Serif SC',serif;
+  font-size:clamp(20px,2.6vw,26px);
+  line-height:1.7;
+  color:var(--ink);
+  font-weight:500;
+  max-width:680px;
+  margin:0 auto 60px;
+  padding:0 28px;
+}
+.closing-quote .red{color:var(--accent)}
+.closing-rules{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:32px;
+  font-family:'Shippori Mincho',serif;
+  font-size:13px;
+  color:var(--ink-soft);
+  letter-spacing:0.05em;
+}
+.closing-rules > div{
+  position:relative;
+  padding:0 16px;
+}
+.closing-rules > div:not(:last-child)::after{
+  content:'';
+  position:absolute;
+  right:-16px;
+  top:0;bottom:0;
+  width:1px;
+  background:var(--line);
+}
+
+/* ============ FOOTER ============ */
+.footer{
+  background:var(--block-bg);
+  color:var(--block-fg-faint);
+  padding:60px 28px;
+  text-align:center;
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:13px;
+  letter-spacing:0.2em;
+}
+.footer-mark{
+  width:6px;height:6px;
+  background:var(--accent);
+  border-radius:50%;
+  display:inline-block;
+  margin:0 16px 4px;
+  vertical-align:middle;
+}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:820px){
+  .hero{min-height:90vh;padding:60px 24px 48px}
+  .hero-mark{top:60px}
+  .hero-top{top:120px}
+  .stats{padding:60px 28px}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:48px 24px}
+  .stat:nth-child(2)::after{display:none}
+  .section{padding:80px 0 40px}
+  .day-entry{
+    grid-template-columns:1fr;
+    gap:24px;
+    padding:60px 0;
+  }
+  .day-side{
+    position:relative;
+    top:0;
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:20px;
+    align-items:center;
+  }
+  .day-num{font-size:64px}
+  .day-month{margin-top:0}
+  .day-spend{
+    grid-column:1/-1;
+    margin-top:0;
+  }
+  .highlight-grid{grid-template-columns:1fr;gap:24px}
+  .lesson-grid{grid-template-columns:1fr;gap:24px}
+  .award-row{
+    grid-template-columns:60px 1fr;
+    gap:12px;
+  }
+  .award-cat,.award-stars{
+    grid-column:2;
+    margin-top:-8px;
+  }
+  .budget-row{
+    grid-template-columns:90px 1fr 80px;
+    gap:12px;
+    font-size:13px;
+  }
+  .pull-quote{padding:60px 0}
+  .closing-rules{
+    flex-direction:column;
+    gap:8px;
+  }
+  .closing-rules > div::after{display:none}
+}
+
+/* ============ ANIMATIONS ============ */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.hero-jp-vertical,.hero h1,.hero-tagline,.hero-cn-tagline{
+  animation:fadeUp 1s ease both;
+}
+.hero h1{animation-delay:0.15s}
+.hero-tagline{animation-delay:0.3s}
+.hero-cn-tagline{animation-delay:0.45s}
+
+/* On-scroll reveal */
+@media(prefers-reduced-motion:no-preference){
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease,transform 0.8s ease}
+  .reveal.shown{opacity:1;transform:translateY(0)}
+}
+</style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" type="button" aria-label="切换日 / 夜模式" title="切换日 / 夜模式" onclick="(function(){var d=document.documentElement;var n=d.getAttribute('data-theme')==='dark'?'light':'dark';d.setAttribute('data-theme',n);try{localStorage.setItem('theme',n);}catch(e){}})()">
+  <span class="ic ic-moon" aria-hidden="true">☾</span>
+  <span class="ic ic-sun" aria-hidden="true">☀</span>
+</button>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-mark"></div>
+  <div class="hero-top">
+    <div class="hero-issue">Issue №01 · Tokyo Edition</div>
+  </div>
+
+  <div class="hero-center">
+    <div class="hero-jp-vertical">東京七日</div>
+    <h1>
+      美食<span class="accent">七日</span>
+      <span class="small">May 3—9 · 2026</span>
+    </h1>
+    <div class="hero-tagline">A Recap of Seven Days in Tokyo</div>
+    <div class="hero-cn-tagline">夫 妻 二 人 · 美 食 优 先</div>
+  </div>
+
+  <div class="hero-bottom">
+    <div>
+      <div class="hero-dates">2026.05.03</div>
+      <div>启程</div>
+    </div>
+    <div class="center">
+      <div class="hero-dates">夜 · 横浜 · 赤坂</div>
+      <div>路过 19 区</div>
+    </div>
+    <div class="right">
+      <div class="hero-dates">2026.05.09</div>
+      <div>归途</div>
+    </div>
+  </div>
+</header>
+
+<!-- STATS BAND -->
+<section class="stats">
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-num">7<span class="unit">天</span></div>
+      <div class="stat-label">Seven Days</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">19<span class="unit">区</span></div>
+      <div class="stat-label">Neighborhoods</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">50<span class="unit">笔</span></div>
+      <div class="stat-label">Transactions</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">31.8<span class="unit">k</span></div>
+      <div class="stat-label">¥ RMB · Total</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROLOGUE -->
+<section class="prologue">
+  <div class="wrap">
+    <p>
+      <span class="first-letter">原</span>本计划里有镰仓的大佛、江ノ島的水族馆、箱根的温泉旅馆。最后落地的版本只去了横浜 — <strong>天气把镰仓劝退,旅伴的相聚把箱根换成了赤坂的多住一晚</strong>。剩下的时间,都给了东京的咖啡店、街角的烧鸟、深夜的拉面。
+    </p>
+    <p>
+      这是一次美食优先的旅行。寿司、天妇罗、文字烧、和牛、拉面、精品咖啡、爵士现场 — 每一种都找到了一家。<em>有惊喜也有遗憾</em>。最大的惊喜是白金的 KIM 和代官山的 Woodberry Coffee;最大的浪费是伊勢丹会館里的一家分店寿司,¥17,150 教会我们一句话:<strong>分店不等于本店</strong>。
+    </p>
+    <p>
+      下面是按日的复盘 — 不是流水账,是七天里那些值得记住的瞬间,以及下次该怎么做得更好。
+    </p>
+  </div>
+</section>
+
+<!-- ARCHIVE MAP -->
+<section class="archive reveal">
+  <figure class="archive-figure">
+    <div class="archive-marker">Tokyo Urban Travel Archive</div>
+    <h2 class="archive-title">东京城市旅行<span class="red">档案</span></h2>
+    <div class="archive-img-wrap">
+      <img class="archive-img" src="assets/images/tokyo-recap-map.png" alt="东京城市旅行档案 · 九天八夜的城市漫步记录" loading="lazy">
+    </div>
+    <figcaption class="archive-cap">九天八夜 · 城市漫步记录 &nbsp;·&nbsp; <em>Walked, eaten, remembered.</em></figcaption>
+  </figure>
+</section>
+
+<!-- DAY STORIES -->
+<section class="days">
+  <div class="wrap">
+
+    <!-- 5/3 -->
+    <article class="day-entry reveal">
+      <aside class="day-side">
+        <div class="day-num">03</div>
+        <div class="day-month">May · 土曜日</div>
+        <div class="day-weekday">抵达 / 赤坂 / 新宿</div>
+        <div class="day-spend">花费<strong>¥25,406</strong></div>
+      </aside>
+      <div class="day-content">
+        <h3 class="day-theme">第一餐永远是缓冲<span class="sub">Day One — Always a Buffer</span></h3>
+        <div class="day-story">
+          <p>
+            虹桥早餐的牛肉面,落地后赤坂的<em>東京油組総本店</em>拌面,一辣一不辣。新宿御苑边的笹屋伊織,宇治抹茶软冰淇淋融在五月的风里。Renoir 的二十层千层蛋糕配两杯咖啡 — 是给疲惫的代偿。
+          </p>
+          <p>
+            晚饭去了<strong>築地寿司清 伊勢丹会館</strong>。<em>おまかせ</em>×2,刺身,炸白虾,炙沙丁鱼,梅酒。¥17,150。<span class="day-tag warn">教训 №01</span>这家是出名老铺的百货分店,板前虽在,但寿司是一盘一起上的,Tabelog 评分 3.16。后来才知道:<strong>同一招牌,本店和分店是两件事</strong>。
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 5/4 -->
+    <article class="day-entry reveal">
+      <aside class="day-side">
+        <div class="day-num">04</div>
+        <div class="day-month">May · 日曜日</div>
+        <div class="day-weekday">丸之内 / 六本木</div>
+        <div class="day-spend">花费<strong>¥40,855</strong></div>
+      </aside>
+      <div class="day-content">
+        <h3 class="day-theme">百年老铺的天妇罗<span class="sub">Tempura, As It's Always Been</span></h3>
+        <div class="day-story">
+          <p>
+            上午两杯咖啡 — Excelsior + Starbucks。下午<strong>つな八 大丸東京 12F</strong>的柏木套餐 + 浜風套餐 + 蔬菜天妇罗。1881 年创业的老铺,百年磨出的脆与油,不浮夸,但稳。
+          </p>
+          <p>
+            丸之内 La Boutique de <em>Joël Robuchon</em> 的蒙布朗 ¥1,400 一个,值。下午溜达去 ミッドタウン,在 <span class="day-tag gold">45R</span> 买了第一件免税 T 恤(908 Logo)。晚上六本木ヒルズ的<strong>篝拉面</strong> — 鸡白汤 soba + 蛤蜊牡蛎 soba,味玉两个。深夜在 orange テラス席,松露薯条配迷迭香尼格罗尼,正好结束这一天。
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 5/5 -->
+    <article class="day-entry reveal">
+      <aside class="day-side">
+        <div class="day-num">05</div>
+        <div class="day-month">May · 火曜日</div>
+        <div class="day-weekday">表参道 / 横浜</div>
+        <div class="day-spend">花费<strong>¥132,288</strong></div>
+      </aside>
+      <div class="day-content">
+        <h3 class="day-theme">横跨东西的一日<span class="sub">East-to-West, Then South to Yokohama</span></h3>
+        <div class="day-story">
+          <p>
+            原宿的 <em>Harry Potter Shop</em> — 格兰芬多 T 恤 + 徽章 + Harry 魔杖,¥13,340。表参道ヒルズ 的<strong>築地玉寿司</strong>表参道握り,午餐稳妥。下午代官山的 <span class="day-tag gold">MHL</span>:T 恤、牛仔衬衫、白皮带、白裤子 ¥88,200 — 这一笔买的是设计的克制。
+          </p>
+          <p>
+            晚上换城去横浜,关内的<strong>和牛焼肉 幸庵</strong>。匠切卡尔比 ×4,上、特选、横膈膜,柠檬沙瓦各一杯。¥20,720 是为了和老友的相聚。<em>赤坂→新宿→原宿→代官山→横浜→赤坂</em> — 这天 Suica ¥3,296,是七天最高的一次。
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 5/6 -->
+    <article class="day-entry reveal">
+      <aside class="day-side">
+        <div class="day-num">06</div>
+        <div class="day-month">May · 水曜日</div>
+        <div class="day-weekday">渋谷 / 五反田</div>
+        <div class="day-spend">花费<strong>¥19,430</strong></div>
+      </aside>
+      <div class="day-content">
+        <h3 class="day-theme">雨天没去成的镰仓<span class="sub">The Day Kamakura Got Cancelled</span></h3>
+        <div class="day-story">
+          <p>
+            原本要去镰仓,看了天气预报,改了。涉谷スクランブルスクエア 的 <strong>もへじ</strong> 文字烧 — 明太子もちもんじゃ + 龙虾ビスクもんじゃ,¥8,910。第一次吃文字烧,是被惊艳到的。
+          </p>
+          <p>
+            搬家从赤坂到五反田,<em>赤坂↔渋谷</em>跑了三个来回 — 这是这天的另一个教训:<strong>退房时先把行李送到新酒店,再去玩</strong>。晚上去了五反田的<strong>こもれび</strong>。<span class="day-tag warn">教训 №02</span>没查 Tabelog 就走进去,Tabelog 3.07,¥5,470。和寿司清那笔合计 ¥22,620 — 够吃一顿顶级法餐了。
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 5/7 -->
+    <article class="day-entry reveal">
+      <aside class="day-side">
+        <div class="day-num">07</div>
+        <div class="day-month">May · 木曜日</div>
+        <div class="day-weekday">咖啡巡礼 / Blue Note</div>
+        <div class="day-spend">花费<strong>¥59,192</strong></div>
+      </aside>
+      <div class="day-content">
+        <h3 class="day-theme">最高效的一天<span class="sub">A Perfect Line</span></h3>
+        <div class="day-story">
+          <p>
+            <em>五反田 → 恵比寿 → 代官山 → 中目黒 → 表参道 → Blue Note</em>,一条直线,不走回头路。早晨 saison bakery 的牛油果吐司 + Flat White,完美的开始。
+          </p>
+          <p>
+            <strong>Blue Bottle 恵比寿</strong>的 NOLA Cold Foam 和 Float,然后到代官山的 <strong>Woodberry Coffee</strong> — 这家是这趟旅行最大的发现。秘鲁 COE#2 瑰夏 + 埃塞 Lalesa 拿铁,¥2,850。买了厄瓜多尔 Sidra 和埃塞 Lalesa 各 100g 的咖啡豆带回家。中目黒的 <strong>I'm donut?</strong> 17:29 去,一分钟零排队。
+          </p>
+          <p>
+            晚上是这趟旅行最贵也最值的一笔:<span class="day-tag">Blue Note Tokyo</span><strong>The Hot Sardines</strong> 双人座,¥27,500 + 酒水 ¥5,390。爵士在六本木的小厅里,比预期更近也更暖。
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 5/8 -->
+    <article class="day-entry reveal">
+      <aside class="day-side">
+        <div class="day-num">08</div>
+        <div class="day-month">May · 金曜日</div>
+        <div class="day-weekday">築地 / 銀座 / 白金</div>
+        <div class="day-spend">花费<strong>¥63,627</strong></div>
+      </aside>
+      <div class="day-content">
+        <h3 class="day-theme">一次告别的仪式<span class="sub">Last Night in Tokyo</span></h3>
+        <div class="day-story">
+          <p>
+            最后一天起得晚,15:23 才吃午饭 — <strong>築地すし大</strong>。勝どきセット + おまかせ + 追加握り,¥9,625。板前一贯一贯握给你看,补回了第一晚伊勢丹的遗憾。<em>这才是寿司应该有的样子</em>。
+          </p>
+          <p>
+            銀座的松屋,Miki House 给孩子;教文館 一本旅行书一本文学。傍晚去白金的 <strong>和牛焼肉 KIM</strong> — 16 周年限定套餐 ×2 + 加贺梅酒 + 可乐,¥27,660。<em>这是一次告别的仪式</em>。如果只能选一家烧肉,就是这家。Tokyu Store 五反田补的伴手礼 — ほりにし、牡蛎酱油、旨味盐、煎茶 — 比机场免税店便宜得多。
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 5/9 -->
+    <article class="day-entry reveal">
+      <aside class="day-side">
+        <div class="day-num">09</div>
+        <div class="day-month">May · 土曜日</div>
+        <div class="day-weekday">自由が丘 / 成田</div>
+        <div class="day-spend">花费<strong>¥29,038</strong></div>
+      </aside>
+      <div class="day-content">
+        <h3 class="day-theme">归途的小补给<span class="sub">A Final Coffee, A Final Bowl</span></h3>
+        <div class="day-story">
+          <p>
+            saison 五反田的浅煎り热拿铁,自由が丘 TODAY'S SPECIAL 的 Choko 杯 + KATACHI 木盘。日暮里换乘 Skyliner,在 ecute 抢了 ちよだ鮨的本まぐろ中とろ + やりいか,船橋屋的白玉あんみつ。
+          </p>
+          <p>
+            成田 T2 的<strong>蝋燭屋</strong>第三次 — 麻婆麺 + チーズ麻婆麺。这家全程吃了三回,是真的喜欢。最后一笔是 JAL PLAZA 82 番ゲート 的じゃがポックル和白い恋人 ¥8,037 — 后来想想,这些超市都有,而且更便宜。
+          </p>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- PULL QUOTE -->
+<section class="pull-quote reveal">
+  <blockquote>
+    寿司、天妇罗、文字烧、和牛、拉面、咖啡、爵士 —<br>
+    每一种都<span class="red">找到了一家</span>。
+  </blockquote>
+  <cite>美食目标 · 完全达成</cite>
+</section>
+
+<!-- HIGHLIGHTS -->
+<section class="highlights">
+  <div class="wrap">
+    <div class="section-marker reveal">Top Three Moments</div>
+    <h2 class="section-title reveal">最难忘的<span class="red">三次</span></h2>
+    <p class="section-lead reveal">这次旅行有三个瞬间会被反复想起 — 一次告别的烧肉、一晚爵士的现场、一杯瑰夏的香气。其余的美味会被时间冲淡,这三次不会。</p>
+
+    <div class="highlight-grid">
+      <article class="highlight-card reveal">
+        <div class="highlight-rank">№ 01</div>
+        <div class="highlight-stars">★ ★ ★</div>
+        <h3 class="highlight-title">和牛焼肉 KIM</h3>
+        <div class="highlight-jp">わぎゅうやきにく キム · 白金</div>
+        <p class="highlight-body">16 周年限定套餐双人份 — 这是这趟旅行的告别仪式。从赤坂到五反田、从筑地到银座,一周的味觉记忆在这里收束。</p>
+        <div class="highlight-meta">
+          <span>5月8日 · 20:17</span>
+          <span class="price">¥27,660</span>
+        </div>
+      </article>
+
+      <article class="highlight-card reveal">
+        <div class="highlight-rank">№ 02</div>
+        <div class="highlight-stars">★ ★ ★</div>
+        <h3 class="highlight-title">Woodberry Coffee</h3>
+        <div class="highlight-jp">ウッドベリー コーヒー · 代官山</div>
+        <p class="highlight-body">秘鲁 COE#2 瑰夏 + 埃塞 Lalesa 拿铁,三支咖啡的品鉴。计划外的发现,带了 200g 豆子回家。</p>
+        <div class="highlight-meta">
+          <span>5月7日 · 15:57</span>
+          <span class="price">¥2,850</span>
+        </div>
+      </article>
+
+      <article class="highlight-card reveal">
+        <div class="highlight-rank">№ 03</div>
+        <div class="highlight-stars">★ ★</div>
+        <h3 class="highlight-title">Blue Note Tokyo</h3>
+        <div class="highlight-jp">ブルー ノート · 六本木</div>
+        <p class="highlight-body">The Hot Sardines · 双人座 · DR.JAZZ 一杯。新奥尔良 swing 在六本木的小厅里 — 一晚最贵的一笔,也是最值的一笔。</p>
+        <div class="highlight-meta">
+          <span>5月7日 · 20:30</span>
+          <span class="price">¥32,890</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- AWARDS -->
+<section class="awards">
+  <div class="wrap">
+    <div class="section-marker reveal">Food Awards</div>
+    <h2 class="section-title reveal">美食<span class="red">榜单</span></h2>
+    <p class="section-lead reveal">十三家店,从顶级三星到一次<span class="drop">×</span>。值得记住的、踩雷的、想再回去的。</p>
+
+    <div class="awards-list reveal">
+      <div class="award-row">
+        <div class="award-tier tier-3">★ ★ ★</div>
+        <div class="award-name">和牛焼肉 KIM <span class="jp">白金 · 烧肉</span></div>
+        <div class="award-cat">Yakiniku</div>
+        <div class="award-stars">¥27,660</div>
+      </div>
+      <div class="award-row">
+        <div class="award-tier tier-3">★ ★ ★</div>
+        <div class="award-name">Woodberry Coffee <span class="jp">代官山 · 精品咖啡</span></div>
+        <div class="award-cat">Coffee</div>
+        <div class="award-stars">¥2,850</div>
+      </div>
+      <div class="award-row">
+        <div class="award-tier tier-2">★ ★</div>
+        <div class="award-name">築地すし大 <span class="jp">築地 · 寿司</span></div>
+        <div class="award-cat">Sushi</div>
+        <div class="award-stars gold">¥9,625</div>
+      </div>
+      <div class="award-row">
+        <div class="award-tier tier-2">★ ★</div>
+        <div class="award-name">つな八 大丸東京 <span class="jp">东京站 · 天妇罗</span></div>
+        <div class="award-cat">Tempura</div>
+        <div class="award-stars gold">¥14,080</div>
+      </div>
+      <div class="award-row">
+        <div class="award-tier tier-2">★ ★</div>
+        <div class="award-name">Blue Note Tokyo <span class="jp">六本木 · 爵士</span></div>
+        <div class="award-cat">Jazz</div>
+        <div class="award-stars gold">¥32,890</div>
+      </div>
+      <div class="award-row">
+        <div class="award-tier tier-2">★ ★</div>
+        <div class="award-name">もへじ 渋谷 <span class="jp">渋谷 · 文字烧</span></div>
+        <div class="award-cat">Monjayaki</div>
+        <div class="award-stars gold">¥8,910</div>
+      </div>
+      <div class="award-row">
+        <div class="award-tier tier-2">★ ★</div>
+        <div class="award-name">蝋燭屋 ×3 <span class="jp">表参道+成田 · 麻婆麺</span></div>
+        <div class="award-cat">Ramen</div>
+        <div class="award-stars gold">¥10,900</div>
+      </div>
+      <div class="award-row">
+        <div class="award-tier tier-2">★ ★</div>
+        <div class="award-name">篝 六本木ヒルズ <span class="jp">六本木 · 鸡白汤</span></div>
+        <div class="award-cat">Ramen</div>
+        <div class="award-stars gold">¥3,500</div>
+      </div>
+      <div class="award-row">
+        <div class="award-tier tier-2">★ ★</div>
+        <div class="award-name">saison bakery & coffee <span class="jp">五反田 · 早餐</span></div>
+        <div class="award-cat">Bakery</div>
+        <div class="award-stars gold">¥5,240</div>
+      </div>
+      <div class="award-row">
+        <div class="award-tier tier-2">★ ★</div>
+        <div class="award-name">I'm donut? <span class="jp">中目黒 · 甜甜圈</span></div>
+        <div class="award-cat">Donut</div>
+        <div class="award-stars gold">¥1,216</div>
+      </div>
+      <div class="award-row">
+        <div class="award-tier tier-2">★ ★</div>
+        <div class="award-name">orange ミッドタウン <span class="jp">六本木 · 法式小酒馆</span></div>
+        <div class="award-cat">Bistro</div>
+        <div class="award-stars gold">¥3,400</div>
+      </div>
+      <div class="award-row">
+        <div class="award-tier tier-1">★</div>
+        <div class="award-name">寿司清 伊勢丹会館 <span class="jp">新宿 · 寿司分店</span></div>
+        <div class="award-cat">Sushi</div>
+        <div class="award-stars miss">¥17,150</div>
+      </div>
+      <div class="award-row">
+        <div class="award-tier tier-miss">×</div>
+        <div class="award-name">こもれび 五反田 <span class="jp">五反田 · 居酒屋</span></div>
+        <div class="award-cat">Izakaya</div>
+        <div class="award-stars miss">¥5,470</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LESSONS -->
+<section class="lessons">
+  <div class="wrap">
+    <div class="section-marker reveal">Lessons Learned</div>
+    <h2 class="section-title reveal">两次<span class="red">教训</span></h2>
+    <p class="section-lead reveal">合计 ¥22,620 的代价,换来两条朴素的规则。下次出门前,先把它们贴在备忘录上。</p>
+
+    <div class="lesson-grid">
+      <article class="lesson-card reveal">
+        <div class="lesson-rank">Lesson №01</div>
+        <div class="lesson-amount"><span class="yen">¥</span>17,150</div>
+        <h3 class="lesson-name">寿司清 · 伊勢丹会館</h3>
+        <div class="lesson-cat">Day 1 · Dinner</div>
+        <p class="lesson-text">
+          老铺的<strong>百货分店≠本店</strong>。同样的招牌,在百货商场里就变成"一盘上"的批量化。订位前在 Tabelog 看一眼评分 — 3.16 是个明确的信号。
+        </p>
+      </article>
+
+      <article class="lesson-card reveal">
+        <div class="lesson-rank">Lesson №02</div>
+        <div class="lesson-amount"><span class="yen">¥</span>5,470</div>
+        <h3 class="lesson-name">こもれび · 五反田</h3>
+        <div class="lesson-cat">Day 4 · Dinner</div>
+        <p class="lesson-text">
+          搬到新酒店后,饿着肚子<strong>没查 Tabelog 就走进去</strong>。规则简单:陌生区域,新店,5 分钟看一眼分数 — 3.3 以下不进。
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- NUMBERS BREAKDOWN -->
+<section class="numbers">
+  <div class="wrap">
+    <div class="section-marker reveal">By the Numbers</div>
+    <h2 class="section-title reveal">花在哪里<span class="red">了</span></h2>
+    <p class="section-lead reveal">¥31,825 元 · 餐饮占了将近三分之一,购物紧随其后,娱乐主要是 Blue Note 那一晚。机票 + 酒店因为提前订,整体反而最省。</p>
+
+    <div class="budget-bar reveal">
+      <div class="budget-row">
+        <div class="budget-label">餐饮</div>
+        <div class="budget-track"><div class="budget-fill" style="width:100%"></div></div>
+        <div class="budget-amount">¥9,668<small>30.4%</small></div>
+      </div>
+      <div class="budget-row">
+        <div class="budget-label">购物</div>
+        <div class="budget-track"><div class="budget-fill gold" style="width:87%"></div></div>
+        <div class="budget-amount">¥8,457<small>26.6%</small></div>
+      </div>
+      <div class="budget-row">
+        <div class="budget-label">机票</div>
+        <div class="budget-track"><div class="budget-fill ink" style="width:58%"></div></div>
+        <div class="budget-amount">¥5,576<small>17.5%</small></div>
+      </div>
+      <div class="budget-row">
+        <div class="budget-label">住宿 6 晚</div>
+        <div class="budget-track"><div class="budget-fill ink" style="width:54%"></div></div>
+        <div class="budget-amount">¥5,243<small>16.5%</small></div>
+      </div>
+      <div class="budget-row">
+        <div class="budget-label">娱乐</div>
+        <div class="budget-track"><div class="budget-fill teal" style="width:17%"></div></div>
+        <div class="budget-amount">¥1,645<small>5.2%</small></div>
+      </div>
+      <div class="budget-row">
+        <div class="budget-label">交通</div>
+        <div class="budget-track"><div class="budget-fill teal" style="width:12%"></div></div>
+        <div class="budget-amount">¥1,152<small>3.6%</small></div>
+      </div>
+      <div class="budget-row">
+        <div class="budget-label">送机</div>
+        <div class="budget-track"><div class="budget-fill teal" style="width:1%"></div></div>
+        <div class="budget-amount">¥84<small>0.3%</small></div>
+      </div>
+      <div class="budget-total">
+        <div class="budget-total-label">— Total · 总计 —</div>
+        <div class="budget-total-amount"><span class="yen">¥</span>31,825</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAP / FOOTPRINT -->
+<section class="map">
+  <div class="wrap">
+    <div class="section-marker reveal">Footprint</div>
+    <h2 class="section-title reveal">走过的<span class="red">19 个区</span></h2>
+    <p class="section-lead reveal">从赤坂到五反田,从銀座到自由が丘 — 七天,东京的西边、南边、东边都踩到了一些。北边和东北的浅草、上野、秋叶原,这次没去,留给下次。</p>
+
+    <div class="map-grid reveal">
+      <span class="region">赤坂</span>
+      <span class="region">新宿</span>
+      <span class="region">新宿御苑</span>
+      <span class="region">丸之内</span>
+      <span class="region">東京站</span>
+      <span class="region">六本木</span>
+      <span class="region">ミッドタウン</span>
+      <span class="region">六本木ヒルズ</span>
+      <span class="region">原宿</span>
+      <span class="region">表参道</span>
+      <span class="region">南青山</span>
+      <span class="region">渋谷</span>
+      <span class="region">恵比寿</span>
+      <span class="region">代官山</span>
+      <span class="region">中目黒</span>
+      <span class="region">五反田</span>
+      <span class="region">白金</span>
+      <span class="region">銀座</span>
+      <span class="region">築地</span>
+      <span class="region">自由が丘</span>
+      <span class="region">日暮里</span>
+      <span class="region">横浜</span>
+      <span class="region">成田</span>
+    </div>
+
+    <h3 class="serif" style="margin-top:60px;font-size:18px;color:var(--ink-soft);font-weight:500;letter-spacing:0.05em">— 留给下次 —</h3>
+    <div class="map-grid" style="margin-top:24px">
+      <span class="region skipped">浅草</span>
+      <span class="region skipped">上野</span>
+      <span class="region skipped">秋叶原</span>
+      <span class="region skipped">下北沢</span>
+      <span class="region skipped">吉祥寺</span>
+      <span class="region skipped">お台場</span>
+      <span class="region skipped">豊洲</span>
+      <span class="region skipped">镰仓</span>
+      <span class="region skipped">日光</span>
+    </div>
+
+    <div class="map-stat reveal">
+      <div><strong>19</strong> 区域走过</div>
+      <div><strong>09</strong> 区域留给下次</div>
+      <div><strong>50</strong> 笔消费</div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<section class="closing reveal">
+  <div class="wrap">
+    <div class="closing-mark"></div>
+    <div class="closing-title">Four Rules for Next Time</div>
+    <p class="closing-quote">
+      美食优先的目标完全达成,KIM 和 Woodberry 是最大惊喜,寿司清和こもれび是两个教训。<br>
+      <span class="red">下次记住这四条就好。</span>
+    </p>
+
+    <div class="closing-rules">
+      <div>① 出门前查 Tabelog</div>
+      <div>② 第一天别冲大餐</div>
+      <div>③ 充电宝出发前带好</div>
+      <div>④ 伴手礼在超市买</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  Tokyo · Seven Days · 5月3日 — 5月9日 · 2026
+  <span class="footer-mark"></span>
+  Generated with care · 文傑 & wife
+</footer>
+
+<script>
+// Subtle on-scroll reveal
+if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting){
+        entry.target.classList.add('shown');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+} else {
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('shown'));
+}
+
+// Animate budget bars on scroll
+const budgetObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting){
+      entry.target.querySelectorAll('.budget-fill').forEach((bar, i) => {
+        const w = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => { bar.style.width = w; }, i * 80);
+      });
+      budgetObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.2 });
+
+const budgetBar = document.querySelector('.budget-bar');
+if (budgetBar) budgetObserver.observe(budgetBar);
+</script>
+
+</body>
+</html>

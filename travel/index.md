@@ -8,4 +8,4 @@ current: travel
 
 ## Trips
 
-- **2026-05** &middot; [Tokyo · May 3-9](/26-05-travel-2-tokyo.html)
+- **2026-05** &middot; [Tokyo · May 3-9](/26-05-travel-2-tokyo.html) &middot; [复盘 / Recap](/26-05-tokyo-recap.html)
