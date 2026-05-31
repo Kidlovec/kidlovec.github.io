@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG 工作原理可视化 · Retrieval-Augmented Generation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b12;
+  --bg2:#0b1019;
+  --panel:#0f1623;
+  --panel2:#131c2c;
+  --line:#1f2c40;
+  --line2:#2a3a54;
+  --txt:#e6eefb;
+  --txt-dim:#8497b5;
+  --txt-faint:#566480;
+  --sem:#2dd4bf;        /* 语义 / 向量 路 */
+  --sem-glow:rgba(45,212,191,.35);
+  --lex:#f5a524;        /* 关键词 / BM25 路 */
+  --lex-glow:rgba(245,165,36,.32);
+  --fuse:#a78bfa;       /* 融合 */
+  --gen:#5b9dff;        /* 生成 */
+  --doc:#8497b5;
+  --ok:#34d399;
+  --grid:rgba(120,150,200,.045);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(1200px 700px at 78% -10%, rgba(45,212,191,.07), transparent 60%),
+    radial-gradient(1000px 600px at 8% 110%, rgba(91,157,255,.07), transparent 55%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--txt);
+  font-family:'Sora',-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:44px 44px;
+}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:34px 26px 70px}
+
+/* ---------- header ---------- */
+header{margin-bottom:26px}
+.kick{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.32em;color:var(--sem);text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.kick::before{content:"";width:26px;height:1px;background:var(--sem);display:inline-block}
+h1{font-size:clamp(30px,5vw,48px);font-weight:700;letter-spacing:-.02em;margin:12px 0 8px;line-height:1.05}
+h1 .ai{background:linear-gradient(100deg,var(--sem),var(--gen));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--txt-dim);font-size:15.5px;max-width:640px}
+
+/* ---------- phase tabs ---------- */
+.tabs{display:flex;gap:8px;margin:26px 0 18px;flex-wrap:wrap}
+.tab{
+  font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.04em;
+  background:var(--panel);border:1px solid var(--line);color:var(--txt-dim);
+  padding:11px 18px;border-radius:11px;cursor:pointer;transition:.25s;display:flex;align-items:center;gap:9px;
+}
+.tab .n{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:var(--line);font-size:11px;color:var(--txt-dim);transition:.25s}
+.tab:hover{border-color:var(--line2);color:var(--txt)}
+.tab.on{background:linear-gradient(180deg,var(--panel2),var(--panel));border-color:var(--sem);color:var(--txt);box-shadow:0 0 0 1px var(--sem),0 8px 30px -12px var(--sem-glow)}
+.tab.on .n{background:var(--sem);color:#04201c}
+
+/* ---------- stage ---------- */
+.stage{
+  position:relative;background:linear-gradient(180deg,rgba(15,22,35,.7),rgba(9,13,20,.7));
+  border:1px solid var(--line);border-radius:18px;padding:20px;min-height:430px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 30px 70px -40px rgba(0,0,0,.8);
+  overflow:hidden;
+}
+.stage-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.stage-title{font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:.14em;color:var(--txt-faint);text-transform:uppercase}
+.stepbadge{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--sem);background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.25);padding:4px 10px;border-radius:7px}
+
+/* canvas grid */
+.canvas{position:relative;min-height:360px}
+
+/* ---------- pipeline nodes (index phase) ---------- */
+.pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:stretch}
+.col{position:relative;display:flex;flex-direction:column;gap:10px}
+.col-cap{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--txt-faint);text-transform:uppercase;text-align:center;margin-bottom:2px;transition:.3s}
+.col.active .col-cap{color:var(--sem)}
+
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:13px;
+  opacity:0;transform:translateY(10px) scale(.96);transition:.5s cubic-bezier(.2,.8,.2,1);position:relative;
+}
+.card.show{opacity:1;transform:none}
+.card .ttl{font-weight:600;font-size:12.5px;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.card .meta{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--txt-faint)}
+.dot{width:7px;height:7px;border-radius:50%;flex:none}
+
+.doc-card{border-left:3px solid var(--doc)}
+.chunk-card{border-left:3px solid var(--sem);background:linear-gradient(90deg,rgba(45,212,191,.06),var(--panel))}
+.vec-card{border-left:3px solid var(--gen);font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--sem)}
+.vec-card .nums{color:var(--gen);word-break:break-all;line-height:1.7}
+
+/* index boxes */
+.idxbox{background:var(--panel2);border:1px dashed var(--line2);border-radius:12px;padding:13px;opacity:.35;transition:.5s}
+.idxbox.live{opacity:1;border-style:solid;border-color:var(--sem);box-shadow:0 0 0 1px var(--sem-glow),0 10px 40px -20px var(--sem-glow)}
+.idxbox.live.lex{border-color:var(--lex);box-shadow:0 0 0 1px var(--lex-glow),0 10px 40px -20px var(--lex-glow)}
+.idxbox h4{font-size:12.5px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em;margin-bottom:9px;display:flex;align-items:center;gap:8px;color:var(--txt-dim)}
+.idxbox.live h4{color:var(--sem)}
+.idxbox.live.lex h4{color:var(--lex)}
+
+/* vector space svg */
+.vspace{width:100%;height:200px;border-radius:9px;background:radial-gradient(circle at 50% 50%,rgba(45,212,191,.05),transparent 70%)}
+.vnode{transition:.6s cubic-bezier(.2,.8,.2,1);transform-origin:center}
+.vnode circle{transition:.45s}
+
+/* inverted index */
+.posting{font-family:'JetBrains Mono',monospace;font-size:11px;display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);opacity:0;transform:translateX(-8px);transition:.4s}
+.posting.show{opacity:1;transform:none}
+.posting .term{color:var(--lex);min-width:54px;font-weight:600}
+.posting .arrow{color:var(--txt-faint)}
+.posting .ids{color:var(--txt-dim);display:flex;gap:5px;flex-wrap:wrap}
+.posting .pid{background:var(--line);padding:1px 6px;border-radius:4px;transition:.3s}
+.posting .pid.hit{background:var(--lex);color:#2a1c00;font-weight:700;box-shadow:0 0 12px var(--lex-glow)}
+
+/* ---------- query phase layout ---------- */
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.qfull{grid-column:1/-1}
+.querybar{
+  grid-column:1/-1;background:linear-gradient(90deg,rgba(91,157,255,.1),var(--panel));
+  border:1px solid var(--line2);border-radius:12px;padding:13px 16px;display:flex;align-items:center;gap:12px;
+  opacity:0;transform:translateY(-8px);transition:.5s;
+}
+.querybar.show{opacity:1;transform:none}
+.querybar .q-ico{width:30px;height:30px;border-radius:8px;background:var(--gen);display:flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+.querybar .q-txt{font-size:15px;font-weight:500}
+.querybar .q-txt b{color:var(--gen)}
+
+.lane{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px;opacity:.4;transition:.5s;position:relative}
+.lane.live{opacity:1}
+.lane.sem.live{border-color:var(--sem);box-shadow:0 14px 50px -30px var(--sem-glow)}
+.lane.lex.live{border-color:var(--lex);box-shadow:0 14px 50px -30px var(--lex-glow)}
+.lane-head{display:flex;align-items:center;gap:9px;margin-bottom:11px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.05em}
+.lane.sem .lane-head{color:var(--sem)}
+.lane.lex .lane-head{color:var(--lex)}
+.lane-head .pill{margin-left:auto;font-size:10px;background:var(--line);padding:2px 8px;border-radius:20px;color:var(--txt-faint);letter-spacing:.05em}
+
+/* result rows */
+.rrow{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;background:var(--panel2);margin-bottom:6px;font-size:12px;opacity:0;transform:translateY(6px);transition:.45s}
+.rrow.show{opacity:1;transform:none}
+.rrow .rk{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--txt-faint);width:16px}
+.rrow .rid{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600}
+.rrow.sem .rid{color:var(--sem)}
+.rrow.lex .rid{color:var(--lex)}
+.rrow .rtxt{color:var(--txt-dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rrow .sc{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--txt);background:var(--line);padding:2px 7px;border-radius:5px}
+
+/* fusion + rerank */
+.fusebox{border:1px solid var(--line);border-radius:13px;padding:14px;background:linear-gradient(180deg,rgba(167,139,250,.08),var(--panel));opacity:.4;transition:.5s}
+.fusebox.live{opacity:1;border-color:var(--fuse);box-shadow:0 14px 50px -30px rgba(167,139,250,.4)}
+.fusebox h4{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.05em;color:var(--fuse);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.frow{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;background:var(--panel2);margin-bottom:6px;font-size:12px;opacity:0;transform:scale(.97);transition:.45s;border-left:3px solid transparent}
+.frow.show{opacity:1;transform:none}
+.frow.fromsem{border-left-color:var(--sem)}
+.frow.fromlex{border-left-color:var(--lex)}
+.frow.fromboth{border-left-color:var(--fuse);background:linear-gradient(90deg,rgba(167,139,250,.12),var(--panel2))}
+.frow .rid{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--txt)}
+.frow .src{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--txt-faint);margin-left:auto;display:flex;gap:4px}
+.frow .src .tag{padding:1px 6px;border-radius:4px;background:var(--line)}
+.frow .src .tag.s{color:var(--sem)}
+.frow .src .tag.l{color:var(--lex)}
+.frow .sc{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fuse);background:rgba(167,139,250,.12);padding:2px 7px;border-radius:5px}
+
+/* generation */
+.genbox{border:1px solid var(--line);border-radius:13px;padding:16px;background:linear-gradient(180deg,rgba(91,157,255,.09),var(--panel));opacity:.4;transition:.5s}
+.genbox.live{opacity:1;border-color:var(--gen);box-shadow:0 14px 50px -30px rgba(91,157,255,.45)}
+.genbox .ctx{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--txt-dim);background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:12px;line-height:1.7}
+.genbox .ctx .lbl{color:var(--gen)}
+.genbox .ctx b{color:var(--sem)}
+.genbox .ans{font-size:14px;line-height:1.7;min-height:24px}
+.genbox .ans .cursor{display:inline-block;width:8px;height:16px;background:var(--gen);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* svg flow connectors */
+.flow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.flow path{fill:none;stroke-width:1.6;stroke-dasharray:6 6;opacity:0}
+.flow path.run{opacity:.7;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-24}}
+
+/* ---------- controls ---------- */
+.controls{display:flex;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap}
+.btn{
+  font-family:'Sora',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;border-radius:11px;
+  padding:12px 22px;transition:.2s;display:flex;align-items:center;gap:8px;
+}
+.btn-main{background:linear-gradient(180deg,var(--sem),#1fb8a6);color:#03241f;box-shadow:0 10px 30px -12px var(--sem-glow)}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 16px 36px -14px var(--sem-glow)}
+.btn-ghost{background:var(--panel);border:1px solid var(--line2);color:var(--txt-dim)}
+.btn-ghost:hover{color:var(--txt);border-color:var(--sem)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
+.spacer{flex:1}
+.progress{display:flex;gap:6px;align-items:center}
+.pdot{width:9px;height:9px;border-radius:50%;background:var(--line2);transition:.3s;cursor:pointer}
+.pdot.done{background:var(--sem)}
+.pdot.cur{background:var(--sem);box-shadow:0 0 0 4px var(--sem-glow);transform:scale(1.15)}
+
+/* explanation panel */
+.explain{
+  margin-top:18px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);
+  border-radius:14px;padding:18px 20px;display:flex;gap:16px;align-items:flex-start;
+}
+.explain .badge{
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.08em;
+  background:var(--sem);color:#03241f;padding:6px 11px;border-radius:8px;flex:none;text-transform:uppercase;white-space:nowrap;
+}
+.explain .badge.lex{background:var(--lex);color:#2a1c00}
+.explain .badge.fuse{background:var(--fuse);color:#1c1340}
+.explain .badge.gen{background:var(--gen);color:#04183a}
+.explain .body h3{font-size:16px;margin-bottom:5px;font-weight:600}
+.explain .body p{font-size:13.5px;color:var(--txt-dim);line-height:1.65}
+.explain .body code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg2);padding:1px 6px;border-radius:5px;color:var(--sem);border:1px solid var(--line)}
+
+footer{margin-top:34px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--txt-faint);letter-spacing:.05em}
+
+/* ---------- scenario strip ---------- */
+.scenario{
+  display:flex;align-items:flex-start;gap:12px;margin:0 0 16px;
+  background:linear-gradient(90deg,rgba(91,157,255,.09),rgba(45,212,191,.05));
+  border:1px solid var(--line2);border-radius:13px;padding:13px 16px;
+}
+.sc-tag{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  background:var(--gen);color:#04183a;padding:5px 10px;border-radius:7px;flex:none;text-transform:uppercase;white-space:nowrap}
+.sc-txt{font-size:13.5px;color:var(--txt-dim);line-height:1.6}
+.sc-txt b{color:var(--txt)}
+
+/* ---------- fact cards ---------- */
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.fact{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px 15px;border-top:2px solid var(--line2);transition:.3s}
+.fact-h{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.05em;font-weight:600;display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.fact .fi{font-size:14px}
+.fact p{font-size:12.8px;line-height:1.6;color:var(--txt-dim)}
+.fact p b{color:var(--txt);font-weight:600}
+.fact p code{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:var(--bg2);padding:1px 5px;border-radius:4px;border:1px solid var(--line)}
+.fact.solve{border-top-color:var(--ok)} .fact.solve .fact-h{color:var(--ok)} .fact.solve code{color:var(--ok)}
+.fact.how{border-top-color:var(--sem)} .fact.how .fact-h{color:var(--sem)} .fact.how code{color:var(--sem)}
+.fact.note{border-top-color:var(--lex)} .fact.note .fact-h{color:var(--lex)} .fact.note code{color:var(--lex)}
+
+/* 平板：查询两路过窄时先单列 */
+@media(max-width:900px){
+  .qgrid{grid-template-columns:1fr}
+}
+
+/* 手机：流水线竖排，每个环节占满宽度，SVG 才看得清 */
+@media(max-width:680px){
+  .wrap{padding:22px 14px 56px}
+  header{margin-bottom:18px}
+  .sub{font-size:14px}
+  .tabs{gap:6px}
+  .tab{padding:10px 13px;font-size:12px;flex:1;justify-content:center}
+  .tab .n{width:18px;height:18px}
+
+  .stage{padding:14px;border-radius:14px;min-height:auto}
+  .stage-head{margin-bottom:10px}
+
+  /* 写入侧：4 列 → 单列竖向流水线 */
+  .pipe{grid-template-columns:1fr;gap:18px}
+  .col-cap{text-align:left;font-size:12px;padding-left:2px}
+  .col.active .col-cap{color:var(--sem)}
+  /* 竖排时各环节之间加一个向下的连接提示 */
+  .col:not(:last-child)::after{
+    content:"↓";display:block;text-align:center;color:var(--line2);
+    font-size:18px;margin-top:6px;line-height:1;
+  }
+  .vspace{height:240px}            /* 向量空间放大，标签可读 */
+  .idxbox{padding:12px}
+
+  /* 查询侧：两路上下堆叠，向量空间放大 */
+  #qvspace{height:230px}
+  .lane{padding:12px}
+  .rrow .rtxt{font-size:11.5px}
+  .querybar .q-txt{font-size:13.5px}
+  .genbox .ctx{font-size:10px}
+
+  /* 控制条：主按钮占整行，更好点 */
+  .controls{gap:8px}
+  .btn{padding:13px 16px;font-size:13.5px}
+  .btn-main{flex:1 1 100%;justify-content:center}
+  .btn-ghost{flex:1}
+  .spacer{display:none}
+  .progress{flex:1 1 100%;justify-content:center;margin-top:4px}
+  .pdot{width:13px;height:13px}   /* 进度点放大，方便手指点 */
+
+  /* 讲解卡：徽标移到标题上方 */
+  .explain{flex-direction:column;gap:10px;padding:15px 16px}
+  .explain .badge{align-self:flex-start}
+  .explain .body h3{font-size:15px}
+  .explain .body p{font-size:13px}
+
+  /* 场景条与要点卡 */
+  .scenario{flex-direction:column;gap:8px;padding:12px 14px}
+  .sc-txt{font-size:12.8px}
+  .facts{grid-template-columns:1fr;gap:10px}
+  .fact{padding:12px 14px}
+}
+
+/* 超窄屏微调 */
+@media(max-width:380px){
+  h1{font-size:27px}
+  .tab{font-size:11px;padding:9px 8px}
+  .vspace,#qvspace{height:200px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kick">检索增强生成 · 可视化拆解</div>
+    <h1>RAG 是怎么 <span class="ai">检索并生成</span> 的</h1>
+    <p class="sub">把 RAG 拆成两条流水线：左边「写入侧」把知识切片、理解、建索引；右边「查询侧」做多路召回、融合重排，最后喂给大模型生成答案。点击下方播放，一步步看清每个环节。</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab on" data-phase="index"><span class="n">1</span> 写入侧 · 索引构建</button>
+    <button class="tab" data-phase="query"><span class="n">2</span> 查询侧 · 多路召回与生成</button>
+  </div>
+
+  <div class="scenario">
+    <span class="sc-tag">贯穿示例</span>
+    <span class="sc-txt">为公司知识库做 RAG：导入 <b>《产品技术白皮书.pdf》42 页 ≈ 6.8 万字</b>，外加 3 份手册/FAQ，共约 <b>18 万字</b>。用户最终要能问：<b>“新版本支持哪些数据库？”</b></span>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head">
+      <div class="stage-title" id="stageTitle">INDEXING PIPELINE / 离线建库</div>
+      <div class="stepbadge" id="stepBadge">STEP 0</div>
+    </div>
+    <div class="canvas" id="canvas"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-main" id="playBtn">▶ 播放</button>
+    <button class="btn btn-ghost" id="nextBtn">下一步 →</button>
+    <button class="btn btn-ghost" id="resetBtn">↺ 重置</button>
+    <div class="spacer"></div>
+    <div class="progress" id="progress"></div>
+  </div>
+
+  <div class="explain">
+    <div class="badge" id="exBadge">STEP</div>
+    <div class="body">
+      <h3 id="exTitle">准备开始</h3>
+      <p id="exText">这是「写入侧」流水线 —— 也就是问问题之前、离线就做好的准备工作。点击「播放」或「下一步」开始。</p>
+    </div>
+  </div>
+
+  <div class="facts" id="facts">
+    <div class="fact solve"><div class="fact-h"><span class="fi">🎯</span>解决什么问题</div><p id="fSolve">—</p></div>
+    <div class="fact how"><div class="fact-h"><span class="fi">🔧</span>怎么做 · 具体数字</div><p id="fHow">—</p></div>
+    <div class="fact note"><div class="fact-h"><span class="fi">⚠️</span>注意什么</div><p id="fNote">—</p></div>
+  </div>
+
+  <footer>RAG VISUALIZER · 语义检索 + 关键词检索 双路召回 · RRF 融合 + Rerank 重排</footer>
+</div>
+
+<script>
+/* ============================================================
+   数据：示例知识块（chunks）。每块带 id / 文本 / 2D 投影坐标 / 关键词
+   ============================================================ */
+const CHUNKS = [
+  {id:'C1', doc:'D1', txt:'向量数据库用 HNSW 图做近似最近邻检索', terms:['向量','HNSW','检索'], x:0.30,y:0.34},
+  {id:'C2', doc:'D1', txt:'Embedding 模型把文本映射到高维语义空间', terms:['Embedding','语义','向量'], x:0.40,y:0.26},
+  {id:'C3', doc:'D1', txt:'余弦相似度衡量两个向量的语义接近程度', terms:['余弦','相似度','向量'], x:0.33,y:0.46},
+  {id:'C4', doc:'D2', txt:'BM25 是基于词频的经典关键词相关性算法', terms:['BM25','关键词','词频'], x:0.72,y:0.62},
+  {id:'C5', doc:'D2', txt:'倒排索引把每个词映射到包含它的文档列表', terms:['倒排','索引','关键词'], x:0.80,y:0.54},
+  {id:'C6', doc:'D2', txt:'稀疏检索擅长精确匹配专有名词和代号', terms:['稀疏','检索','匹配'], x:0.68,y:0.72},
+  {id:'C7', doc:'D3', txt:'混合检索把语义与关键词两路结果融合', terms:['混合','检索','语义','关键词'], x:0.52,y:0.42},
+  {id:'C8', doc:'D3', txt:'RRF 倒数排名融合无需调权重即可合并多路', terms:['RRF','融合','排名'], x:0.58,y:0.50},
+  {id:'C9', doc:'D3', txt:'Rerank 交叉编码器对候选做精排提升精度', terms:['Rerank','精排','候选'], x:0.46,y:0.58},
+  {id:'C10',doc:'D4', txt:'文档先按语义边界切成 chunk 再分别向量化', terms:['chunk','切分','向量'], x:0.22,y:0.60},
+  {id:'C11',doc:'D4', txt:'分片大小与重叠影响召回质量和上下文完整性', terms:['分片','重叠','召回'], x:0.18,y:0.44},
+  {id:'C12',doc:'D4', txt:'检索到的上下文拼进 Prompt 交给大模型生成', terms:['上下文','Prompt','生成'], x:0.50,y:0.74},
+];
+const DOCS=['D1','D2','D3','D4'];
+
+/* ============================================================
+   阶段定义：每个阶段一组 step，每个 step 有 render + 讲解
+   ============================================================ */
+const canvas=document.getElementById('canvas');
+let phase='index', step=0, playing=false, playTimer=null;
+
+const STEPS={index:[],query:[]};
+
+/* 每一步的工程要点：解决什么问题 / 怎么做+数字 / 注意什么 */
+const FACTS={
+  index:[
+    { // 0 文档写入
+      solve:'让 LLM 能用上私有/最新知识，而不是靠模型记忆 —— 记忆会过时、还会一本正经地编造。',
+      how:'示例：导入 <b>白皮书 42 页≈6.8 万字</b> + 3 份手册，共 <b>~18 万字</b>。先抽纯文本、去页眉页脚/水印，保留标题层级。',
+      note:'扫描件要先 <code>OCR</code>；表格、代码、公式单独处理别当普通段落；每段都记下<b>来源+页码</b>，方便答案溯源。'
+    },
+    { // 1 分片
+      solve:'整篇太长塞不进上下文，检索粒度也太粗。切片让「命中」能精确定位到某一段。',
+      how:'按标题/语义边界递归切，每片 <code>≈500 token</code>、相邻<b>重叠 ≈50 token（10%）</b>。6.8 万字 → 约 <b>280 个 chunk</b>。',
+      note:'片 <code>&gt;1000 token</code> 噪声多、稀释重点、吃 context；<code>&lt;100 token</code> 语义被切断。重叠是为了防关键句被切在边界；表格/列表别硬切。'
+    },
+    { // 2 向量化
+      solve:'把「语义」变成可计算的数字，才能做到「按意思找」而不是「按字眼找」。',
+      how:'用 embedding 模型（如 <code>bge-m3</code> / <code>text-embedding-3</code>）把每个 chunk 转成 <b>1024 维向量</b>。280 chunk → 280 条向量。',
+      note:'<b>文档和 query 必须用同一个模型</b>，否则向量空间对不上；中文要选支持中文的模型；维度越高越准但越占内存。'
+    },
+    { // 3 向量索引
+      solve:'280 条还能暴力比对，几百万条就必须有索引，才能在毫秒级找到最近邻。',
+      how:'存进向量库的 <code>HNSW</code> 图，典型参数 <code>m=16, ef_construction=200</code>。把<b>来源/页码/产品线</b>作为元数据一起存。',
+      note:'查询时 <code>ef</code> 越大召回越准但越慢；要支持<b>元数据过滤</b>（只查某产品线）；新增文档走<b>增量</b>，别每次全量重建。'
+    },
+    { // 4 倒排索引
+      solve:'向量擅长「意思相近」，但对型号、代号、专有名词这种「必须一字不差」反而不稳。',
+      how:'同一批 chunk 再建<b>关键词倒排索引</b>（词→chunk 列表），供 <code>BM25</code> 打分。像 <code>PostgreSQL</code>、<code>v2.3</code> 能精确命中。',
+      note:'中文要先<b>分词</b>；过滤停用词；<b>别只建一种索引</b> —— 向量 + 关键词的混合检索才稳。'
+    },
+    { // 5 就绪
+      solve:'一份知识、两套索引，查询时可双管齐下，覆盖更全、漏召回更少。',
+      how:'以上全是<b>离线一次性</b>建好，在线只读。知识更新时，增量写入两个索引即可。',
+      note:'要有明确的<b>重建/增量更新策略</b>；监控 chunk 总数、索引体积、构建耗时，知识变了要及时刷新。'
+    },
+  ],
+  query:[
+    { // 0 提问
+      solve:'用户用大白话提问，系统要据此<b>找证据</b>，而不是直接让模型凭空猜。',
+      how:'示例 query：<b>“新版本支持哪些数据库？”</b> —— 注意用户<b>没提任何具体型号</b>，全是口语。',
+      note:'真实 query 常很短、有歧义、甚至有错别字；必要时先做 <code>query 改写/扩展</code> 再检索。'
+    },
+    { // 1 双路处理
+      solve:'单一种检索覆盖不全。两路并行，才能同时兼顾「意思」和「字面」。',
+      how:'query 用<b>同一个 embedding 模型</b>转向量（给语义路）；同时<b>分词</b>提取关键词「数据库 / 支持 / 新版本」（给 BM25 路）。',
+      note:'embedding 模型必须和<b>建库时一致</b>，否则查询向量和库里向量不在同一空间，结果全乱。'
+    },
+    { // 2 语义召回
+      solve:'用户说「数据库」、文档写「PostgreSQL/MySQL」，字面不重合 —— 语义路照样能召回。',
+      how:'查询向量找<b>余弦最近邻</b>，取 <code>top-k≈20</code>。能召回 <code>C2</code> 这种换了说法、字面无重叠但相关的片段。',
+      note:'<code>k</code> 太小会漏召回、太大噪声多；语义路对<b>精确型号/代号不敏感</b>，所以必须有另一路来补。'
+    },
+    { // 3 关键词召回
+      solve:'像 <code>v2.3</code>、<code>PostgreSQL</code> 这种必须精确匹配的，语义路容易漏，BM25 稳稳命中。',
+      how:'在倒排索引按词查，<code>BM25</code> 按词频/稀有度打分，取 <code>top-k</code>。命中 <code>C5</code> 这类语义路漏掉的片段。',
+      note:'BM25 <b>完全不懂同义词</b>，换个说法就 0 命中 —— 所以同样不能只靠它。两路是互补关系。'
+    },
+    { // 4 RRF 融合
+      solve:'两路分数量纲不同（余弦 0~1 vs BM25 几~几十），没法直接比较或相加。',
+      how:'<code>RRF</code> 只看每个 chunk 在各路里的<b>排名</b>：<code>score = Σ 1/(k+rank)</code>，<code>k</code> 常取 60。两路都命中的 <b>C7/C8 自动排最前</b>。',
+      note:'RRF 免调权重、很鲁棒；想偏向某一路可加权重；<b>合并要按 chunk id 去重</b>，否则重复片段挤占名额。'
+    },
+    { // 5 Rerank
+      solve:'召回阶段追求「宁可多抓」（高召回），但喂给 LLM 前要精挑（高精确），否则噪声拉低答案。',
+      how:'用 <code>cross-encoder</code> 把 query 和每个候选<b>拼在一起逐对打分</b>，从约 30 个候选里精排出 <b>top-3~5</b>。',
+      note:'rerank 比向量相似度<b>准但慢</b>，所以只对少量候选用；最终 top-n 还受 LLM 上下文预算约束。'
+    },
+    { // 6 生成
+      solve:'让答案<b>基于检索到的证据</b>作答 —— 可溯源、少幻觉，这就是 RAG 的核心价值。',
+      how:'top-3 片段 + 原问题拼进 <code>prompt</code> 交给 LLM，附上<b>来源页码</b>，答案可标注引用。',
+      note:'prompt 要约束「<b>只依据给定资料作答</b>」；上下文太多模型会「迷失在中间」，所以前面才要 rerank 精选。'
+    },
+  ],
+};
+function renderFacts(){
+  const f=FACTS[phase] && FACTS[phase][step];
+  if(!f)return;
+  document.getElementById('fSolve').innerHTML=f.solve;
+  document.getElementById('fHow').innerHTML=f.how;
+  document.getElementById('fNote').innerHTML=f.note;
+}
+
+/* ---------- 工具 ---------- */
+function el(html){const t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstChild;}
+function setExplain(badge,cls,title,text){
+  const b=document.getElementById('exBadge');
+  b.textContent=badge; b.className='badge'+(cls?(' '+cls):'');
+  document.getElementById('exTitle').textContent=title;
+  document.getElementById('exText').innerHTML=text;
+}
+
+/* ============================================================
+   写入侧（INDEX）布局：四列流水线 + 两个索引盒
+   ============================================================ */
+function buildIndexLayout(){
+  canvas.innerHTML='';
+  const pipe=el(`<div class="pipe" id="pipe">
+    <div class="col" data-c="doc"><div class="col-cap">① 文档写入</div><div class="slot" id="col-doc"></div></div>
+    <div class="col" data-c="chunk"><div class="col-cap">② 语义分片</div><div class="slot" id="col-chunk"></div></div>
+    <div class="col" data-c="vec"><div class="col-cap">③ 向量化 · 理解</div><div class="slot" id="col-vec"></div></div>
+    <div class="col" data-c="idx"><div class="col-cap">④ 写入双索引</div>
+      <div class="idxbox" id="idx-vec"><h4><span class="dot" style="background:var(--sem)"></span>向量索引 · HNSW</h4>
+        <svg class="vspace" id="vspace" viewBox="0 0 300 200"></svg>
+      </div>
+      <div class="idxbox lex" id="idx-lex" style="margin-top:10px"><h4><span class="dot" style="background:var(--lex)"></span>关键词倒排索引</h4>
+        <div id="posting"></div>
+      </div>
+    </div>
+  </div>`);
+  canvas.appendChild(pipe);
+  // 预填文档卡
+  const cd=pipe.querySelector('#col-doc');
+  DOCS.forEach((d,i)=>{
+    const n=CHUNKS.filter(c=>c.doc===d).length;
+    cd.appendChild(el(`<div class="card doc-card" id="card-${d}"><div class="ttl"><span class="dot" style="background:var(--doc)"></span>${d}.pdf</div><div class="meta">${n} 段原文 · 待处理</div></div>`));
+  });
+}
+function vspaceNodes(visibleIds, opts={}){
+  const svg=document.getElementById('vspace'); if(!svg)return;
+  svg.innerHTML='';
+  // 网格
+  for(let i=1;i<5;i++){
+    svg.appendChild(el(`<line x1="${i*60}" y1="0" x2="${i*60}" y2="200" stroke="var(--line)" stroke-width="0.5" opacity="0.4"/>`));
+    svg.appendChild(el(`<line x1="0" y1="${i*40}" x2="300" y2="${i*40}" stroke="var(--line)" stroke-width="0.5" opacity="0.4"/>`));
+  }
+  CHUNKS.forEach(c=>{
+    const cx=c.x*300, cy=c.y*200;
+    const vis=visibleIds.includes(c.id);
+    const g=el(`<g class="vnode" style="opacity:${vis?1:0}"></g>`);
+    g.appendChild(el(`<circle cx="${cx}" cy="${cy}" r="6" fill="rgba(45,212,191,.18)" stroke="var(--sem)" stroke-width="1.2"/>`));
+    g.appendChild(el(`<text x="${cx}" y="${cy-9}" fill="var(--txt-faint)" font-size="7" text-anchor="middle" font-family="JetBrains Mono">${c.id}</text>`));
+    g.dataset.id=c.id;
+    svg.appendChild(g);
+  });
+}
+
+/* INDEX steps */
+STEPS.index=[
+  { // 0 文档
+    badge:'STEP 1', cls:'', title:'① 文档写入知识库',
+    text:'原始资料（PDF、网页、Wiki…）进入 RAG 系统。它们太长、信息密度不均，<b>不能整篇直接塞给模型</b>，必须先做预处理。',
+    run(){ buildIndexLayout(); DOCS.forEach((d,i)=>setTimeout(()=>document.getElementById('card-'+d).classList.add('show'),i*120)); }
+  },
+  { // 1 分片
+    badge:'STEP 2', cls:'', title:'② 按语义边界切成分片（Chunking）',
+    text:'每篇文档被切成大小适中、语义自洽的 <code>chunk</code>。<b>分片粒度</b>很关键：太大稀释重点、太小丢失上下文，通常还会让相邻片段<b>重叠</b>一部分以防割裂语义。',
+    run(){ buildIndexLayout(); DOCS.forEach(d=>document.getElementById('card-'+d).classList.add('show'));
+      const col=document.getElementById('col-chunk');
+      CHUNKS.forEach((c,i)=>setTimeout(()=>{
+        col.appendChild(el(`<div class="card chunk-card show"><div class="ttl"><span class="dot" style="background:var(--sem)"></span>${c.id}</div><div class="meta">来自 ${c.doc} · ${c.txt.slice(0,9)}…</div></div>`));
+      },i*70));
+    }
+  },
+  { // 2 向量化
+    badge:'STEP 3', cls:'', title:'③ 向量化：让机器「理解」语义',
+    text:'每个 chunk 经 <code>Embedding 模型</code> 变成一串高维向量（如 1024 维）。<b>语义相近的文本，向量也彼此靠近</b> —— 这就是后面能做「按意思找」而不是「按字面找」的基础。',
+    run(){ buildIndexLayout(); DOCS.forEach(d=>document.getElementById('card-'+d).classList.add('show'));
+      const cc=document.getElementById('col-chunk');
+      CHUNKS.slice(0,6).forEach(c=>cc.appendChild(el(`<div class="card chunk-card show"><div class="ttl"><span class="dot" style="background:var(--sem)"></span>${c.id}</div><div class="meta">${c.txt.slice(0,9)}…</div></div>`)));
+      const col=document.getElementById('col-vec');
+      CHUNKS.slice(0,6).forEach((c,i)=>setTimeout(()=>{
+        const v=Array.from({length:4},()=>(Math.random()*2-1).toFixed(2));
+        col.appendChild(el(`<div class="card vec-card show"><div class="ttl" style="color:var(--gen)">${c.id} → vec</div><div class="nums">[${v.join(', ')}, …]</div></div>`));
+      },i*110));
+    }
+  },
+  { // 3 向量索引
+    badge:'STEP 4', cls:'', title:'④a 写入向量索引（语义空间）',
+    text:'所有向量落入<b>向量索引</b>（如 HNSW 图）。把高维空间投影成 2D 看：相似的片段自然聚成簇。查询时就在这张图上找「最近邻」。',
+    run(){ buildIndexLayout(); DOCS.forEach(d=>document.getElementById('card-'+d).classList.add('show'));
+      document.getElementById('idx-vec').classList.add('live');
+      vspaceNodes([]);
+      CHUNKS.forEach((c,i)=>setTimeout(()=>{
+        const g=document.querySelector(`.vnode[data-id="${c.id}"]`); if(g)g.style.opacity=1;
+      },i*90));
+    }
+  },
+  { // 4 倒排索引
+    badge:'STEP 5', cls:'lex', title:'④b 同时建立关键词倒排索引',
+    text:'光有语义还不够 —— 专有名词、代号、精确术语用<b>字面匹配</b>更稳。于是再建一份<b>倒排索引</b>：每个词 → 包含它的 chunk 列表，供 BM25 等算法做关键词相关性检索。',
+    run(){ buildIndexLayout(); DOCS.forEach(d=>document.getElementById('card-'+d).classList.add('show'));
+      document.getElementById('idx-vec').classList.add('live'); vspaceNodes(CHUNKS.map(c=>c.id));
+      const lex=document.getElementById('idx-lex'); lex.classList.add('live');
+      const map={};
+      CHUNKS.forEach(c=>c.terms.forEach(t=>{(map[t]=map[t]||[]).push(c.id)}));
+      const terms=Object.keys(map).slice(0,9);
+      const p=document.getElementById('posting');
+      terms.forEach((t,i)=>setTimeout(()=>{
+        const ids=map[t].map(id=>`<span class="pid">${id}</span>`).join('');
+        p.appendChild(el(`<div class="posting show"><span class="term">${t}</span><span class="arrow">→</span><span class="ids">${ids}</span></div>`));
+      },i*90));
+    }
+  },
+  { // 5 完成
+    badge:'就绪', cls:'', title:'✓ 知识库构建完成，等待查询',
+    text:'写入侧到此结束。同一批知识被<b>两种方式</b>索引好了：<b style="color:var(--sem)">向量索引</b>（按意思找）+ <b style="color:var(--lex)">倒排索引</b>（按词找）。这些都是<b>离线、提前</b>做好的。切换到「查询侧」看用户提问时发生什么 →',
+    run(){ buildIndexLayout(); DOCS.forEach(d=>document.getElementById('card-'+d).classList.add('show'));
+      document.getElementById('idx-vec').classList.add('live'); vspaceNodes(CHUNKS.map(c=>c.id));
+      const lex=document.getElementById('idx-lex'); lex.classList.add('live');
+      const map={};CHUNKS.forEach(c=>c.terms.forEach(t=>{(map[t]=map[t]||[]).push(c.id)}));
+      const p=document.getElementById('posting');
+      Object.keys(map).slice(0,9).forEach(t=>{
+        const ids=map[t].map(id=>`<span class="pid">${id}</span>`).join('');
+        p.appendChild(el(`<div class="posting show"><span class="term">${t}</span><span class="arrow">→</span><span class="ids">${ids}</span></div>`));
+      });
+    }
+  },
+];
+
+/* ============================================================
+   查询侧（QUERY）
+   ============================================================ */
+const QUERY_TXT='混合检索是怎么把两路结果合并的？';
+// 命中：语义路 TopK / 关键词路 TopK
+const SEM_HITS=[
+  {id:'C7', txt:'混合检索把语义与关键词两路结果融合', sc:'0.91'},
+  {id:'C8', txt:'RRF 倒数排名融合无需调权重即可合并多路', sc:'0.88'},
+  {id:'C9', txt:'Rerank 交叉编码器对候选做精排提升精度', sc:'0.79'},
+  {id:'C2', txt:'Embedding 模型把文本映射到高维语义空间', sc:'0.74'},
+];
+const LEX_HITS=[
+  {id:'C7', txt:'混合检索把语义与关键词两路结果融合', sc:'12.4'},
+  {id:'C8', txt:'RRF 倒数排名融合无需调权重即可合并多路', sc:'9.7'},
+  {id:'C5', txt:'倒排索引把每个词映射到包含它的文档列表', sc:'7.2'},
+];
+const FUSED=[
+  {id:'C7', src:'both', sc:'0.033'},
+  {id:'C8', src:'both', sc:'0.031'},
+  {id:'C9', src:'sem',  sc:'0.016'},
+  {id:'C5', src:'lex',  sc:'0.015'},
+  {id:'C2', src:'sem',  sc:'0.014'},
+];
+const RERANKED=[
+  {id:'C8', sc:'0.97', txt:'RRF 倒数排名融合无需调权重即可合并多路'},
+  {id:'C7', sc:'0.95', txt:'混合检索把语义与关键词两路结果融合'},
+  {id:'C9', sc:'0.62', txt:'Rerank 交叉编码器对候选做精排提升精度'},
+];
+
+function buildQueryLayout(){
+  canvas.innerHTML='';
+  canvas.appendChild(el(`<div class="qgrid" id="qgrid">
+    <div class="querybar" id="qbar"><div class="q-ico">?</div><div class="q-txt">用户提问：<b>${QUERY_TXT}</b></div></div>
+    <div class="lane sem" id="lane-sem">
+      <div class="lane-head"><span class="dot" style="background:var(--sem)"></span>语义检索 · 向量最近邻<span class="pill">DENSE / 按意思</span></div>
+      <svg class="vspace" id="qvspace" viewBox="0 0 300 200" style="margin-bottom:10px"></svg>
+      <div id="sem-results"></div>
+    </div>
+    <div class="lane lex" id="lane-lex">
+      <div class="lane-head"><span class="dot" style="background:var(--lex)"></span>关键词检索 · BM25<span class="pill">SPARSE / 按字面</span></div>
+      <div id="lex-posting" style="margin-bottom:8px"></div>
+      <div id="lex-results"></div>
+    </div>
+    <div class="fusebox qfull" id="fusebox">
+      <h4><span class="dot" style="background:var(--fuse)"></span>RRF 融合 + Rerank 精排</h4>
+      <div id="fuse-results"></div>
+    </div>
+    <div class="genbox qfull" id="genbox">
+      <div class="ctx" id="gen-ctx"></div>
+      <div class="ans" id="gen-ans"></div>
+    </div>
+  </div>`));
+}
+function qvspaceNodes(opts={}){
+  const svg=document.getElementById('qvspace'); if(!svg)return; svg.innerHTML='';
+  for(let i=1;i<5;i++){
+    svg.appendChild(el(`<line x1="${i*60}" y1="0" x2="${i*60}" y2="200" stroke="var(--line)" stroke-width="0.5" opacity="0.4"/>`));
+    svg.appendChild(el(`<line x1="0" y1="${i*40}" x2="300" y2="${i*40}" stroke="var(--line)" stroke-width="0.5" opacity="0.4"/>`));
+  }
+  const qx=0.54*300, qy=0.46*200;
+  if(opts.ring){
+    svg.appendChild(el(`<circle cx="${qx}" cy="${qy}" r="0" fill="none" stroke="var(--sem)" stroke-width="1" opacity="0.5"><animate attributeName="r" from="0" to="62" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.2s" repeatCount="indefinite"/></circle>`));
+  }
+  const hitIds=opts.hits?SEM_HITS.map(h=>h.id):[];
+  CHUNKS.forEach(c=>{
+    const cx=c.x*300, cy=c.y*200, hit=hitIds.includes(c.id);
+    if(opts.lines&&hit){
+      svg.appendChild(el(`<line x1="${qx}" y1="${qy}" x2="${cx}" y2="${cy}" stroke="var(--sem)" stroke-width="1" opacity="0.45" stroke-dasharray="3 3"/>`));
+    }
+    const g=el(`<g></g>`);
+    g.appendChild(el(`<circle cx="${cx}" cy="${cy}" r="${hit?7:5}" fill="${hit?'var(--sem)':'rgba(45,212,191,.12)'}" stroke="var(--sem)" stroke-width="${hit?1.6:1}" opacity="${opts.hits&&!hit?0.3:1}"/>`));
+    g.appendChild(el(`<text x="${cx}" y="${cy-9}" fill="${hit?'var(--sem)':'var(--txt-faint)'}" font-size="7" text-anchor="middle" font-family="JetBrains Mono">${c.id}</text>`));
+    svg.appendChild(g);
+  });
+  // query 点
+  if(opts.query){
+    svg.appendChild(el(`<circle cx="${qx}" cy="${qy}" r="7" fill="var(--gen)" stroke="#fff" stroke-width="1.5"/>`));
+    svg.appendChild(el(`<text x="${qx}" y="${qy+18}" fill="var(--gen)" font-size="7.5" text-anchor="middle" font-family="JetBrains Mono" font-weight="700">QUERY</text>`));
+  }
+}
+
+STEPS.query=[
+  { // 0 提问
+    badge:'STEP 1', cls:'gen', title:'① 用户提出问题',
+    text:`一个自然语言问题进入系统：<b>“${QUERY_TXT}”</b>。系统不会直接去问大模型 —— 而是先去知识库里<b>找证据</b>。`,
+    run(){ buildQueryLayout(); setTimeout(()=>document.getElementById('qbar').classList.add('show'),60); qvspaceNodes({}); }
+  },
+  { // 1 双重处理
+    badge:'STEP 2', cls:'', title:'② Query 同时走两条路',
+    text:'问题被<b>一式两份</b>处理：一份用同一个 Embedding 模型转成<b style="color:var(--sem)">查询向量</b>（喂给语义检索）；一份做<b style="color:var(--lex)">分词</b>，提取关键词（喂给 BM25）。这就是<b>多路召回</b>的起点。',
+    run(){ buildQueryLayout(); document.getElementById('qbar').classList.add('show');
+      document.getElementById('lane-sem').classList.add('live');
+      document.getElementById('lane-lex').classList.add('live');
+      qvspaceNodes({query:true});
+      const lp=document.getElementById('lex-posting');
+      ['混合','检索','合并','两路'].forEach((t,i)=>setTimeout(()=>{
+        lp.appendChild(el(`<div class="posting show"><span class="term">${t}</span><span class="arrow">→</span><span class="ids"></span></div>`));
+      },i*120));
+    }
+  },
+  { // 2 语义召回
+    badge:'STEP 3', cls:'', title:'③ 语义检索：在向量空间找最近邻',
+    text:'查询向量落进同一个语义空间，向四周搜索<b>距离最近</b>的 chunk（余弦相似度）。注意它能召回 <code>C2</code> 这种<b>没有字面重合</b>、但意思相关的片段 —— 这是关键词检索做不到的。',
+    run(){ buildQueryLayout(); document.getElementById('qbar').classList.add('show');
+      document.getElementById('lane-sem').classList.add('live'); document.getElementById('lane-lex').classList.add('live');
+      qvspaceNodes({query:true,ring:true,hits:true,lines:true});
+      const lp=document.getElementById('lex-posting');['混合','检索','合并','两路'].forEach(t=>lp.appendChild(el(`<div class="posting show"><span class="term">${t}</span></div>`)));
+      const sr=document.getElementById('sem-results');
+      SEM_HITS.forEach((h,i)=>setTimeout(()=>{
+        sr.appendChild(el(`<div class="rrow sem show"><span class="rk">#${i+1}</span><span class="rid">${h.id}</span><span class="rtxt">${h.txt}</span><span class="sc">${h.sc}</span></div>`));
+      },i*140));
+    }
+  },
+  { // 3 关键词召回
+    badge:'STEP 4', cls:'lex', title:'④ 关键词检索：BM25 精确匹配',
+    text:'另一路在<b>倒排索引</b>里查关键词，用 BM25 按词频/稀有度打分。它对<b>“混合检索”“RRF”</b>这类精确字面命中特别敏感，能稳稳召回 <code>C5</code> 这种语义路漏掉的片段。',
+    run(){ buildQueryLayout(); document.getElementById('qbar').classList.add('show');
+      document.getElementById('lane-sem').classList.add('live'); document.getElementById('lane-lex').classList.add('live');
+      qvspaceNodes({query:true,hits:true,lines:true});
+      document.getElementById('sem-results').innerHTML=SEM_HITS.map((h,i)=>`<div class="rrow sem show"><span class="rk">#${i+1}</span><span class="rid">${h.id}</span><span class="rtxt">${h.txt}</span><span class="sc">${h.sc}</span></div>`).join('');
+      const lp=document.getElementById('lex-posting');
+      const post={'混合':['C7'],'检索':['C1','C6','C7'],'融合':['C7','C8'],'倒排':['C5']};
+      Object.entries(post).forEach(([t,ids],i)=>setTimeout(()=>{
+        const idsHtml=ids.map(id=>`<span class="pid hit">${id}</span>`).join('');
+        lp.appendChild(el(`<div class="posting show"><span class="term">${t}</span><span class="arrow">→</span><span class="ids">${idsHtml}</span></div>`));
+      },i*110));
+      const lr=document.getElementById('lex-results');
+      LEX_HITS.forEach((h,i)=>setTimeout(()=>{
+        lr.appendChild(el(`<div class="rrow lex show"><span class="rk">#${i+1}</span><span class="rid">${h.id}</span><span class="rtxt">${h.txt}</span><span class="sc">${h.sc}</span></div>`));
+      },i*150+200));
+    }
+  },
+  { // 4 融合
+    badge:'STEP 5', cls:'fuse', title:'⑤ RRF 融合：两路结果合并去重',
+    text:'两路打分<b>量纲不同</b>（余弦 0~1 vs BM25 分值），不能直接相加。<code>RRF</code> 只看每个 chunk 在各路里的<b>排名位次</b>来打分合并 —— 既被语义又被关键词命中的 <b style="color:var(--fuse)">C7 / C8 排到最前</b>。',
+    run(){ buildQueryLayout(); document.getElementById('qbar').classList.add('show');
+      document.getElementById('lane-sem').classList.add('live'); document.getElementById('lane-lex').classList.add('live');
+      qvspaceNodes({query:true,hits:true});
+      document.getElementById('sem-results').innerHTML=SEM_HITS.map((h,i)=>`<div class="rrow sem show"><span class="rk">#${i+1}</span><span class="rid">${h.id}</span><span class="rtxt">${h.txt}</span><span class="sc">${h.sc}</span></div>`).join('');
+      document.getElementById('lex-results').innerHTML=LEX_HITS.map((h,i)=>`<div class="rrow lex show"><span class="rk">#${i+1}</span><span class="rid">${h.id}</span><span class="rtxt">${h.txt}</span><span class="sc">${h.sc}</span></div>`).join('');
+      document.getElementById('fusebox').classList.add('live');
+      const fr=document.getElementById('fuse-results');
+      FUSED.forEach((f,i)=>setTimeout(()=>{
+        const srcTag=f.src==='both'?'<span class="tag s">语义</span><span class="tag l">关键词</span>':(f.src==='sem'?'<span class="tag s">语义</span>':'<span class="tag l">关键词</span>');
+        fr.appendChild(el(`<div class="frow from${f.src} show"><span class="rid">${f.id}</span><span class="rtxt" style="color:var(--txt-dim);flex:1;margin-left:8px;font-size:11.5px">RRF score</span><span class="src">${srcTag}</span><span class="sc">${f.sc}</span></div>`));
+      },i*150));
+    }
+  },
+  { // 5 重排
+    badge:'STEP 6', cls:'fuse', title:'⑥ Rerank 精排：交叉编码器逐条打分',
+    text:'融合给了一个粗排候选集。<code>Rerank</code> 模型（交叉编码器）把 <b>Query 和每个候选拼在一起</b>逐对判断相关性，做最后精排。它比向量相似度更准，但更慢，所以只对少量候选用 —— 最终留下 Top-N。',
+    run(){ buildQueryLayout(); document.getElementById('qbar').classList.add('show');
+      document.getElementById('lane-sem').classList.add('live'); document.getElementById('lane-lex').classList.add('live');
+      qvspaceNodes({query:true,hits:true});
+      document.getElementById('sem-results').innerHTML=SEM_HITS.map((h,i)=>`<div class="rrow sem show"><span class="rk">#${i+1}</span><span class="rid">${h.id}</span><span class="rtxt">${h.txt}</span><span class="sc">${h.sc}</span></div>`).join('');
+      document.getElementById('lex-results').innerHTML=LEX_HITS.map((h,i)=>`<div class="rrow lex show"><span class="rk">#${i+1}</span><span class="rid">${h.id}</span><span class="rtxt">${h.txt}</span><span class="sc">${h.sc}</span></div>`).join('');
+      const fb=document.getElementById('fusebox'); fb.classList.add('live');
+      fb.querySelector('h4').innerHTML='<span class="dot" style="background:var(--fuse)"></span>Rerank 精排后 · Top-3 最终上下文';
+      const fr=document.getElementById('fuse-results');
+      RERANKED.forEach((r,i)=>setTimeout(()=>{
+        fr.appendChild(el(`<div class="frow fromboth show"><span class="rk" style="font-family:'JetBrains Mono';font-size:10px;color:var(--txt-faint);width:18px">#${i+1}</span><span class="rid">${r.id}</span><span class="rtxt" style="color:var(--txt-dim);flex:1;margin-left:8px;font-size:11.5px">${r.txt}</span><span class="sc">${r.sc}</span></div>`));
+      },i*170));
+    }
+  },
+  { // 6 生成
+    badge:'STEP 7', cls:'gen', title:'⑦ 拼接上下文 → 大模型生成',
+    text:'精排后的 Top-N 片段拼进 <code>Prompt</code>，连同原始问题一起交给大模型。模型<b>基于检索到的证据</b>作答，而不是凭记忆瞎编 —— 这就是 RAG「检索增强生成」的全部意义：<b>答案有据可查、可追溯</b>。',
+    run(){ buildQueryLayout(); document.getElementById('qbar').classList.add('show');
+      document.getElementById('lane-sem').classList.add('live'); document.getElementById('lane-lex').classList.add('live');
+      qvspaceNodes({query:true,hits:true});
+      document.getElementById('sem-results').innerHTML=SEM_HITS.map((h,i)=>`<div class="rrow sem show"><span class="rk">#${i+1}</span><span class="rid">${h.id}</span><span class="rtxt">${h.txt}</span><span class="sc">${h.sc}</span></div>`).join('');
+      document.getElementById('lex-results').innerHTML=LEX_HITS.map((h,i)=>`<div class="rrow lex show"><span class="rk">#${i+1}</span><span class="rid">${h.id}</span><span class="rtxt">${h.txt}</span><span class="sc">${h.sc}</span></div>`).join('');
+      const fb=document.getElementById('fusebox'); fb.classList.add('live');
+      fb.querySelector('h4').innerHTML='<span class="dot" style="background:var(--fuse)"></span>最终上下文 · Top-3';
+      document.getElementById('fuse-results').innerHTML=RERANKED.map((r,i)=>`<div class="frow fromboth show"><span class="rk" style="font-family:'JetBrains Mono';font-size:10px;color:var(--txt-faint);width:18px">#${i+1}</span><span class="rid">${r.id}</span><span class="rtxt" style="color:var(--txt-dim);flex:1;margin-left:8px;font-size:11.5px">${r.txt}</span><span class="sc">${r.sc}</span></div>`).join('');
+      const gb=document.getElementById('genbox'); gb.classList.add('live');
+      document.getElementById('gen-ctx').innerHTML=`<span class="lbl">PROMPT ↓</span><br>已知以下资料：<br>· <b>C8</b> RRF 倒数排名融合无需调权重即可合并多路<br>· <b>C7</b> 混合检索把语义与关键词两路结果融合<br>· <b>C9</b> Rerank 交叉编码器对候选做精排<br>请回答：${QUERY_TXT}`;
+      const ans='混合检索先让语义（向量）和关键词（BM25）两路<b>各自召回</b>一批候选，再用 RRF 按每路的<b>排名位次</b>合并打分、去重，最后由 Rerank 模型逐条精排，取 Top-N 作为上下文。';
+      typeAnswer(ans);
+    }
+  },
+];
+
+function typeAnswer(html){
+  const box=document.getElementById('gen-ans'); if(!box)return;
+  box.innerHTML='<span class="cursor"></span>';
+  const tmp=document.createElement('div'); tmp.innerHTML=html;
+  const text=tmp.textContent; let i=0;
+  // 简单按纯文本逐字，最后替换为带样式版本
+  const tick=setInterval(()=>{
+    i+=2;
+    box.innerHTML=text.slice(0,i)+'<span class="cursor"></span>';
+    if(i>=text.length){clearInterval(tick); box.innerHTML=html;}
+  },22);
+}
+
+/* ============================================================
+   控制器
+   ============================================================ */
+const stageTitle=document.getElementById('stageTitle');
+const stepBadge=document.getElementById('stepBadge');
+const progress=document.getElementById('progress');
+
+function totalSteps(){return STEPS[phase].length;}
+function render(){
+  const s=STEPS[phase][step];
+  stepBadge.textContent=`STEP ${step+1} / ${totalSteps()}`;
+  stageTitle.textContent = phase==='index' ? 'INDEXING PIPELINE / 离线建库' : 'QUERY & RETRIEVAL / 在线召回生成';
+  setExplain(s.badge,s.cls,s.title,s.text);
+  renderFacts();
+  s.run();
+  // progress dots
+  progress.innerHTML='';
+  for(let i=0;i<totalSteps();i++){
+    const d=el(`<div class="pdot ${i<step?'done':''} ${i===step?'cur':''}"></div>`);
+    d.onclick=()=>{stop();step=i;render();};
+    progress.appendChild(d);
+  }
+  document.getElementById('nextBtn').disabled = step>=totalSteps()-1;
+}
+function next(){ if(step<totalSteps()-1){step++;render();} else stop(); }
+function play(){
+  if(playing){stop();return;}
+  playing=true; document.getElementById('playBtn').textContent='⏸ 暂停';
+  if(step>=totalSteps()-1){step=0;render();}
+  playTimer=setInterval(()=>{
+    if(step>=totalSteps()-1){stop();return;}
+    step++;render();
+  },2600);
+}
+function stop(){ playing=false; clearInterval(playTimer); document.getElementById('playBtn').textContent='▶ 播放'; }
+function reset(){ stop(); step=0; render(); }
+
+document.getElementById('playBtn').onclick=play;
+document.getElementById('nextBtn').onclick=()=>{stop();next();};
+document.getElementById('resetBtn').onclick=reset;
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    stop();
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    phase=t.dataset.phase; step=0; render();
+  };
+});
+
+render();
+</script>
+</body>
+</html>
