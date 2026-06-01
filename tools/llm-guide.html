@@ -5,7 +5,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>LLM 物理 × 逻辑 全景图解</title>
-<meta name="description" content="从显卡到神经网络，从训练到推理，8 个维度完整拆解 LLM 的物理硬件与逻辑算法" />
+<meta name="description" content="从显卡到神经网络，从训练到推理，20 个维度完整拆解 LLM 的物理硬件与逻辑算法" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
@@ -34,6 +34,7 @@ const TABS=[
 {id:"journey",label:"一次推理",icon:"🚀"},
 {id:"sample",label:"采样策略",icon:"🎲"},
 {id:"attn",label:"Attention",icon:"🔍"},
+{id:"msa",label:"MSA稀疏注意力",icon:"🧭"},
 {id:"rope",label:"RoPE 旋转",icon:"🌀"},
 {id:"memory",label:"存储金字塔",icon:"🏔️"},
 {id:"tvsi",label:"训练vs推理",icon:"⚖️"},
@@ -74,7 +75,6 @@ return <div>
 {Object.entries(modes).map(([k,v])=><button key={k} onClick={()=>setMode(k)} style={{padding:"6px 12px",borderRadius:7,fontSize:11,fontWeight:600,cursor:"pointer",border:mode===k?"1.5px solid "+C.blue:"1.5px solid #333",background:mode===k?C.blue+"15":"transparent",color:mode===k?C.blue:"#888"}}>{v}</button>)}
 </div>
 
-```
 <Card>
   <svg viewBox="0 0 720 540" style={{width:"100%",height:"auto"}}>
     <defs>
@@ -294,7 +294,6 @@ return <div>
     {isT&&<>💡 <Acc c={C.purple}>训练</Acc>不需要 KV Cache。显存被权重、梯度、优化器状态（Adam m+v ≈ 2× 权重）、激活值占满。通常需要 <Acc c={C.purple}>多卡并行</Acc>（TP + DP + ZeRO）。</>}
   </div>
 </Card>
-```
 
   </div>;
 }
@@ -334,7 +333,6 @@ return <div>
 </div>
 </Card>
 
-```
 {/* Time bar */}
 <Card style={{padding:12}}>
   <div style={{display:"flex",gap:1,height:20,borderRadius:6,overflow:"hidden"}}>
@@ -369,7 +367,6 @@ return <div>
     </Card>
   </div>;
 })}
-```
 
   </div>;
 }
@@ -432,7 +429,6 @@ return <div>
 <div style={{fontSize:11,color:"#bbb",lineHeight:1.8}}>对于当前位置，算出它应该"关注"序列中哪些位置，然后把那些位置的信息加权求和。</div>
 </Card>
 
-```
 {/* Animated attention heatmap */}
 <Card>
   <Label>🔥 Attention 权重热力图（自动播放 · 逐行高亮）</Label>
@@ -561,6 +557,15 @@ return <div>
 </Card>
 
 <Card color={C.cyan}>
+  <div style={{fontSize:12,fontWeight:600,color:C.cyan,marginBottom:6}}>MSA：在 GQA/MQA 之后再做一层“选块”</div>
+  <div style={{fontSize:11,color:"#bbb",lineHeight:1.8}}>
+    MHA/GQA/MQA 改的是 <Acc c={C.orange}>KV heads 数量</Acc>；
+    MiniMax M3 的 MSA 改的是长上下文里 <Acc c={C.green}>每一步读取哪些 KV blocks</Acc>。
+    继续看 <Acc c={C.cyan}>MSA 稀疏注意力</Acc> tab，可以看到 index branch 和 sparse branch 如何配合。
+  </div>
+</Card>
+
+<Card color={C.cyan}>
   <div style={{fontSize:12,fontWeight:600,color:C.cyan,marginBottom:6}}>Flash Attention：算法 × 硬件协同</div>
   <div style={{fontSize:11,color:"#bbb",lineHeight:1.8}}>
     标准 Attention 存 <Acc c={C.red}>[seq,seq]</Acc> attention 矩阵到 HBM → 长序列显存爆炸。
@@ -568,12 +573,176 @@ return <div>
     不写回完整矩阵 → <Acc c={C.green}>显存 O(N)，速度更快</Acc>。
   </div>
 </Card>
-```
 
   </div>;
 }
 
-// ─── 4. MEMORY HIERARCHY ────────────────────────────────────────────
+// ─── 4. MINIMAX M3 MSA ──────────────────────────────────────────────
+function MSA() {
+const [ctx,setCtx]=useState("512K");
+const [topK,setTopK]=useState(8);
+const [phase,setPhase]=useState(0);
+useEffect(()=>{const t=setInterval(()=>setPhase(p=>(p+1)%3),1300);return()=>clearInterval(t);},[]);
+
+const CTX={"32K":8,"128K":32,"512K":128,"1M":256};
+const totalBlocks=CTX[ctx];
+const visBlocks=24;
+const shownK=Math.min(topK,visBlocks);
+const selected=Array.from({length:shownK},(_,i)=>(3+i*7)%visBlocks);
+const selectedSet=new Set(selected);
+const sparsePct=Math.min(100, topK/totalBlocks*100);
+const relative=Math.max(1,Math.round(totalBlocks/topK));
+const phaseCopy=[
+  {t:"1. Index Branch",d:"用轻量 index Q/KV 先给历史 KV blocks 打分",c:C.cyan},
+  {t:"2. Top-k Blocks",d:"block max pool 后只保留最相关的 KV block id",c:C.orange},
+  {t:"3. Sparse Branch",d:"真正的 Q heads 只 gather 命中的 KV blocks 做 attention",c:C.green},
+][phase];
+
+const Box=({x,y,w,h,c,label,sub,active})=><g>
+  <rect x={x} y={y} width={w} height={h} rx="8" fill={c+"10"} stroke={c} strokeWidth={active?1.6:0.9} opacity={active?1:0.78}>
+    {active&&<animate attributeName="stroke-opacity" values="1;0.35;1" dur="1.1s" repeatCount="indefinite"/>}
+  </rect>
+  <text x={x+w/2} y={y+22} textAnchor="middle" fill={c} fontSize="9" fontWeight="700">{label}</text>
+  {sub&&<text x={x+w/2} y={y+38} textAnchor="middle" fill="#777" fontSize="7">{sub}</text>}
+</g>;
+
+const Arrow=({x1,y1,x2,y2,c})=><g>
+  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={c} strokeWidth="1.2" strokeDasharray="4 3" opacity="0.65"/>
+  <path d={`M${x2-6},${y2-4} L${x2},${y2} L${x2-6},${y2+4}`} fill="none" stroke={c} strokeWidth="1.2"/>
+</g>;
+
+return <div>
+<Card color={C.cyan}>
+  <div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"flex-start",flexWrap:"wrap"}}>
+    <div style={{minWidth:220,flex:1}}>
+      <div style={{fontSize:13,fontWeight:700,color:C.cyan,marginBottom:7}}>MiniMax M3 的 MSA：先找块，再注意力</div>
+      <div style={{fontSize:11,color:"#bbb",lineHeight:1.8}}>
+        MSA（MiniMax Sparse Attention）不是把 KV Cache 存小，而是让长上下文 decode 时不用每步扫描全部历史 KV。
+        它先用 <Acc c={C.cyan}>Index Branch</Acc> 选出相关 KV blocks，再让 <Acc c={C.green}>Sparse Branch</Acc> 只读这些 blocks。
+      </div>
+    </div>
+    <div style={{fontSize:10,color:"#666",lineHeight:1.8,textAlign:"right"}}>
+      <a href="https://www.minimax.io/blog/minimax-m3" target="_blank" rel="noreferrer" style={{color:C.cyan}}>MiniMax M3 blog</a><br/>
+      1M context · MSA · MoE
+    </div>
+  </div>
+</Card>
+
+<Card>
+  <Label>交互参数</Label>
+  <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:10}}>
+    {Object.keys(CTX).map(k=><button key={k} onClick={()=>setCtx(k)} style={{padding:"6px 11px",borderRadius:7,fontSize:11,fontWeight:700,cursor:"pointer",border:ctx===k?`1.5px solid ${C.cyan}`:"1.5px solid #333",background:ctx===k?C.cyan+"15":"transparent",color:ctx===k?C.cyan:"#888",...M}}>{k}</button>)}
+  </div>
+  <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
+    <span style={{fontSize:10,color:"#777"}}>Top-k blocks</span>
+    {[2,4,8,16].map(k=><button key={k} onClick={()=>setTopK(k)} style={{padding:"5px 10px",borderRadius:6,fontSize:10,fontWeight:700,cursor:"pointer",border:topK===k?`1.5px solid ${C.orange}`:"1.5px solid #333",background:topK===k?C.orange+"15":"transparent",color:topK===k?C.orange:"#888",...M}}>{k}</button>)}
+  </div>
+</Card>
+
+<Card>
+  <svg viewBox="0 0 720 420" style={{width:"100%",height:"auto"}}>
+    <defs>
+      <linearGradient id="msaGrad" x1="0" x2="1">
+        <stop offset="0%" stopColor={C.cyan}/>
+        <stop offset="50%" stopColor={C.orange}/>
+        <stop offset="100%" stopColor={C.green}/>
+      </linearGradient>
+    </defs>
+
+    <text x="360" y="18" textAnchor="middle" fill="#777" fontSize="9" fontWeight="600">
+      {phaseCopy.t} · {phaseCopy.d}
+    </text>
+
+    {/* Dense attention baseline */}
+    <rect x="12" y="40" width="190" height="160" rx="12" fill="rgba(255,255,255,0.02)" stroke={C.purple+"35"} strokeWidth="1"/>
+    <text x="26" y="62" fill={C.purple} fontSize="10" fontWeight="700">Full Attention</text>
+    <text x="26" y="78" fill="#666" fontSize="7">每个 query 看所有 KV blocks</text>
+    {Array.from({length:12}).map((_,r)=>Array.from({length:12}).map((_,c)=>{
+      const op=c<=r?0.15+(c/12)*0.28:0.025;
+      return <rect key={r+"-"+c} x={32+c*12} y={95+r*7} width="9" height="5" rx="1.5" fill={c<=r?C.purple:"#333"} opacity={op}/>;
+    }))}
+    <text x="107" y="185" textAnchor="middle" fill="#777" fontSize="8" fontWeight="600">O(N²) / all blocks</text>
+
+    {/* Index branch */}
+    <rect x="235" y="40" width="225" height="160" rx="12" fill={C.cyan+"05"} stroke={phase===0?C.cyan:C.cyan+"35"} strokeWidth={phase===0?1.5:1}/>
+    <text x="250" y="62" fill={C.cyan} fontSize="10" fontWeight="700">Index Branch</text>
+    <text x="250" y="78" fill="#666" fontSize="7">cheap scout：先给 blocks 排名</text>
+    <Box x="254" y="98" w="78" h="48" c={C.cyan} label="Q_idx" sub="per GQA group" active={phase===0}/>
+    <Box x="364" y="98" w="78" h="48" c={C.blue} label="K/V_idx" sub="index KV" active={phase===0}/>
+    <Arrow x1="332" y1="122" x2="364" y2="122" c={C.cyan}/>
+    <rect x="278" y="158" width="140" height="24" rx="6" fill={C.orange+"12"} stroke={phase===1?C.orange:C.orange+"35"} strokeWidth={phase===1?1.5:1}/>
+    <text x="348" y="174" textAnchor="middle" fill={C.orange} fontSize="8" fontWeight="700">block max pool → top-k ids</text>
+
+    {/* Sparse branch */}
+    <rect x="494" y="40" width="214" height="160" rx="12" fill={C.green+"05"} stroke={phase===2?C.green:C.green+"35"} strokeWidth={phase===2?1.5:1}/>
+    <text x="510" y="62" fill={C.green} fontSize="10" fontWeight="700">Sparse Branch</text>
+    <text x="510" y="78" fill="#666" fontSize="7">真实 Q heads 只读命中的 KV blocks</text>
+    <Box x="512" y="100" w="70" h="48" c={C.blue} label="Q heads" sub="regular Q" active={phase===2}/>
+    <Box x="622" y="100" w="70" h="48" c={C.green} label="Sparse" sub="attention" active={phase===2}/>
+    <Arrow x1="582" y1="124" x2="622" y2="124" c={C.green}/>
+    <text x="602" y="177" textAnchor="middle" fill={C.green} fontSize="8" fontWeight="700">gather selected KV blocks once</text>
+
+    <Arrow x1="202" y1="120" x2="235" y2="120" c={C.cyan}/>
+    <Arrow x1="460" y1="120" x2="494" y2="120" c={C.green}/>
+
+    {/* KV block strip */}
+    <rect x="12" y="235" width="696" height="120" rx="12" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.06)" strokeWidth="1"/>
+    <text x="26" y="258" fill={C.orange} fontSize="10" fontWeight="700">KV Cache blocks（概念视图）</text>
+    <text x="26" y="274" fill="#666" fontSize="7">KV 仍然保存在 HBM；MSA 减少的是每一步 attention 需要读取/计算的 block 数。</text>
+    {Array.from({length:visBlocks}).map((_,i)=>{
+      const sel=selectedSet.has(i);
+      const x=28+i*27;
+      return <g key={i}>
+        <rect x={x} y="292" width="20" height="38" rx="4" fill={sel?C.orange:"rgba(255,255,255,0.06)"} stroke={sel?C.orange:"rgba(255,255,255,0.08)"} opacity={sel?0.85:0.52}>
+          {sel&&phase===1&&<animate attributeName="opacity" values="0.45;1;0.45" dur="1.2s" repeatCount="indefinite"/>}
+        </rect>
+        {sel&&<line x1={x+10} y1="292" x2="602" y2="194" stroke={C.orange} strokeWidth="0.5" opacity="0.25" strokeDasharray="2 2"/>}
+      </g>;
+    })}
+    <text x="360" y="344" textAnchor="middle" fill="#777" fontSize="8">可视化只画 24 个块；当前 {ctx} 约 {totalBlocks} 个逻辑块，MSA 选择 top-{topK}</text>
+
+    {/* Metric footer */}
+    <rect x="12" y="372" width="215" height="34" rx="8" fill={C.red+"08"} stroke={C.red+"25"}/>
+    <text x="26" y="392" fill={C.red} fontSize="9" fontWeight="700">Full read</text>
+    <text x="105" y="392" fill="#aaa" fontSize="9">~{totalBlocks} blocks / step</text>
+    <rect x="252" y="372" width="215" height="34" rx="8" fill={C.green+"08"} stroke={C.green+"25"}/>
+    <text x="266" y="392" fill={C.green} fontSize="9" fontWeight="700">MSA read</text>
+    <text x="345" y="392" fill="#aaa" fontSize="9">top-{topK} blocks · {sparsePct.toFixed(1)}%</text>
+    <rect x="492" y="372" width="216" height="34" rx="8" fill={C.cyan+"08"} stroke={C.cyan+"25"}/>
+    <text x="506" y="392" fill={C.cyan} fontSize="9" fontWeight="700">Conceptual cut</text>
+    <text x="604" y="392" fill="#aaa" fontSize="9">~{relative}× fewer block reads</text>
+  </svg>
+</Card>
+
+<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))",gap:10}}>
+  <Card color={C.orange} style={{marginBottom:0}}>
+    <div style={{fontSize:12,fontWeight:700,color:C.orange,marginBottom:6}}>它和 GQA/MQA 不同</div>
+    <div style={{fontSize:10,color:"#bbb",lineHeight:1.8}}>
+      GQA/MQA 是减少 <Acc c={C.orange}>KV heads</Acc>，让 KV Cache 变小；MSA 是在长上下文里选择 <Acc c={C.green}>哪些 KV blocks 值得读</Acc>。
+      两者可以叠加，M3 图里也是基于 GQA-style groups 做 block 选择。
+    </div>
+  </Card>
+  <Card color={C.green} style={{marginBottom:0}}>
+    <div style={{fontSize:12,fontWeight:700,color:C.green,marginBottom:6}}>它适合解释什么</div>
+    <div style={{fontSize:10,color:"#bbb",lineHeight:1.8}}>
+      长代码仓库、长文档、RAG 历史上下文、agent 轨迹。上下文越长，full attention 越像全表扫描，MSA 则像先建索引再查相关块。
+    </div>
+  </Card>
+</div>
+
+<Card color={C.purple}>
+  <Label>放进系统视角：长上下文的三层优化</Label>
+  <Row l="KV Cache 管理" v="PagedAttention / block table" c={C.blue}/>
+  <Row l="KV Cache 形状" v="GQA / MQA 减少 KV heads" c={C.orange}/>
+  <Row l="Attention 读取路径" v="MSA 只 gather top-k KV blocks" c={C.green}/>
+  <div style={{fontSize:10,color:"#777",lineHeight:1.8,marginTop:8}}>
+    这也是为什么 MSA 应该作为独立 Attention tab，而不是塞进 KV Cache：它改变的是 <Acc c={C.green}>读哪些历史块</Acc>，不是简单改变 cache 的容量公式。
+  </div>
+</Card>
+</div>;
+}
+
+// ─── 5. MEMORY HIERARCHY ────────────────────────────────────────────
 function MemPyramid() {
 const [anim,setAnim]=useState(false);
 useEffect(()=>{setTimeout(()=>setAnim(true),300);},[]);
@@ -592,7 +761,6 @@ return <div>
 <div style={{fontSize:11,color:"#bbb",lineHeight:1.7}}>LLM 性能瓶颈往往在<Acc c={C.red}>数据搬运</Acc>而非计算。</div>
 </Card>
 
-```
 {layers.map((l,i)=>(
   <Card key={i} style={{marginBottom:8}}>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
@@ -630,7 +798,6 @@ return <div>
     <Acc c={C.yellow}>Flash Attention</Acc> 利用 SRAM 19TB/s 分块，减少 HBM 读写
   </div>
 </Card>
-```
 
   </div>;
 }
@@ -662,7 +829,6 @@ return <div>
 <button onClick={()=>setMode("infer")} style={{flex:1,padding:"10px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",border:mode==="infer"?`2px solid ${C.orange}`:"2px solid #333",background:mode==="infer"?C.orange+"15":"transparent",color:mode==="infer"?C.orange:"#888",transition:"all 0.3s"}}>🚀 推理</button>
 </div>
 
-```
 {/* Animated memory fill */}
 <Card>
   <Label>70B 模型 FP16 · GPU 显存占用（动画）</Label>
@@ -713,7 +879,6 @@ return <div>
     训练时<Acc c={C.green}>所有 token 同时已知</Acc>（teacher forcing），一次矩阵乘法并行算 Q·K<sup>T</sup>，用 causal mask 遮住未来即可。推理时必须逐 token 生成（自回归），所以需要 KV Cache 避免重复计算。
   </div>
 </Card>
-```
 
   </div>;
 }
@@ -740,7 +905,6 @@ return <div>
 )}
 </div>
 
-```
 {/* Animated GPU diagram */}
 <Card>
   <div style={{display:"flex",gap:6,marginBottom:10}}>
@@ -821,7 +985,6 @@ return <div>
     <div style={{marginTop:8}}><Tag c={C.green}>显存效率最高</Tag><Tag c={C.orange}>通信量更大</Tag><Tag c={C.purple}>DeepSpeed / FSDP</Tag></div>
   </div>}
 </Card>
-```
 
   </div>;
 }
@@ -876,6 +1039,7 @@ const tips=[
 {t:"Flash Attention",c:C.yellow,i:"⚡",d:"利用 SRAM tiling 做 attention，内存 O(N) 速度更快",x:"避免 [seq,seq] attention 矩阵写回 HBM。Tri Dao 论文。现已是标配。"},
 {t:"量化 (INT8/INT4/FP8)",c:C.green,i:"🗜️",d:"权重和/或 KV Cache 量化，显存砍半甚至 1/4",x:"GPTQ/AWQ 权重量化 + vLLM FP8 KV Cache。INT8 几乎无损。"},
 {t:"GQA / MQA",c:C.purple,i:"🎯",d:"减少 KV heads 数量，KV Cache 缩小 4-8×",x:"GQA(32Q+8KV) → Cache 缩小4×。Llama3/Qwen2/Claude 都在用。"},
+{t:"MSA 稀疏注意力",c:C.cyan,i:"🧭",d:"长上下文下先选 KV blocks，再只对相关块做 attention",x:"MiniMax M3 使用的思路：Index Branch 负责选 top-k blocks，Sparse Branch gather 命中的 KV blocks。它减少的是每步读写/计算，不是简单让 KV Cache 变小。"},
 {t:"Speculative Decoding",c:C.red,i:"🏃",d:"小模型猜 N token，大模型一次验证，吞吐 2-3×",x:"验证是并行的（类似 prefill），猜错无额外成本。"},
 {t:"Sliding Window",c:C.pink,i:"🪟",d:"只保留最近 N 个 KV + sink tokens，支持无限长生成",x:"Mistral 4096 window。StreamingLLM 保留开头 4 token + 窗口。"},
 ];
@@ -1181,7 +1345,8 @@ function Evolve() {
     {y:"2024.09", n:"o1 / o1-preview",        org:"OpenAI",     c:C.purple, tag:"reasoning", params:"未公开",  k:"测试时计算 + 长链思考（CoT inside），首个 reasoning 模型"},
     {y:"2024.12", n:"DeepSeek V3",            org:"DeepSeek",   c:C.cyan,   tag:"性价比",    params:"671B/37B 激活", k:"开源 671B MoE，FP8 训练，5.6M 美元训完，挑战闭源"},
     {y:"2025.01", n:"DeepSeek R1",            org:"DeepSeek",   c:C.cyan,   tag:"开源 reasoning", params:"671B MoE", k:"纯 RL（GRPO）激发推理 · 蒸馏到小模型也强 · 推动行业范式"},
-    {y:"2025+",   n:"Claude 4 / GPT-5",       org:"前沿",        c:C.pink,   tag:"agentic",  params:"未公开",  k:"长程任务、原生工具使用、记忆 · 进入\"代你做事\"阶段"},
+    {y:"2026.06", n:"MiniMax M3",             org:"MiniMax",    c:C.cyan,   tag:"MSA 长上下文", params:"MoE · 80B 激活", k:"MiniMax Sparse Attention：1M context 下用 index branch 选择 KV blocks，再做 sparse attention"},
+    {y:"2026+",   n:"Claude 4 / GPT-5",       org:"前沿",        c:C.pink,   tag:"agentic",  params:"未公开",  k:"长程任务、原生工具使用、记忆 · 进入\"代你做事\"阶段"},
   ];
 
   useEffect(() => {
@@ -2326,7 +2491,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 <div style={{padding:"24px 16px 12px",textAlign:"center"}}>
 <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center top,rgba(91,141,239,0.08) 0%,transparent 60%)",pointerEvents:"none"}}/>
 <h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
-<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 19 个维度完整拆解</p>
+<p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 20 个维度完整拆解</p>
 </div>
 <div className="tabs-wrap" style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
 <div className="tabs-bar" style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
@@ -2339,6 +2504,7 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 {sec==="journey"&&<><div style={{fontSize:16,fontWeight:700,color:C.green,marginBottom:12}}>🚀 一次推理的完整旅程</div><Journey/></>}
 {sec==="sample"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🎲 采样策略：把 logits 摇成 token</div><Sampling/></>}
 {sec==="attn"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>🔍 Attention 机制内部</div><AttnDetail/></>}
+{sec==="msa"&&<><div style={{fontSize:16,fontWeight:700,color:C.cyan,marginBottom:12}}>🧭 MiniMax M3：MSA 稀疏注意力</div><MSA/></>}
 {sec==="rope"&&<><div style={{fontSize:16,fontWeight:700,color:C.cyan,marginBottom:12}}>🌀 RoPE：把 Q/K 旋转编码位置</div><RoPE/></>}
 {sec==="memory"&&<><div style={{fontSize:16,fontWeight:700,color:C.red,marginBottom:12}}>🏔️ 存储金字塔</div><MemPyramid/></>}
 {sec==="tvsi"&&<><div style={{fontSize:16,fontWeight:700,color:C.purple,marginBottom:12}}>⚖️ 训练 vs 推理</div><TrainVsInfer/></>}
