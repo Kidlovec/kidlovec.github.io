@@ -2483,8 +2483,10 @@ function Tokenize() {
 // ─── MAIN APP ───────────────────────────────────────────────────────
 function App() {
 const [sec,setSec]=useState("arch");
+const [menuOpen,setMenuOpen]=useState(false);
 const ref=useRef(null);
-const go=id=>{setSec(id);ref.current?.scrollIntoView({behavior:"smooth"});};
+const activeTab=TABS.find(t=>t.id===sec)||TABS[0];
+const go=id=>{setSec(id);setMenuOpen(false);ref.current?.scrollIntoView({behavior:"smooth"});};
 
 return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontFamily:"'IBM Plex Sans','Noto Sans SC',system-ui,sans-serif"}}>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -2493,7 +2495,13 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 <h1 style={{fontSize:20,fontWeight:700,margin:0,background:"linear-gradient(135deg,#5B8DEF,#F5A623,#E85D75)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",position:"relative"}}>LLM 物理 × 逻辑 全景图解</h1>
 <p style={{fontSize:11,color:"#666",marginTop:5,position:"relative"}}>从显卡到神经网络 · 从训练到推理 · 20 个维度完整拆解</p>
 </div>
-<div className="tabs-wrap" style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
+<div className={"tabs-wrap "+(menuOpen?"is-open":"is-closed")} style={{position:"sticky",top:0,zIndex:10,background:"#08080f",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"6px 0",marginBottom:14}}>
+<div className="tabs-mobile-toggle">
+  <button type="button" onClick={()=>setMenuOpen(o=>!o)} aria-expanded={menuOpen} aria-label={menuOpen?"收起章节目录":"展开章节目录"}>
+    <span className="tabs-mobile-current">{activeTab.icon} {activeTab.label}</span>
+    <span className="tabs-mobile-action">{menuOpen?"收起":"目录"}</span>
+  </button>
+</div>
 <div className="tabs-bar" style={{maxWidth:740,margin:"0 auto",padding:"0 8px",display:"flex",gap:3,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
 {TABS.map(s=><button key={s.id} className="tab-btn" onClick={()=>go(s.id)} style={{padding:"5px 8px",borderRadius:6,fontSize:10,fontWeight:600,cursor:"pointer",border:sec===s.id?"1.5px solid #5B8DEF":"1.5px solid transparent",background:sec===s.id?"rgba(91,141,239,0.12)":"transparent",color:sec===s.id?"#5B8DEF":"#777",whiteSpace:"nowrap",flexShrink:0}}>{s.icon} {s.label}</button>)}
 </div>
@@ -2533,12 +2541,19 @@ return <div style={{minHeight:"100vh",background:"#08080f",color:"#d8d8e0",fontF
 .tabs-bar{scrollbar-width:thin}
 .tabs-bar::-webkit-scrollbar{height:4px}
 .tabs-bar::-webkit-scrollbar-thumb{background:rgba(91,141,239,0.35);border-radius:2px}
+.tabs-mobile-toggle{display:none}
 
-/* mobile: 5×4 grid so all 19 tabs fit one screen */
+/* mobile: collapsed floating chapter menu */
 @media (max-width:768px){
-  .tabs-bar{display:grid !important;grid-template-columns:repeat(5,1fr) !important;gap:3px;overflow:visible !important;padding:0 6px !important}
-  .tab-btn{font-size:9px !important;padding:5px 3px !important;white-space:normal !important;line-height:1.25 !important;text-align:center;flex-shrink:0}
+  .tabs-wrap{padding:7px 10px !important;margin-bottom:10px !important;background:rgba(8,8,15,0.94) !important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
   .tabs-wrap::after{display:none}
+  .tabs-mobile-toggle{display:block;max-width:740px;margin:0 auto}
+  .tabs-mobile-toggle button{width:100%;min-height:40px;border-radius:10px;border:1px solid rgba(91,141,239,0.35);background:rgba(91,141,239,0.10);color:#d8d8e0;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 12px;font-size:12px;font-weight:700;font-family:'IBM Plex Sans','Noto Sans SC',system-ui,sans-serif}
+  .tabs-mobile-current{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+  .tabs-mobile-action{flex:none;color:#5B8DEF;font-size:11px;letter-spacing:.08em}
+  .tabs-wrap.is-closed .tabs-bar{display:none !important}
+  .tabs-wrap.is-open .tabs-bar{display:grid !important;grid-template-columns:repeat(4,1fr) !important;gap:4px;max-height:42vh;overflow-y:auto !important;overflow-x:hidden !important;padding:7px 0 1px !important;margin:0 auto !important}
+  .tab-btn{font-size:9px !important;padding:6px 3px !important;white-space:normal !important;line-height:1.22 !important;text-align:center;flex-shrink:0;min-height:36px}
 }
 `}</style>
 
