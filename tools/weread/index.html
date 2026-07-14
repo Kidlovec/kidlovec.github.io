@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN" data-api-base="http://127.0.0.1:4173">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f5f1eb"><meta name="description" content="保护隐私的微信读书个人轨迹与阅读画像工具"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>读迹 · 我的微信读书足迹</title><link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./enhancements.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="tools-return" href="/tools/" aria-label="返回 Tools"><span aria-hidden="true">←</span><b>Tools</b></a>
+    <a class="brand" href="#top" aria-label="读迹首页"><span class="brand-mark">读</span><span>读迹</span></a>
+    <nav><a href="#lifetime">累计读迹</a><a href="#annual">年度报告</a><a href="#shelf">我的书架</a><a href="#notes">笔记分析</a></nav>
+    <button class="connection" id="connection" type="button" aria-haspopup="dialog" aria-controls="keyDialog"><i aria-hidden="true"></i><span>正在检查连接</span></button>
+  </header>
+  <nav class="mobile-nav" aria-label="移动端主导航"><a href="#lifetime">累计读迹</a><a href="#annual">年度报告</a><a href="#shelf">我的书架</a><a href="#notes">笔记分析</a></nav>
+  <main id="top">
+    <div class="sync-banner" id="syncBanner" role="status" aria-live="polite" hidden><span class="sync-spinner" aria-hidden="true"></span><div><strong id="syncTitle">正在同步微信读书</strong><small id="syncDetail">读取年度、月度、书架和笔记数据…</small></div><button id="syncRetry" hidden>重新载入</button></div>
+    <section class="hero">
+      <div class="hero-copy"><p class="eyebrow">WECHAT READING ARCHIVE</p><h1>把读过的每一页，<br><em>留成自己的年轮。</em></h1><p class="lede">从你的微信读书数据中，看见时间、偏好与积累。所有分析只在这台电脑上运行。</p><div class="hero-actions"><button class="primary" id="refresh">载入我的阅读数据 <span>→</span></button><button class="secondary" id="demo">预览演示数据</button></div><p class="privacy">◉ 页面输入的 API Key 只会 POST 到本机 Node 服务并保留在进程内存；不写入 localStorage 或 sessionStorage，重启服务即清除</p></div>
+      <div class="orbit" aria-label="阅读年轮"><div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div><div class="ring r4"></div><div class="orbit-center"><strong id="heroHours">—</strong><span>小时阅读</span></div><span class="orbit-label l1">思考</span><span class="orbit-label l2">文学</span><span class="orbit-label l3">成长</span></div>
+    </section>
+    <section class="lifetime-section" id="lifetime">
+      <div class="lifetime-shell">
+        <div class="lifetime-heading"><p class="eyebrow">MY READING LIFE</p><h2>读迹</h2><p>从注册至今，你在微信读书留下的时间、读物与思考。</p></div>
+        <div class="lifetime-metrics" id="lifetimeMetrics"></div>
+        <div class="lifetime-strip" id="lifetimeStrip"></div>
+        <div class="lifetime-wheel-layout">
+          <div class="wheel-copy"><p class="kicker">MY READING ARCHIVE</p><h3>收藏与记录过的读物</h3><p>会像年轮一样<br><em>刻进时间里</em></p><small>电子书、有声书与笔记本中可枚举的真实标题；可点击书名查看详情。</small></div>
+          <div class="title-wheel" id="titleWheel" aria-label="可枚举读物书名年轮"></div>
+        </div>
+        <div class="timeline-heading"><div><p class="kicker">YEAR BY YEAR</p><h3>阅读生涯</h3></div><p>年度本数与时长来自微信读书年度统计；代表读物按当年阅读时长选取。</p></div>
+        <div class="year-timeline" id="yearTimeline"></div>
+        <div class="lifetime-insights">
+          <article class="archive-card most-read-card"><p class="kicker">LIFETIME TOP READS</p><h3>一生读得最久</h3><ol id="lifetimeLongest"></ol></article>
+          <article class="archive-card preference-card"><p class="kicker">READING PREFERENCE</p><h3>阅读偏好</h3><div id="lifetimePreferences"></div></article>
+          <article class="archive-card portrait-card portrait-card--compact"><div class="compact-portrait-heading"><div><p class="kicker">LIFETIME PORTRAIT</p><h3>累计阅读画像</h3></div><span>仅与自己比较</span></div><div id="lifetimePortrait"></div></article>
+        </div>
+      </div>
+    </section>
+    <section class="dashboard" id="footprint">
+      <div class="section-title"><div><p class="eyebrow">YOUR READING FOOTPRINT</p><h2>阅读足迹</h2></div><div class="toolbar"><select id="yearSelect" aria-label="选择年份"></select><div class="periods" role="group"><button data-mode="weekly">本周</button><button data-mode="monthly">本月</button><button data-mode="annually" class="active">年度</button><button data-mode="overall">全部</button></div></div></div>
+      <div class="metrics"><article><span>总阅读时长</span><strong id="totalTime">—</strong><small id="compare">等待载入</small></article><article><span>阅读天数</span><strong id="readDays">—</strong><small>单日满 1 分钟计入</small></article><article><span>书架条目</span><strong id="shelfTotal">—</strong><small id="shelfBreakdown">电子书 · 有声书 · 收藏</small></article><article><span>笔记总量</span><strong id="noteTotal">—</strong><small>划线 + 想法 + 书签</small></article></div>
+      <div class="insight-grid"><article class="panel heat-panel"><div class="panel-head"><div><p class="kicker">真实每日数据</p><h3>年度阅读热力图</h3></div><span id="heatLabel">等待载入</span></div><div class="heat-months" id="heatMonths"></div><div class="heatmap" id="heatmap"></div><div class="heat-legend"><span>少</span><i></i><i></i><i></i><i></i><i></i><span>多</span></div></article><article class="panel category-panel"><div class="panel-head"><div><p class="kicker">偏好分布</p><h3 id="categoryWord">我的阅读偏好</h3></div></div><div id="categories" class="categories"></div></article></div>
+    </section>
+    <section class="paper-section annual-section" id="annual"><div class="section-title"><div><p class="eyebrow">ANNUAL READING REPORT</p><h2><span id="reportYear">—</span> 年度阅读报告</h2></div><button class="secondary" id="exportReport">导出年度数据 ↓</button></div><div class="annual-grid"><article class="tree-card"><div id="bookRing" class="book-ring"><div><strong id="ringBooks">—</strong><span id="ringCaption">本年度读过</span></div></div></article><article class="month-card"><p class="kicker">月度阅读</p><h3>这一年的节奏</h3><div class="month-chart" id="monthChart"></div></article></div><article class="portrait-card"><div class="portrait-heading"><div><p class="kicker">READING PORTRAIT</p><h3>阅读画像</h3></div><p>分数用于观察自己的变化，不用于人与人比较。每一维都保留真实数据依据。</p></div><div id="portrait"></div></article><div class="preference-grid"><article><p class="kicker">偏好作者</p><h3>常读的作者</h3><div id="authors" class="rank-bars"></div></article><article><p class="kicker">文字 vs 听书</p><h3 id="readRateTitle">阅读方式</h3><div id="readRate" class="donut-wrap"></div></article><article><p class="kicker">偏好时段</p><h3 id="timeWord">一天里的阅读时刻</h3><div id="timeBars" class="time-bars"></div></article></div></section>
+    <section class="paper-section" id="shelf"><div class="section-title"><div><p class="eyebrow">MY LIBRARY</p><h2>书架里的世界</h2></div><div class="library-tools"><label class="search"><span>⌕</span><input id="bookSearch" placeholder="搜索书名、作者或分类"></label><select id="bookFilter"><option value="all">全部</option><option value="finished">已读完</option><option value="reading">阅读中</option><option value="unread">未阅读</option></select></div></div><div class="library-summary" id="librarySummary"></div><div class="shelf-layout"><div><div class="book-list" id="bookList"><p class="empty">载入数据后，这里会出现你的书架。</p></div><button class="load-more secondary" id="loadMore">显示更多</button></div><aside class="ranking"><p class="kicker">本期读得最久</p><h3>沉浸排行</h3><ol id="longest"></ol></aside></div></section>
+    <section class="dashboard notes-section" id="notes"><div class="section-title"><div><p class="eyebrow">NOTES & HIGHLIGHTS</p><h2>思想的回声</h2></div><div class="notes-actions"><label class="search dark"><span>⌕</span><input id="noteSearch" placeholder="搜索有笔记的书"></label><button class="secondary light" id="exportNotes">导出笔记索引 ↓</button></div></div><div class="notes-grid"><article class="quote-card"><span class="quote-mark">“</span><p>划线不是终点。它是你与一本书真正开始对话的地方。</p><small>点击右侧任一本书，查看并搜索完整划线与想法。</small></article><div class="note-ranking" id="noteRanking"><p class="empty">尚未载入笔记数据。</p></div></div></section>
+  </main>
+  <footer><span>读迹 · 本地版</span><span>数据属于你，也只留在你这里。</span></footer>
+  <div class="toast" id="toast" role="status"></div>
+  <dialog class="key-dialog" id="keyDialog" aria-labelledby="keyDialogTitle" aria-describedby="keyDialogDescription">
+    <form class="key-form" id="keyForm" novalidate>
+      <div class="key-dialog-heading">
+        <div>
+          <p class="kicker">LOCAL CONNECTION</p>
+          <h2 id="keyDialogTitle">连接微信读书</h2>
+        </div>
+        <span class="key-memory-badge"><i aria-hidden="true"></i>仅本机内存</span>
+      </div>
+      <p class="key-dialog-description" id="keyDialogDescription">输入 WeRead API Key 后，读迹会把它发送给这台电脑上的 Node 服务，用于代你读取微信读书数据。</p>
+      <label class="key-field" for="apiKeyInput">
+        <span>API Key</span>
+        <span class="key-input-wrap">
+          <input id="apiKeyInput" name="apiKey" type="password" placeholder="wrk-••••••••••••••••••••" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" aria-describedby="keyDialogError keyDialogPrivacy">
+          <button class="key-visibility" id="keyVisibility" type="button" aria-label="显示 API Key" aria-pressed="false"><span class="key-eye" aria-hidden="true"></span><span class="key-visibility-label">显示</span></button>
+        </span>
+      </label>
+      <p class="key-dialog-error" id="keyDialogError" role="alert" aria-live="polite" hidden></p>
+      <div class="key-dialog-privacy" id="keyDialogPrivacy">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3 5 6v5c0 4.7 2.9 8.3 7 10 4.1-1.7 7-5.3 7-10V6l-7-3Zm0 2.2 5 2.1V11c0 3.6-2 6.5-5 8-3-1.5-5-4.4-5-8V7.3l5-2.1Zm-1 4.3v4.9h2V9.5h-2Zm0 6.1v2h2v-2h-2Z"/></svg>
+        <p><strong>不会保存到浏览器。</strong>密钥不写入 localStorage、sessionStorage 或页面源码，只驻留在本机 Node 进程内存；关闭或重启服务后，页面输入的密钥会被清除。</p>
+      </div>
+      <details class="connector-help" id="connectorHelp" hidden>
+        <summary>第一次使用：启动本机连接器</summary>
+        <div><p>需要 Node.js 20 或更高版本。下载后在终端进入下载目录并运行：</p><code>node connector.mjs</code><a href="./connector.mjs" download>下载 connector.mjs ↓</a><small>连接器只监听 127.0.0.1，仅接受本站请求；保持终端窗口打开即可。</small></div>
+      </details>
+      <div class="key-dialog-actions">
+        <button class="key-clear" id="keyClear" type="button" hidden>清除连接</button>
+        <span class="key-action-spacer" aria-hidden="true"></span>
+        <button class="secondary key-cancel" id="keyCancel" type="button">取消</button>
+        <button class="primary key-save" id="keySave" type="submit"><span class="key-save-label">保存并连接</span><span class="key-save-arrow" aria-hidden="true">→</span></button>
+      </div>
+    </form>
+  </dialog>
+  <div class="drawer-backdrop" id="drawerBackdrop"></div><aside class="book-drawer" id="bookDrawer" role="dialog" aria-modal="true" aria-label="书籍详情" aria-hidden="true" tabindex="-1"><button class="drawer-close" id="drawerClose" aria-label="关闭书籍详情">×</button><div id="drawerContent"><p class="empty">正在载入…</p></div></aside>
+  <script type="module" src="./app.js"></script><script type="module" src="./motion.js"></script><script type="module" src="./accessibility.js"></script>
+</body></html>
