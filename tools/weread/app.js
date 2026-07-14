@@ -1,4 +1,5 @@
 import { clampProgress, normalizeReadingItem, parseStatCount } from './reading-model.js';
+import { createConnectionProfile, readConnectorPairing } from './connection-model.js';
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -6,7 +7,17 @@ const nowYear = new Date().getFullYear();
 const query = new URLSearchParams(location.search);
 const requestedYear = Number(query.get('year'));
 const requestedMode = ['weekly','monthly','annually','overall'].includes(query.get('mode')) ? query.get('mode') : 'annually';
-const apiBase = (document.documentElement.dataset.apiBase || '').replace(/\/$/, '');
+const connectorPairing = readConnectorPairing(location.hash);
+if(connectorPairing.attempted)history.replaceState(null,'',`${location.pathname}${location.search}`);
+const connectionProfile = createConnectionProfile({
+  defaultBase:document.documentElement.dataset.apiBase || '',
+  pairing:connectorPairing,
+  userAgent:navigator.userAgent,
+  platform:navigator.platform,
+  maxTouchPoints:navigator.maxTouchPoints
+});
+const apiBase = connectionProfile.base;
+let connectorToken = '';
 const state = { mode:requestedMode, year:Number.isInteger(requestedYear)&&requestedYear>=2000&&requestedYear<=nowYear?requestedYear:nowYear, stats:null, annualStats:null, overall:null, shelf:null, notebooks:null, yearSummaries:new Map(), yearTimelineStatus:new Map(), timelineEpoch:0, drawerRequest:0, visibleBooks:30, selected:null, demo:false, connectionConfigured:false };
 
 const demo = {
@@ -25,8 +36,9 @@ function syncUrl(changes={}){const params=new URLSearchParams(location.search);O
 function syncBanner(type,title,detail){const banner=$('#syncBanner'),retry=$('#syncRetry');banner.hidden=type==='hidden';document.body.classList.toggle('data-loading',type==='loading');banner.classList.toggle('error',type==='error');$('.sync-spinner').hidden=type!=='loading';$('#syncTitle').textContent=title||'';$('#syncDetail').textContent=detail||'';retry.hidden=type!=='error'}
 function emptyState(title,detail,action=''){return `<div class="empty-state"><strong>${esc(title)}</strong><span>${esc(detail)}</span>${action?`<button type="button" data-empty-action="${esc(action)}">${esc(action)}</button>`:''}</div>`}
 async function readResponseJson(response){const type=response.headers.get('content-type')||'';if(!type.includes('application/json'))throw new Error('连接器返回了无法识别的响应');return response.json()}
-function connectorFetch(path,options={}){return fetch(`${apiBase}${path}`,apiBase?{...options,targetAddressSpace:'loopback'}:options)}
-async function api(api_name,params={}){const clean=Object.fromEntries(Object.entries(params).filter(([,v])=>v!==undefined));let res;try{res=await connectorFetch('/api/weread',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({api_name,...clean})})}catch{throw new Error(apiBase?'本机连接器未启动':'本地服务连接失败')}const data=await readResponseJson(res);if(res.status===426)throw new Error(data.message||'微信读书 skill 需要升级');if(!res.ok||data.errcode)throw new Error(data.message||data.errmsg||'数据获取失败');return data}
+function connectorFetch(path,options={}){const headers=new Headers(options.headers||{});if(connectorToken)headers.set('x-weread-connector-token',connectorToken);const request={...options,headers};if(connectionProfile.loopback)request.targetAddressSpace='loopback';return fetch(`${apiBase}${path}`,request)}
+function connectionFailureMessage(error){if(connectionProfile.mobileLoopbackUnsupported)return'当前本机连接模式只能在运行连接器的电脑上使用；手机的 127.0.0.1 指向手机自己。你的 Key 尚未提交';if(connectionProfile.remote)return`无法连接 ${connectionProfile.targetHost}，请确认电脑连接器和私有 HTTPS 代理正在运行`;if(error?.name==='TimeoutError')return'连接超时，请确认本机连接器已经启动';return apiBase?'本机连接器未启动':'本地服务连接失败'}
+async function api(api_name,params={}){const clean=Object.fromEntries(Object.entries(params).filter(([,v])=>v!==undefined));let res;try{res=await connectorFetch('/api/weread',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({api_name,...clean})})}catch(error){throw new Error(connectionFailureMessage(error))}const data=await readResponseJson(res);if(res.status===426)throw new Error(data.message||'微信读书 skill 需要升级');if(!res.ok||data.errcode)throw new Error(data.message||data.errmsg||'数据获取失败');return data}
 
 async function loadInitial(){state.demo=false;state.yearSummaries=new Map();state.yearTimelineStatus=new Map();state.timelineEpoch+=1;syncBanner('loading','正在同步微信读书','读取年度、12 个月、书架和完整笔记索引…');toast('正在建立你的本地阅读档案…');try{const [overall,shelf,notebooks,annualStats]=await Promise.all([api('/readdata/detail',{mode:'overall',baseTime:0}),api('/shelf/sync'),loadNotebooks(),loadAnnual(state.year)]);Object.assign(state,{overall,shelf,notebooks,annualStats,stats:annualStats,mode:'annually'});state.yearSummaries.set(state.year,annualStats);state.yearTimelineStatus.set(state.year,'ready');setupYears();render();syncBanner('hidden');toast('核心数据已完成同步，正在整理阅读生涯…');loadYearTimeline(state.timelineEpoch);if(requestedMode!=='annually')await loadPeriod(requestedMode);return true}catch(e){state.demo=true;syncBanner('error','真实数据暂时没有载入',`${e.message}。当前继续显示演示数据，你可以检查 Key 后重试。`);toast(`${e.message}，当前显示演示数据`);return false}}
 async function loadAnnual(year){const annual=api('/readdata/detail',{mode:'annually',baseTime:yearTimestamp(year)}),months=Promise.all(Array.from({length:12},(_,month)=>api('/readdata/detail',{mode:'monthly',baseTime:Math.floor(new Date(year,month,2).getTime()/1000)})));const [summary,details]=await Promise.all([annual,months]);const dailyReadTimes={};details.forEach((data,month)=>Object.entries(data.readTimes||{}).forEach(([ts,value])=>{const d=new Date(Number(ts)*1000);if(d.getFullYear()===Number(year)&&d.getMonth()===month)dailyReadTimes[ts]=value}));return {...summary,dailyReadTimes}}
@@ -91,6 +103,52 @@ function exportBook(type){const d=state.drawerData;if(!d)return;if(type==='json'
 
 function configureConnectionCopy(){
   if(!apiBase)return;
+  const help=$('#connectorHelp'),keyField=$('.key-field'),privacy=$('#keyDialogPrivacy');
+  const setBadge=text=>{$('.key-memory-badge').lastChild.textContent=text};
+  if(connectionProfile.mobileLoopbackUnsupported){
+    $('#keyDialog').classList.add('mobile-help-dialog');
+    $('#keyDialogTitle').textContent='在手机上连接微信读书';
+    $('#keyDialogDescription').textContent='手机的 127.0.0.1 是手机自己，无法到达电脑上的读迹连接器。请先在电脑上建立私有 HTTPS 连接，再用电脑生成的配对信息连接。';
+    privacy.querySelector('p').innerHTML='<strong>你刚才输入的 Key 没有提交。</strong>页面无法连到电脑时，不会把 Key 改发到 GitHub 或其他服务。';
+    setBadge('手机连接步骤');
+    $('.privacy').textContent='◉ 手机需要通过私有 HTTPS 访问电脑连接器，Key 不会发送到 GitHub';
+    $('.lede').textContent='手机可以使用真实数据，但需要先与你的电脑安全配对。';
+    keyField.hidden=true;
+    $('#keySave').hidden=true;
+    $('#keyClear').hidden=true;
+    $('.key-action-spacer').hidden=true;
+    $('#keyCancel').textContent='关闭';
+    help.hidden=false;
+    help.open=true;
+    help.querySelector('summary').textContent='在电脑上开启手机连接';
+    help.querySelector('div').innerHTML='<p>1. Mac 和 iPhone 安装 Tailscale，并登录同一账号。2. Mac 终端运行下面命令，Tailscale 会显示私有 HTTPS 地址。</p><code>tailscale serve --bg 4173</code><a href="https://tailscale.com/docs/features/tailscale-serve" target="_blank" rel="noreferrer">Serve 说明 ↗</a><p>3. 用上一步的 HTTPS 地址启动连接器：</p><code>node connector.mjs --public-url=https://你的设备名.你的网络.ts.net</code><a href="./connector.mjs" download>下载 connector.mjs ↓</a><small>连接器会分开显示“手机页面链接”和“访问令牌”。把链接发到手机，再手动粘贴令牌。只使用私有 Serve，不要使用公网 Funnel。</small>';
+    $('footer span').textContent='读迹 · Tools 手机版';
+    return;
+  }
+  if(connectionProfile.remote){
+    $('#keyDialogDescription').textContent=`正在配对你的私有连接器 ${connectionProfile.targetHost}。请粘贴电脑终端单独显示的访问令牌；若电脑连接器已通过环境变量配置 Key，WeRead API Key 可留空。`;
+    setBadge('私有 HTTPS');
+    const tokenField=document.createElement('label');
+    tokenField.className='key-field connector-token-field';
+    tokenField.htmlFor='connectorTokenInput';
+    tokenField.innerHTML='<span>连接器访问令牌</span><span class="key-input-wrap"><input id="connectorTokenInput" type="password" placeholder="从电脑终端粘贴" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="keyDialogError keyDialogPrivacy"></span>';
+    keyField.before(tokenField);
+    keyField.firstElementChild.textContent='WeRead API Key（电脑已配置可留空）';
+    privacy.querySelector('p').innerHTML='<strong></strong><span></span>';
+    privacy.querySelector('strong').textContent=`目标：${connectionProfile.targetHost}。`;
+    privacy.querySelector('span').textContent=' 访问令牌和 Key 只保留在当前页面内存中，并通过 HTTPS 发送给该连接器；不写入浏览器存储或 GitHub。';
+    const trust=document.createElement('label');
+    trust.className='connector-trust';
+    trust.innerHTML='<input id="connectorTrust" type="checkbox"><span></span>';
+    trust.querySelector('span').textContent=`我确认 ${connectionProfile.targetHost} 是我自己的连接器`;
+    privacy.after(trust);
+    help.hidden=true;
+    $('.privacy').textContent=`◉ 当前使用私有 HTTPS 连接器 ${connectionProfile.targetHost}；敏感信息不保存到浏览器`;
+    $('.lede').textContent='已进入手机安全配对模式，连接成功后即可读取真实数据。';
+    $('.key-save-label').textContent='验证并连接';
+    $('footer span').textContent='读迹 · Tools 私有连接';
+    return;
+  }
   $('#keyDialogDescription').textContent='在线页面会把 API Key 直接交给你电脑上的读迹连接器，再由连接器读取微信读书数据。请先在本机运行连接器。';
   $('#keyDialogPrivacy').querySelector('p').innerHTML='<strong>Key 不会发送到 GitHub。</strong>它只在输入时短暂停留于当前页面，并通过回环地址交给本机 Node 进程；不写入 localStorage、sessionStorage、页面源码或日志，点击清除连接或停止连接器即可清除。';
   $('.key-memory-badge').lastChild.textContent='本机连接器';
@@ -105,6 +163,7 @@ function setKeyError(message=''){
   error.textContent=message;
   error.hidden=!message;
   $('#apiKeyInput').setAttribute('aria-invalid',message?'true':'false');
+  if($('#connectorTokenInput'))$('#connectorTokenInput').setAttribute('aria-invalid',message?'true':'false');
 }
 
 function setKeyBusy(busy){
@@ -113,18 +172,20 @@ function setKeyBusy(busy){
   $('#keyCancel').disabled=busy;
   $('#apiKeyInput').disabled=busy;
   $('#keyVisibility').disabled=busy;
+  if($('#connectorTokenInput'))$('#connectorTokenInput').disabled=busy;
+  if($('#connectorTrust'))$('#connectorTrust').disabled=busy;
   $('#keyForm').classList.toggle('is-busy',busy);
-  $('.key-save-label').textContent=busy?'正在连接…':state.connectionConfigured?'更新并连接':'保存并连接';
+  $('.key-save-label').textContent=busy?'正在连接…':connectionProfile.remote?'验证并连接':state.connectionConfigured?'更新并连接':'保存并连接';
 }
 
 function updateConnection(configured,{offline=false}={}){
   state.connectionConfigured=Boolean(configured);
   const connection=$('#connection'),label=connection.querySelector('span');
   connection.classList.toggle('ok',state.connectionConfigured);
-  label.textContent=state.connectionConfigured?'微信读书已连接':offline?(apiBase?'启动本地连接器':'本地服务不可用'):apiBase?'连接本机数据':'配置 API Key';
+  label.textContent=state.connectionConfigured?'微信读书已连接':connectionProfile.mobileLoopbackUnsupported?'手机连接步骤':offline?(connectionProfile.remote?'检查私有连接':apiBase?'启动本地连接器':'本地服务不可用'):connectionProfile.remote?'完成安全配对':apiBase?'连接本机数据':'配置 API Key';
   connection.setAttribute('aria-label',state.connectionConfigured?'微信读书已连接，管理 API Key':label.textContent);
-  $('#keyClear').hidden=!state.connectionConfigured;
-  $('.key-save-label').textContent=state.connectionConfigured?'更新并连接':'保存并连接';
+  $('#keyClear').hidden=connectionProfile.mobileLoopbackUnsupported||!state.connectionConfigured;
+  $('.key-save-label').textContent=connectionProfile.remote?'验证并连接':state.connectionConfigured?'更新并连接':'保存并连接';
 }
 
 function resetKeyField(){
@@ -136,15 +197,21 @@ function resetKeyField(){
   $('#keyVisibility').setAttribute('aria-pressed','false');
   $('#keyVisibility').setAttribute('aria-label','显示 API Key');
   $('.key-visibility-label').textContent='显示';
+  if($('#connectorTokenInput')){
+    $('#connectorTokenInput').value='';
+    $('#connectorTokenInput').disabled=false;
+    $('#connectorTokenInput').placeholder=connectorToken?'已保留在当前页面内存中':'从电脑终端粘贴';
+  }
+  if($('#connectorTrust'))$('#connectorTrust').checked=false;
   setKeyError();
 }
 
 function openKeyDialog(){
   const dialog=$('#keyDialog');
   resetKeyField();
-  $('#keyClear').hidden=!state.connectionConfigured;
+  $('#keyClear').hidden=connectionProfile.mobileLoopbackUnsupported||!state.connectionConfigured;
   if(!dialog.open)dialog.showModal();
-  requestAnimationFrame(()=>$('#apiKeyInput').focus());
+  requestAnimationFrame(()=>connectionProfile.mobileLoopbackUnsupported?$('#connectorHelp summary').focus():connectionProfile.remote&&!connectorToken?$('#connectorTokenInput').focus():$('#apiKeyInput').focus());
 }
 
 function closeKeyDialog(){
@@ -155,6 +222,7 @@ function closeKeyDialog(){
 }
 
 async function checkConnectionStatus(){
+  if(connectionProfile.mobileLoopbackUnsupported||connectionProfile.remote&&!connectorToken){updateConnection(false);return false}
   try{
     const response=await connectorFetch('/api/status',{cache:'no-store',signal:AbortSignal.timeout(4000)});
     const result=await readResponseJson(response);
@@ -169,20 +237,30 @@ async function checkConnectionStatus(){
 
 async function initializeConnection(){
   configureConnectionCopy();
+  if(connectionProfile.mobileLoopbackUnsupported){updateConnection(false);return false}
+  if(connectionProfile.remote){updateConnection(false);return false}
   if(apiBase){updateConnection(false);return false}
   return checkConnectionStatus();
 }
 
 async function openConnectionManager(){
   openKeyDialog();
-  if(apiBase)await checkConnectionStatus();
+  if(apiBase&&!connectionProfile.mobileLoopbackUnsupported&&(!connectionProfile.remote||connectorToken))await checkConnectionStatus();
 }
 
 async function saveApiKey(event){
   event.preventDefault();
+  if(connectionProfile.mobileLoopbackUnsupported){setKeyError(connectionFailureMessage());return}
   const input=$('#apiKeyInput');
   let apiKey=input.value.trim();
-  if(!/^wrk-[A-Za-z0-9_-]{20,}$/.test(apiKey)){
+  if(connectionProfile.remote){
+    const suppliedToken=$('#connectorTokenInput').value.trim();
+    if(suppliedToken&&!/^[A-Za-z0-9_-]{43}$/.test(suppliedToken)){setKeyError('请粘贴电脑连接器显示的完整访问令牌。');$('#connectorTokenInput').focus();return}
+    if(suppliedToken)connectorToken=suppliedToken;
+    if(!connectorToken){setKeyError('请先粘贴电脑连接器显示的访问令牌。');$('#connectorTokenInput').focus();return}
+    if(!$('#connectorTrust').checked){setKeyError(`请先确认 ${connectionProfile.targetHost} 是你自己的连接器。`);$('#connectorTrust').focus();return}
+  }
+  if((!connectionProfile.remote||apiKey)&&!/^wrk-[A-Za-z0-9_-]{20,}$/.test(apiKey)){
     setKeyError('请输入完整的 wrk- 开头 API Key。');
     input.focus();
     return;
@@ -190,6 +268,19 @@ async function saveApiKey(event){
   setKeyError();
   setKeyBusy(true);
   try{
+    if(connectionProfile.remote){
+      const statusResponse=await connectorFetch('/api/status',{cache:'no-store',signal:AbortSignal.timeout(8000)});
+      const status=await readResponseJson(statusResponse);
+      if(!statusResponse.ok)throw new Error(status.message||'私有连接器验证失败');
+      if(!apiKey){
+        if(!status.configured)throw new Error('电脑连接器尚未配置 WeRead API Key，请在上方输入或在电脑上设置 WEREAD_API_KEY。');
+        updateConnection(true);
+        closeKeyDialog();
+        toast('安全配对已建立，正在载入你的阅读数据');
+        await loadInitial();
+        return;
+      }
+    }
     const requestBody=JSON.stringify({apiKey});
     apiKey='';
     input.value='';
@@ -202,7 +293,7 @@ async function saveApiKey(event){
     await loadInitial();
   }catch(error){
     input.value='';
-    setKeyError(error.name==='TimeoutError'?'连接超时，请确认本机连接器已经启动。':error.message||'连接失败，请稍后重试。');
+    setKeyError(error.name==='TimeoutError'||error instanceof TypeError?connectionFailureMessage(error):error.message||'连接失败，请稍后重试。');
   }finally{
     setKeyBusy(false);
   }
@@ -226,6 +317,7 @@ async function clearApiKey(){
 }
 
 async function loadOrConfigure(){
+  if(connectionProfile.mobileLoopbackUnsupported||connectionProfile.remote&&!connectorToken){openKeyDialog();return false}
   if(!state.connectionConfigured&&apiBase&&await checkConnectionStatus())return loadInitial();
   if(!state.connectionConfigured){openKeyDialog();return false}
   return loadInitial();
@@ -236,5 +328,5 @@ function activateDemo(){state.timelineEpoch+=1;Object.assign(state,demo,{demo:tr
 
 $('#refresh').onclick=loadOrConfigure;$('#syncRetry').onclick=loadOrConfigure;$('#demo').onclick=activateDemo;$('#connection').onclick=openConnectionManager;$('#keyForm').onsubmit=saveApiKey;$('#keyCancel').onclick=closeKeyDialog;$('#keyClear').onclick=clearApiKey;$('#keyVisibility').onclick=()=>{const input=$('#apiKeyInput'),show=input.type==='password';input.type=show?'text':'password';$('#keyVisibility').setAttribute('aria-pressed',String(show));$('#keyVisibility').setAttribute('aria-label',show?'隐藏 API Key':'显示 API Key');$('.key-visibility-label').textContent=show?'隐藏':'显示'};$('#keyDialog').addEventListener('close',resetKeyField);$('#yearSelect').onchange=e=>{state.year=Number(e.target.value);$$('.periods button').forEach(x=>x.classList.toggle('active',x.dataset.mode==='annually'));loadPeriod('annually',state.year)};$$('.periods button').forEach(b=>b.onclick=()=>{$$('.periods button').forEach(x=>x.classList.remove('active'));b.classList.add('active');loadPeriod(b.dataset.mode)});$('#bookSearch').oninput=()=>{state.visibleBooks=30;syncUrl({q:$('#bookSearch').value.trim()||null});renderBooks()};$('#bookFilter').onchange=()=>{state.visibleBooks=30;syncUrl({filter:$('#bookFilter').value});renderBooks()};$('#loadMore').onclick=()=>{state.visibleBooks+=30;renderBooks()};$('#noteSearch').oninput=renderNotes;$('#exportReport').onclick=exportReport;$('#exportNotes').onclick=exportNotes;$('#drawerClose').onclick=closeDrawer;$('#drawerBackdrop').onclick=closeDrawer;document.addEventListener('keydown',e=>e.key==='Escape'&&closeDrawer());
 
-async function initialize(){activateDemo();$('#bookSearch').value=query.get('q')||'';$('#bookFilter').value=['finished','reading','unread'].includes(query.get('filter'))?query.get('filter'):'all';renderBooks();$$('.periods button').forEach(x=>x.classList.toggle('active',x.dataset.mode===requestedMode));const configured=await initializeConnection();if(query.has('autoload')){if(configured){const ok=await loadInitial();if(ok&&query.get('book'))openBook(query.get('book'))}else openKeyDialog()}else if(query.get('book'))openBook(query.get('book'))}
+async function initialize(){activateDemo();$('#bookSearch').value=query.get('q')||'';$('#bookFilter').value=['finished','reading','unread'].includes(query.get('filter'))?query.get('filter'):'all';renderBooks();$$('.periods button').forEach(x=>x.classList.toggle('active',x.dataset.mode===requestedMode));const configured=await initializeConnection();if(connectionProfile.pairingError){openKeyDialog();setKeyError(connectionProfile.pairingError)}else if(query.has('autoload')){if(configured){const ok=await loadInitial();if(ok&&query.get('book'))openBook(query.get('book'))}else openKeyDialog()}else if(query.get('book'))openBook(query.get('book'))}
 initialize();
