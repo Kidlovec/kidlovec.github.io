@@ -183,12 +183,24 @@ current: tools
 
 <div class="tools-page">
   <div class="tools-intro">
-    <p>一些自己用得上的小工具。纯前端、无后端，数据在本地处理；偏计算、图解和交互式可视化。</p>
+    <p>一些自己用得上的小工具。数据优先在浏览器或本机处理；偏计算、图解和交互式可视化。</p>
   </div>
 
   <section class="tools-section" aria-labelledby="daily-tools">
     <h2 class="tools-section-title" id="daily-tools">Daily Tools</h2>
     <div class="tools-list">
+      <a class="tool-entry" href="/tools/weread/">
+        <div>
+          <div class="tool-meta">
+            <span class="tool-label">Reading</span>
+            <span class="tool-status">本地私密</span>
+          </div>
+          <h3 class="tool-title">读迹 · 微信读书轨迹</h3>
+          <p class="tool-desc">从年度时长、书架、笔记与六维画像回看自己的微信读书历程；支持演示数据，连接真实数据需启动本机连接器。</p>
+        </div>
+        <span class="tool-open">Open</span>
+      </a>
+
       <a class="tool-entry" href="/tools/mortgage-calculator.html">
         <div>
           <div class="tool-meta">
