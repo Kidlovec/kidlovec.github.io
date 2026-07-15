@@ -20,7 +20,7 @@
   --accent-soft: #f4e8e6;
   --line: #e8e2d8;
   --line-soft: #f0ebe2;
-  --gold: #a68654;
+  --gold: #806536;
   --gold-soft: #f5efe2;
   --teal: #3d6b6e;
   --teal-soft: #e6efef;
@@ -218,16 +218,19 @@ h1 {
 .summary-item.green .value { color: var(--teal); }
 .changes-list { margin-top: 12px; }
 .change-entry {
-  display: flex;
+  display: grid;
+  grid-template-columns: max-content max-content minmax(0, 1fr) max-content max-content;
   align-items: center;
-  gap: 12px;
+  column-gap: 12px;
   padding: 12px 14px;
   background: var(--bg);
   border: 1px solid var(--line-soft);
   border-radius: 3px;
   margin-bottom: 8px;
   font-size: 0.85rem;
+  animation: change-entry-in 0.28s ease-out both;
 }
+@keyframes change-entry-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 .change-entry .change-date {
   font-family: 'Noto Serif SC', serif;
   font-weight: 600;
@@ -246,13 +249,51 @@ h1 {
 .change-entry .change-tag.prepay { background: var(--teal); }
 .change-entry .change-tag.rate { background: var(--gold); }
 .change-entry .change-tag.start { background: var(--ink); }
-.change-entry .change-detail { color: var(--ink-soft); flex: 1; }
+.change-entry .change-detail {
+  color: var(--ink-soft);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.change-interest-impact {
+  min-width: 154px;
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.change-interest-impact.saving { color: var(--teal); }
+.change-interest-impact.increase { color: var(--accent); }
+.change-interest-impact.neutral { color: var(--ink-soft); }
+.change-interest-impact.placeholder { visibility: hidden; }
 .change-entry .change-payment {
+  min-width: 146px;
+  text-align: right;
   font-weight: 600;
   color: var(--accent);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+.changes-method-intro {
+  margin: -2px 0 8px;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+.calculation-method {
+  margin: 0 0 14px;
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+.calculation-method summary {
+  width: max-content;
+  cursor: pointer;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+.calculation-method div { margin-top: 6px; }
 .table-wrap {
   overflow-x: auto;
   margin-top: 12px;
@@ -344,6 +385,27 @@ tr.current-divider td { border-bottom: 2px solid var(--accent); }
 .footer-note .divider { width: 24px; height: 1px; background: var(--line); margin: 0 auto 16px; opacity: 0.7; }
 .footer-note a { color: var(--accent); text-decoration: none; }
 .footer-note a:hover { text-decoration: underline; }
+@media (max-width: 700px) {
+  .change-entry {
+    grid-template-columns: max-content 1fr;
+    grid-template-areas:
+      "date tag"
+      "detail detail"
+      "impact impact"
+      "payment payment";
+    gap: 5px 6px;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+  }
+  .change-entry .change-date { grid-area: date; }
+  .change-entry .change-tag { grid-area: tag; justify-self: start; }
+  .change-entry .change-detail { grid-area: detail; }
+  .change-entry .change-interest-impact { grid-area: impact; }
+  .change-entry .change-payment { grid-area: payment; }
+  .change-entry .change-interest-impact,
+  .change-entry .change-payment { min-width: 0; width: 100%; text-align: right; }
+  .change-interest-impact.placeholder { display: none; }
+}
 @media (max-width: 600px) {
   .site-bar { padding: 16px 14px 6px; font-size: 0.7rem; }
   .container { padding: 0 12px; }
@@ -372,15 +434,18 @@ tr.current-divider td { border-bottom: 2px solid var(--accent); }
   th { padding: 9px 4px; font-size: 0.68rem; }
   td { padding: 7px 3px; }
   .status-badge { font-size: 0.58rem; padding: 1px 5px; }
-  .change-entry { flex-wrap: wrap; gap: 6px; padding: 10px 12px; font-size: 0.78rem; }
-  .change-entry .change-payment { width: 100%; text-align: right; }
   .section-desc { font-size: 0.72rem; }
+  .changes-method-intro,
+  .calculation-method { font-size: 0.8125rem; }
   .paid-progress .progress-text { font-size: 0.68rem; }
 }
 @media (max-width: 360px) {
   .summary-grid { grid-template-columns: 1fr; }
   .summary-item[style*="grid-column"] { grid-column: auto !important; }
   table { min-width: 520px; font-size: 0.64rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .change-entry { animation: none; }
 }
 </style>
 </head>
@@ -494,8 +559,13 @@ tr.current-divider td { border-bottom: 2px solid var(--accent); }
     </div>
 
     <div class="card" id="changesCard" style="display:none">
-      <h2>月供变化记录</h2>
-      <div id="changesList" class="changes-list"></div>
+      <h2>还款变化记录</h2>
+      <p class="changes-method-intro" id="changesMethod">逐条与“未发生本次事件”的方案对比；事件相互联动，各条金额不可直接相加。</p>
+      <details class="calculation-method">
+        <summary>计算口径</summary>
+        <div>计算单条事件时，保留其他设置及后续事件不变。同月按“调息 → 正常还款 → 提前还款”执行；重复调息以最后一条为准，多笔提前还款合并并采用最后一条策略。结果未计手续费、违约金及银行按日计息差异。</div>
+      </details>
+      <div id="changesList" class="changes-list" role="list" aria-describedby="changesMethod"></div>
     </div>
 
     <div class="card">
@@ -691,7 +761,15 @@ function getRateChanges(startMonth) {
     }
   });
   list.sort((a, b) => a.monthIndex - b.monthIndex);
-  return list;
+  const merged = [];
+  for (const rc of list) {
+    if (merged.length > 0 && merged[merged.length - 1].monthIndex === rc.monthIndex) {
+      merged[merged.length - 1] = { ...rc };
+    } else {
+      merged.push({ ...rc });
+    }
+  }
+  return merged;
 }
 
 function getPrepayments(startMonth) {
@@ -725,10 +803,15 @@ function calcEqualInstallment(balance, monthlyRate, months) {
   return balance * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
 }
 
+function ceilMonths(value) {
+  const nearestInteger = Math.round(value);
+  return Math.abs(value - nearestInteger) < 1e-10 ? nearestInteger : Math.ceil(value);
+}
+
 function calcNewTerm(balance, monthlyRate, payment) {
-  if (monthlyRate === 0) return Math.ceil(balance / payment);
+  if (monthlyRate === 0) return ceilMonths(balance / payment);
   if (payment <= balance * monthlyRate) return Infinity;
-  return Math.ceil(-Math.log(1 - balance * monthlyRate / payment) / Math.log(1 + monthlyRate));
+  return ceilMonths(-Math.log(1 - balance * monthlyRate / payment) / Math.log(1 + monthlyRate));
 }
 
 function calculateSchedule(config, prepayments, rateChanges) {
@@ -739,6 +822,8 @@ function calculateSchedule(config, prepayments, rateChanges) {
   let remainingMonths = totalMonths;
   let currentPayment = method === 'equal_installment'
     ? calcEqualInstallment(balance, monthlyRate, remainingMonths) : 0;
+  let currentPrincipalPayment = method === 'equal_principal'
+    ? balance / remainingMonths : 0;
 
   const schedule = [];
   const changes = [];
@@ -778,7 +863,7 @@ function calculateSchedule(config, prepayments, rateChanges) {
       payment = Math.min(currentPayment, balance + interest);
       principal = payment - interest;
     } else {
-      principal = balance / remainingMonths;
+      principal = Math.min(currentPrincipalPayment, balance);
       payment = principal + interest;
     }
 
@@ -801,8 +886,7 @@ function calculateSchedule(config, prepayments, rateChanges) {
           if (method === 'equal_installment') {
             remainingMonths = calcNewTerm(balance, monthlyRate, currentPayment);
           } else {
-            const origPrincipalPerMonth = config.totalAmount / config.totalMonths;
-            remainingMonths = Math.ceil(balance / origPrincipalPerMonth);
+            remainingMonths = ceilMonths(balance / currentPrincipalPayment);
             if (remainingMonths <= 0) remainingMonths = 1;
           }
           changes.push({
@@ -817,6 +901,8 @@ function calculateSchedule(config, prepayments, rateChanges) {
         } else {
           if (method === 'equal_installment') {
             currentPayment = calcEqualInstallment(balance, monthlyRate, remainingMonths);
+          } else {
+            currentPrincipalPayment = balance / remainingMonths;
           }
           changes.push({
             monthIndex: month,
@@ -858,6 +944,36 @@ function calculateSchedule(config, prepayments, rateChanges) {
   return { schedule, changes };
 }
 
+function sumScheduleInterest(schedule) {
+  return schedule.reduce((sum, row) => sum + row.interest, 0);
+}
+
+function calculateInterestImpacts(config, prepayments, rateChanges, changes, currentInterest) {
+  const impacts = new Map();
+  for (const change of changes) {
+    const alternativePrepayments = change.type === 'prepay'
+      ? prepayments.filter(item => item.monthIndex !== change.monthIndex)
+      : prepayments;
+    const alternativeRateChanges = change.type === 'rate'
+      ? rateChanges.filter(item => item.monthIndex !== change.monthIndex)
+      : rateChanges;
+    const alternative = calculateSchedule(config, alternativePrepayments, alternativeRateChanges);
+    const impact = sumScheduleInterest(alternative.schedule) - currentInterest;
+    impacts.set(`${change.type}:${change.monthIndex}`, Math.abs(impact) < 0.005 ? 0 : impact);
+  }
+  return impacts;
+}
+
+function renderInterestImpact(impact) {
+  if (impact === 0) {
+    return '<span class="change-interest-impact neutral">预计总利息基本不变</span>';
+  }
+  const isSaving = impact > 0;
+  const className = isSaving ? 'saving' : 'increase';
+  const label = isSaving ? '少付' : '多付';
+  return `<span class="change-interest-impact ${className}">预计${label}总利息 ${formatNum(Math.abs(impact))} 元</span>`;
+}
+
 function formatNum(n) {
   return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
@@ -880,9 +996,10 @@ function calculate() {
   const { schedule: scheduleNoPrepay } = calculateSchedule(config, [], rateChanges);
 
   const totalPayment = schedule.reduce((s, r) => s + r.monthlyPayment + r.prepayment, 0);
-  const totalInterest = schedule.reduce((s, r) => s + r.interest, 0);
-  const totalInterestNoPrepay = scheduleNoPrepay.reduce((s, r) => s + r.interest, 0);
-  const savedInterest = totalInterestNoPrepay - totalInterest;
+  const totalInterest = sumScheduleInterest(schedule);
+  const totalInterestNoPrepay = sumScheduleInterest(scheduleNoPrepay);
+  const prepaymentInterestSaved = totalInterestNoPrepay - totalInterest;
+  const interestImpacts = calculateInterestImpacts(config, prepayments, rateChanges, changes, totalInterest);
   const endDate = schedule.length > 0 ? schedule[schedule.length - 1].date : startMonth;
 
   // Determine paid months based on current date
@@ -910,7 +1027,7 @@ function calculate() {
   document.getElementById('summaryOverview').innerHTML = `
     <div class="summary-item"><div class="value">${formatNum(totalPayment)}</div><div class="label">总还款额（元）</div></div>
     <div class="summary-item"><div class="value">${formatNum(totalInterest)}</div><div class="label">总利息（元）</div></div>
-    <div class="summary-item highlight"><div class="value">${formatNum(savedInterest)}</div><div class="label">节省利息（元）</div></div>
+    <div class="summary-item green"><div class="value">${formatNum(prepaymentInterestSaved)}</div><div class="label">提前还款累计节省利息（元）</div></div>
     <div class="summary-item green"><div class="value">${schedule.length}期</div><div class="label">${formatYM(addMonths(startMonth, 1))} ~ ${formatYM(endDate)}</div></div>
     <div class="summary-item" style="grid-column: span 2">
       <div class="value">${paidCount} / ${schedule.length} 期</div>
@@ -944,10 +1061,11 @@ function calculate() {
   if (changes.length > 0) {
     changesCard.style.display = '';
     // Add initial state
-    let html = `<div class="change-entry">
+    let html = `<div class="change-entry" role="listitem">
       <span class="change-date">${formatYM(addMonths(startMonth, 1))}</span>
       <span class="change-tag start">起始</span>
       <span class="change-detail">利率 ${annualRate}%，${method === 'equal_installment' ? '等额本息' : '等额本金'}</span>
+      <span class="change-interest-impact placeholder" aria-hidden="true">占位</span>
       ${method === 'equal_installment' ? `<span class="change-payment">月供 ${formatNum(calcEqualInstallment(totalAmount, annualRate / 100 / 12, totalMonths))} 元</span>` : ''}
     </div>`;
     for (const c of changes) {
@@ -958,14 +1076,17 @@ function calculate() {
       if (c.newPayment !== null && c.newPayment !== undefined && method === 'equal_installment') {
         paymentStr = `<span class="change-payment">月供 ${formatNum(c.newPayment)} 元</span>`;
       }
+      const interestImpact = interestImpacts.get(`${c.type}:${c.monthIndex}`) || 0;
+      const interestImpactStr = renderInterestImpact(interestImpact);
       let extra = '';
       if (c.remainingMonths !== undefined && c.remainingMonths > 0) {
         extra = `，剩余 ${c.remainingMonths} 期`;
       }
-      html += `<div class="change-entry">
+      html += `<div class="change-entry" role="listitem">
         <span class="change-date">${formatYM(c.ym)}</span>
         ${tag}
         <span class="change-detail">${c.detail}${extra}</span>
+        ${interestImpactStr}
         ${paymentStr}
       </div>`;
     }
@@ -1007,12 +1128,13 @@ function calculate() {
   }
   tbody.innerHTML = thtml;
   document.getElementById('results').style.display = 'block';
-  document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+  const scrollBehavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  document.getElementById('results').scrollIntoView({ behavior: scrollBehavior });
   // Scroll table to current month row
   setTimeout(() => {
     const currentRow = tbody.querySelector('.current-divider');
     if (currentRow) {
-      currentRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      currentRow.scrollIntoView({ behavior: scrollBehavior, block: 'center' });
     }
   }, 400);
 
