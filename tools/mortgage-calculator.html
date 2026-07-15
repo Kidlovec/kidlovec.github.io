@@ -273,6 +273,27 @@ h1 {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+.changes-method-intro {
+  margin: -2px 0 8px;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+.calculation-method {
+  margin: 0 0 14px;
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+.calculation-method summary {
+  width: max-content;
+  cursor: pointer;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+.calculation-method div { margin-top: 6px; }
 .table-wrap {
   overflow-x: auto;
   margin-top: 12px;
@@ -374,7 +395,7 @@ tr.current-divider td { border-bottom: 2px solid var(--accent); }
       "payment payment";
     gap: 5px 6px;
     padding: 10px 12px;
-    font-size: 0.78rem;
+    font-size: 0.875rem;
   }
   .change-entry .change-date { grid-area: date; }
   .change-entry .change-tag { grid-area: tag; justify-self: start; }
@@ -414,6 +435,8 @@ tr.current-divider td { border-bottom: 2px solid var(--accent); }
   td { padding: 7px 3px; }
   .status-badge { font-size: 0.58rem; padding: 1px 5px; }
   .section-desc { font-size: 0.72rem; }
+  .changes-method-intro,
+  .calculation-method { font-size: 0.8125rem; }
   .paid-progress .progress-text { font-size: 0.68rem; }
 }
 @media (max-width: 360px) {
@@ -536,8 +559,12 @@ tr.current-divider td { border-bottom: 2px solid var(--accent); }
     </div>
 
     <div class="card" id="changesCard" style="display:none">
-      <h2>月供变化记录</h2>
-      <div class="section-desc" id="changesMethod">每条金额＝假设没有本次事件、其他设置（含后续事件）不变时的总利息差 · 事件有联动，不可直接相加 · 同月顺序：调息 → 正常月供 → 提前还款 · 未计手续费、违约金及按日计息差异</div>
+      <h2>还款变化记录</h2>
+      <p class="changes-method-intro" id="changesMethod">逐条与“未发生本次事件”的方案对比；事件相互联动，各条金额不可直接相加。</p>
+      <details class="calculation-method">
+        <summary>计算口径</summary>
+        <div>计算单条事件时，保留其他设置及后续事件不变。同月按“调息 → 正常还款 → 提前还款”执行；重复调息以最后一条为准，多笔提前还款合并并采用最后一条策略。结果未计手续费、违约金及银行按日计息差异。</div>
+      </details>
       <div id="changesList" class="changes-list" role="list" aria-describedby="changesMethod"></div>
     </div>
 
@@ -776,10 +803,15 @@ function calcEqualInstallment(balance, monthlyRate, months) {
   return balance * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
 }
 
+function ceilMonths(value) {
+  const nearestInteger = Math.round(value);
+  return Math.abs(value - nearestInteger) < 1e-10 ? nearestInteger : Math.ceil(value);
+}
+
 function calcNewTerm(balance, monthlyRate, payment) {
-  if (monthlyRate === 0) return Math.ceil(balance / payment);
+  if (monthlyRate === 0) return ceilMonths(balance / payment);
   if (payment <= balance * monthlyRate) return Infinity;
-  return Math.ceil(-Math.log(1 - balance * monthlyRate / payment) / Math.log(1 + monthlyRate));
+  return ceilMonths(-Math.log(1 - balance * monthlyRate / payment) / Math.log(1 + monthlyRate));
 }
 
 function calculateSchedule(config, prepayments, rateChanges) {
@@ -790,6 +822,8 @@ function calculateSchedule(config, prepayments, rateChanges) {
   let remainingMonths = totalMonths;
   let currentPayment = method === 'equal_installment'
     ? calcEqualInstallment(balance, monthlyRate, remainingMonths) : 0;
+  let currentPrincipalPayment = method === 'equal_principal'
+    ? balance / remainingMonths : 0;
 
   const schedule = [];
   const changes = [];
@@ -829,7 +863,7 @@ function calculateSchedule(config, prepayments, rateChanges) {
       payment = Math.min(currentPayment, balance + interest);
       principal = payment - interest;
     } else {
-      principal = balance / remainingMonths;
+      principal = Math.min(currentPrincipalPayment, balance);
       payment = principal + interest;
     }
 
@@ -852,8 +886,7 @@ function calculateSchedule(config, prepayments, rateChanges) {
           if (method === 'equal_installment') {
             remainingMonths = calcNewTerm(balance, monthlyRate, currentPayment);
           } else {
-            const origPrincipalPerMonth = config.totalAmount / config.totalMonths;
-            remainingMonths = Math.ceil(balance / origPrincipalPerMonth);
+            remainingMonths = ceilMonths(balance / currentPrincipalPayment);
             if (remainingMonths <= 0) remainingMonths = 1;
           }
           changes.push({
@@ -868,6 +901,8 @@ function calculateSchedule(config, prepayments, rateChanges) {
         } else {
           if (method === 'equal_installment') {
             currentPayment = calcEqualInstallment(balance, monthlyRate, remainingMonths);
+          } else {
+            currentPrincipalPayment = balance / remainingMonths;
           }
           changes.push({
             monthIndex: month,
@@ -931,12 +966,12 @@ function calculateInterestImpacts(config, prepayments, rateChanges, changes, cur
 
 function renderInterestImpact(impact) {
   if (impact === 0) {
-    return '<span class="change-interest-impact neutral">本次利息基本不变</span>';
+    return '<span class="change-interest-impact neutral">预计总利息基本不变</span>';
   }
   const isSaving = impact > 0;
   const className = isSaving ? 'saving' : 'increase';
   const label = isSaving ? '少付' : '多付';
-  return `<span class="change-interest-impact ${className}">本次${label}利息 ${formatNum(Math.abs(impact))} 元</span>`;
+  return `<span class="change-interest-impact ${className}">预计${label}总利息 ${formatNum(Math.abs(impact))} 元</span>`;
 }
 
 function formatNum(n) {
